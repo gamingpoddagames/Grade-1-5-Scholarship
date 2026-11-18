@@ -5,7 +5,16 @@ on:
     paths:
       - 'school/voice_video.py'
       - '.github/workflows/voice-video.yml'
+  schedule:
+    # 04:05 UTC = 09:35 Asia/Colombo, after daily text post
+    - cron: '5 4 * * *'
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish narrated video to Facebook?
+        required: true
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -29,6 +38,13 @@ jobs:
         run: python school/build_resources.py --video-dir voice_output
       - name: Add free Sinhala narration
         run: python school/voice_video.py --video-dir voice_output
+      - name: Publish Sinhala narrated quiz to Facebook
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) || (github.event_name == 'push' && github.event.head_commit.message == 'Publish approved Sinhala voiced quiz video now')
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+        run: python school/facebook_video.py --video voice_output/grade5-quiz-voiced.mp4
       - uses: actions/upload-artifact@v4
         with:
           name: sinhala-voiced-quiz-mp4
