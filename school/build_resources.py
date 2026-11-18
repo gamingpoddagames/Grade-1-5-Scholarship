@@ -140,12 +140,13 @@ def draw_text(draw, xy, text, font, fill, width=900, spacing=14):
 
 def video(outdir, questions, day):
     from PIL import Image, ImageDraw, ImageFont, features
+    from brand_assets import latin_font
     if not features.check("raqm"):
         raise RuntimeError("Pillow RAQM shaping is required for Sinhala video")
     filtered = [q for q in questions if q["grade"] == 5]
     q = filtered[day.toordinal() % len(filtered)]
     outdir.mkdir(parents=True, exist_ok=True)
-    f32 = ImageFont.truetype(font_path(), 32, layout_engine=ImageFont.Layout.RAQM)
+    f32 = latin_font(32)
     f42 = ImageFont.truetype(font_path(), 42, layout_engine=ImageFont.Layout.RAQM)
     f48 = ImageFont.truetype(font_path(), 48, layout_engine=ImageFont.Layout.RAQM)
     f58 = ImageFont.truetype(font_path(), 58, layout_engine=ImageFont.Layout.RAQM)
