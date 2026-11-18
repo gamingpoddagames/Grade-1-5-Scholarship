@@ -6,6 +6,8 @@ on:
   push:
     paths:
       - 'school/daily_publisher.py'
+      - 'school/facebook_card.py'
+      - 'school/card-publish-request-*.txt'
       - 'school/questions.json'
       - 'school/publish-request-*.txt'
       - 'school/video-publish-request-*.txt'
@@ -31,6 +33,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Sinhala card image renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core
+          python -m pip install 'Pillow>=11,<13'
       - name: Check Facebook configuration (without revealing secrets)
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -41,7 +48,9 @@ jobs:
           else
             echo "::warning::Facebook Page ID or token is missing; daily Facebook publishing will be skipped."
           fi
-      - name: Generate original practice question and optionally publish
+      - name: Generate original practice question
+        run: python school/daily_publisher.py
+      - name: Build Sinhala branded Facebook question card and optionally publish
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
@@ -50,10 +59,10 @@ jobs:
           MANUAL_PUBLISH: ${{ inputs.publish }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          if [[ "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" || ( "$RUN_EVENT" == "push" && "$COMMIT_MESSAGE" == "Post approved Sinhala quiz to Facebook now" ) ]]; then
-            python school/daily_publisher.py --publish
+          if [[ "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" || ( "$RUN_EVENT" == "push" && "$COMMIT_MESSAGE" == "Publish approved branded Sinhala question card now" ) ]]; then
+            python school/facebook_card.py --question school/output/question.json --output school/output/facebook_card.png --caption school/output/facebook_post.txt --publish
           else
-            python school/daily_publisher.py
+            python school/facebook_card.py --question school/output/question.json --output school/output/facebook_card.png --caption school/output/facebook_post.txt
           fi
       - uses: actions/upload-artifact@v4
         with:
