@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 
-from brand_assets import font,logo
+from brand_assets import font,latin_font,logo
 from page_branding_upload import multipart
 
 def wrap(draw,text,face,max_width):
@@ -37,7 +37,7 @@ def create_card(question,target):
     brand=logo(220).resize((158,158))
     canvas.paste(brand,(88,104))
     d.text((280,105),"පුංචි නැණ මඟ",font=font(58,True),fill="white",language="si")
-    d.text((284,210),"Grade 1–5 & Scholarship",font=font(32),fill="#ccecf4")
+    d.text((284,210),"Grade 1–5 & Scholarship",font=latin_font(32),fill="#ccecf4")
     d.rounded_rectangle((93,382,987,1140),radius=32,fill="#f4f9ff")
     d.text((139,421),f"{question['grade']} ශ්‍රේණිය - {question['topic']}",font=font(35,True),fill="#0f7774",language="si")
     y=line(d,question["q"],140,522,font(58,True),"#173453",800,89)+40
