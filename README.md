@@ -8,10 +8,10 @@
 - 10 printable/downloadable PDF files: one practice paper and one separate answer key for each grade
 - Dedicated SEO-friendly grade pages and sitemap
 - Deterministic original question generation using Python rules, without an AI API
-- Daily Sinhala Facebook text publishing at 08:47 Asia/Colombo via GitHub Actions (when valid Page token is set)
-- Grade 5 silent quiz MP4 generated daily with Sinhala Unicode text (Pillow RAQM + Noto Sinhala), downloadable as an Actions artifact.
-- Facebook video uploading via the Meta Page Video API is enabled for scheduled runs and approved manual runs; an immediate test returned video ID `1169481172478626`.
-- A playable/downloadable silent quiz video is included on the public website after each Pages deployment.
+- Daily Sinhala **branded image-card** publishing at 08:47 Asia/Colombo via GitHub Actions (when valid Page token is set). Card text uses Pillow RAQM and Noto Sinhala to avoid desktop Facebook font shaping problems.
+- Grade 5 Sinhala quiz MP4 generated daily with Unicode text and original narration from the MIT-licensed UNICEF Piper Sinhala TTS model (Pillow RAQM + Noto Sinhala).
+- Sinhala narrated quiz video uploading via the Meta Page Video API is scheduled at 09:35 Asia/Colombo, after the question card. Verified one-off upload returned video ID `1506927227970103`. Silent videos remain as a local backup only.
+- A voiced, playable/downloadable quiz video is included on the website; the silent version remains as a fallback if the free TTS download fails.\n- Site logo, favicon, cover/banner and Facebook social preview are generated from original school branding code without paid AI APIs.\n- Facebook Page logo and cover image uploads were confirmed via API, but Meta rejected the direct profile/cover appearance update with HTTP 400; these settings require manual Page-level permissions or UI action.
 
 ## Links
 - PDFs: https://gamingpoddagames.github.io/Grade-1-5-Scholarship/downloads/grade-5-paper.pdf
@@ -34,6 +34,6 @@ Use original educational content and useful teacher/parent explanations to earn 
 
 ## Pending enhancements
 - Better curriculum coverage and professionally reviewed scholarship papers
-- Sinhala narration (video publishing is now implemented and tested)
+- Further curriculum-specific question review, diversity and voice pronunciation QA
 - Automated analytics/Search Console reporting
 - AdSense after website quality and policy review
