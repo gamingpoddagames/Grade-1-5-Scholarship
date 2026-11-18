@@ -121,7 +121,7 @@ def math_questions(grade):
             else:q,ans=f"{a} + {b} = කීයද?",a+b
             expl=f"එකතු කිරීම හෝ අඩු කිරීමෙන් {ans} ලැබේ."
         elif grade==3:
-            a,b=3+i%9,2+(i*3)%9
+            a,b=3+i%9,2+(i//9)*3+(i%3)
             if i%4==0:q,ans=f"{a*b} ÷ {b} = කීයද?",a
             else:q,ans=f"{a} × {b} = කීයද?",a*b
             expl=f"ගුණ කිරීම හෝ බෙදීමේ සම්බන්ධයෙන් පිළිතුර {ans}යි."
@@ -133,14 +133,15 @@ def math_questions(grade):
         else:
             a,b=25+i*10,2+i%6
             if i%4==0:
-                q,ans=f"අනුපිළිවෙළ 3, 6, 12, 24 අනුව ඊළඟ සංඛ්‍යාව කුමක්ද?",48
+                start=2+i//4
+                q,ans=f"අනුපිළිවෙළ {start}, {start*2}, {start*4}, {start*8} අනුව ඊළඟ සංඛ්‍යාව කුමක්ද?",start*16
             elif i%3==0:
                 q,ans=f"රු. {a*b}ක මුදලක් ළමයින් {b} දෙනෙකුට සමව බෙදූ විට එක් අයෙකුට ලැබෙන්නේ කීයද?",a
             else:q,ans=f"රු. {a} බැගින් පොත් {b}ක මිල කීයද?",a*b
             expl=f"රටාව හෝ ගණනය භාවිතයෙන් පිළිතුර {ans}යි."
         wrong=[ans+1,ans+3,ans+5]
         if grade==5 and i%4==0:
-            wrong=[36,42,54]
+            wrong=[ans-2,ans+2,ans+8]
         result.append(entry(grade,"math",q,ans,wrong,expl,i))
     return result
 def get_questions():
