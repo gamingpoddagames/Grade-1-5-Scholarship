@@ -37,8 +37,8 @@ jobs:
       - name: Copy owner-provided school hero banner
         run: |
           mkdir -p _site/assets
-          cp assets/user-supplied-banner.webp _site/assets/user-supplied-banner.webp
-          test -s _site/assets/user-supplied-banner.webp
+          cp assets/school-hero-hd.webp _site/assets/school-hero-hd.webp
+          test -s _site/assets/school-hero-hd.webp
       - name: Build downloadable PDF papers
         run: python school/build_resources.py --pdf-dir _site/downloads --site-dir _site
       - name: Generate parent guides and site policies
