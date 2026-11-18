@@ -1,0 +1,41 @@
+name: Publish Scholarship Website
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'school/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: scholarship-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Prepare site and sitemap
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+          printf '%s\n' 'User-agent: *' 'Allow: /' > _site/robots.txt
+          cat > _site/sitemap.xml <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/</loc></url>
+          </urlset>
+          EOF
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
