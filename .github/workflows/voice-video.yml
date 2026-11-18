@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'school/voice_video.py'
+      - 'school/voice-publish-request-*.txt'
       - '.github/workflows/voice-video.yml'
   schedule:
     # 04:05 UTC = 09:35 Asia/Colombo, after daily text post
