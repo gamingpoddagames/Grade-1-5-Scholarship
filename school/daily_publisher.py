@@ -10,13 +10,14 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import unicodedata
+from build_resources import all_questions
 
 BASE = pathlib.Path(__file__).resolve().parent
 BANK = BASE / "questions.json"
 SITE = "https://gamingpoddagames.github.io/Grade-1-5-Scholarship/"
 
 def make_content(day, output_dir):
-    questions = json.loads(BANK.read_text(encoding="utf-8"))
+    questions = all_questions()
     if not questions:
         raise ValueError("Question bank empty")
     index = (day - dt.date(2026, 11, 18)).days % len(questions)
