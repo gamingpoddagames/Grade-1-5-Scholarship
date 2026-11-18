@@ -31,6 +31,8 @@ jobs:
           sudo apt-get install -y fonts-noto-core
           python -m pip install 'weasyprint>=62,<69' 'Pillow>=11,<13'
           if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get install -y ffmpeg; fi
+      - name: Render Sinhala logo, cover and favicon
+        run: python school/brand_assets.py --output _site/assets
       - name: Build downloadable PDF papers
         run: python school/build_resources.py --pdf-dir _site/downloads --site-dir _site
       - name: Generate parent guides and site policies
