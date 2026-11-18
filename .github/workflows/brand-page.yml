@@ -1,0 +1,37 @@
+name: Apply School Facebook Branding
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'school/brand-request-*.txt'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  update-facebook-brand:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Apply approved school Facebook branding now'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Sinhala graphics dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core
+          python -m pip install 'Pillow>=11,<13'
+      - name: Generate brand pictures
+        run: python school/brand_assets.py --output brand_output
+      - name: Update Facebook Page branding (one-time approved)
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+        run: python school/page_branding_upload.py --logo brand_output/logo.png --cover brand_output/cover.jpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: school-facebook-logo-and-cover
+          path: brand_output/
+          retention-days: 30
