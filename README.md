@@ -9,7 +9,9 @@
 - Dedicated SEO-friendly grade pages and sitemap
 - Deterministic original question generation using Python rules, without an AI API
 - Daily Sinhala Facebook text publishing at 08:47 Asia/Colombo via GitHub Actions (when valid Page token is set)
-- Daily Grade 5 quiz-video MP4 renderer added; see the Actions artifact after the video job completes. The video is silent and is **not** automatically published to Facebook yet.
+- Grade 5 silent quiz MP4 generated daily with Sinhala Unicode text (Pillow RAQM + Noto Sinhala), downloadable as an Actions artifact.
+- Facebook video uploading via the Meta Page Video API is enabled for scheduled runs and approved manual runs; an immediate test returned video ID `1169481172478626`.
+- A playable/downloadable silent quiz video is included on the public website after each Pages deployment.
 
 ## Links
 - PDFs: https://gamingpoddagames.github.io/Grade-1-5-Scholarship/downloads/grade-5-paper.pdf
@@ -32,6 +34,6 @@ Use original educational content and useful teacher/parent explanations to earn 
 
 ## Pending enhancements
 - Better curriculum coverage and professionally reviewed scholarship papers
-- Sinhala narration and automated video publishing
+- Sinhala narration (video publishing is now implemented and tested)
 - Automated analytics/Search Console reporting
 - AdSense after website quality and policy review
