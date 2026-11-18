@@ -1,0 +1,23 @@
+name: Validate Primary Curriculum Practice
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'school/curriculum_bank.py'
+      - 'school/curriculum_pages.py'
+      - 'school/validate_curriculum.py'
+      - '.github/workflows/curriculum-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  question-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m py_compile school/curriculum_bank.py school/curriculum_pages.py school/validate_curriculum.py
+      - run: python school/validate_curriculum.py
