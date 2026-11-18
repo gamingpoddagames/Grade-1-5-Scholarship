@@ -41,6 +41,14 @@ jobs:
           test -s _site/assets/school-hero-hd.webp
       - name: Build downloadable PDF papers
         run: python school/build_resources.py --pdf-dir _site/downloads --site-dir _site
+      - name: Validate grade and subject question bank
+        run: |
+          python -m py_compile school/curriculum_bank.py school/curriculum_pages.py school/validate_curriculum.py
+          python school/validate_curriculum.py
+      - name: Build subject papers and interactive quizzes
+        run: python school/curriculum_pages.py --pdf-dir _site/downloads --site-dir _site
+      - name: Verify generated quizzes and subject PDFs
+        run: python school/validate_curriculum.py --site-dir _site
       - name: Generate parent guides and site policies
         run: python school/site_extras.py _site
       - name: Publish sample Grade 5 quiz video
@@ -76,6 +84,21 @@ jobs:
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/about/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/privacy/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/terms/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-1/math/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-1/sinhala/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-1/environment/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-2/math/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-2/sinhala/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-2/environment/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-3/math/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-3/sinhala/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-3/environment/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-4/math/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-4/sinhala/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-4/environment/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-5/math/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-5/sinhala/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-5/environment/</loc></url>
           </urlset>
           EOF
       - uses: actions/upload-pages-artifact@v3
