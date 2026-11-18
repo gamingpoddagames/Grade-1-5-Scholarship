@@ -19,8 +19,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: school-daily-content
-  cancel-in-progress: false
+  group: school-daily-content-v2
+  cancel-in-progress: true
 jobs:
   generate-and-publish:
     runs-on: ubuntu-latest
