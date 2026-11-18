@@ -18,7 +18,8 @@ def multipart(url, fields, image=None):
         payload.extend(f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode())
     if image is not None:
         file=Path(image)
-        payload.extend(f'--{boundary}\r\nContent-Disposition: form-data; name="source"; filename="{file.name}"\r\nContent-Type: image/png\r\n\r\n'.encode())
+        mime="image/jpeg" if file.suffix.lower() in (".jpg",".jpeg") else "image/png"
+        payload.extend(f'--{boundary}\r\nContent-Disposition: form-data; name="source"; filename="{file.name}"\r\nContent-Type: {mime}\r\n\r\n'.encode())
         payload.extend(file.read_bytes())
         payload.extend(b'\r\n')
     payload.extend(f'--{boundary}--\r\n'.encode())
