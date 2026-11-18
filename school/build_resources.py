@@ -8,8 +8,6 @@ import pathlib
 import random
 import subprocess
 
-from weasyprint import HTML
-from PIL import Image, ImageDraw, ImageFont, features
 
 HERE = pathlib.Path(__file__).resolve().parent
 FONT = pathlib.Path("/usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf")
@@ -73,6 +71,7 @@ h2 {font-size:14px;}
 """
 
 def write_pdfs(folder, questions):
+    from weasyprint import HTML
     folder.mkdir(parents=True, exist_ok=True)
     for grade in range(1,6):
         rows = [q for q in questions if q["grade"] == grade][:25]
@@ -140,12 +139,14 @@ def draw_text(draw, xy, text, font, fill, width=900, spacing=14):
     return y
 
 def video(outdir, questions, day):
+    from PIL import Image, ImageDraw, ImageFont, features
     if not features.check("raqm"):
         raise RuntimeError("Pillow RAQM shaping is required for Sinhala video")
     filtered = [q for q in questions if q["grade"] == 5]
     q = filtered[day.toordinal() % len(filtered)]
     outdir.mkdir(parents=True, exist_ok=True)
-    f32 = ImageFont.truetype(font_path(), 42, layout_engine=ImageFont.Layout.RAQM)
+    f32 = ImageFont.truetype(font_path(), 32, layout_engine=ImageFont.Layout.RAQM)
+    f42 = ImageFont.truetype(font_path(), 42, layout_engine=ImageFont.Layout.RAQM)
     f48 = ImageFont.truetype(font_path(), 48, layout_engine=ImageFont.Layout.RAQM)
     f58 = ImageFont.truetype(font_path(), 58, layout_engine=ImageFont.Layout.RAQM)
     sequence=[]
