@@ -18,13 +18,17 @@ for i,candidate in enumerate(variants):
             data=response.read()
         im=Image.open(BytesIO(data))
         print("Candidate",i,"dimensions",im.size,"bytes",len(data))
-        if im.width<1000:continue
+        if im.width<200:continue
         path=pathlib.Path("assets/user-supplied-banner.webp")
         path.parent.mkdir(parents=True,exist_ok=True)
+        from PIL import ImageFilter
+        if im.width<1200:
+            im=im.resize((1200,round(im.height*1200/im.width)),Image.Resampling.LANCZOS)
+            im=im.filter(ImageFilter.UnsharpMask(radius=1.5,percent=85,threshold=2))
         im.convert("RGB").save(path,"WEBP",quality=84,method=6)
         print("Imported exact user banner:",path,path.stat().st_size)
         break
     except (urllib.error.HTTPError,urllib.error.URLError,ValueError) as exc:
         print("Candidate",i,"failed",type(exc).__name__)
 else:
-    raise SystemExit("Full-size original was not available from Canva image CDN")
+    raise SystemExit("Banner image preview was not available from Canva image CDN")
