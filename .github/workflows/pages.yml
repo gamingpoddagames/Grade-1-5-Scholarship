@@ -33,6 +33,8 @@ jobs:
           if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get install -y ffmpeg; fi
       - name: Build downloadable PDF papers
         run: python school/build_resources.py --pdf-dir _site/downloads --site-dir _site
+      - name: Generate parent guides and site policies
+        run: python school/site_extras.py _site
       - name: Publish sample Grade 5 quiz video
         run: |
           python school/build_resources.py --video-dir _site/videos
@@ -52,6 +54,12 @@ jobs:
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-3/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-4/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-5/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/how-to-use-papers/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-5-study-plan/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-1-4-maths-basics/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/about/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/privacy/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/terms/</loc></url>
           </urlset>
           EOF
       - uses: actions/upload-pages-artifact@v3
