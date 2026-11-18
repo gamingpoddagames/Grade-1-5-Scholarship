@@ -24,19 +24,12 @@ concurrency:
 jobs:
   generate-and-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install Sinhala video renderer
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y fonts-noto-core ffmpeg
-          python -m pip install 'Pillow>=11,<13' 'weasyprint>=62,<69'
-      - name: Render original silent scholarship quiz video
-        run: python school/build_resources.py --video-dir school/output/video
       - name: Check Facebook configuration (without revealing secrets)
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -65,4 +58,25 @@ jobs:
         with:
           name: school-daily-content
           path: school/output/
+          retention-days: 30
+  render-quiz-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install video dependencies
+        run: |
+          python -m pip install 'Pillow>=11,<13'
+          if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get install -y ffmpeg; fi
+          if ! test -f /usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf; then sudo apt-get install -y fonts-noto-core; fi
+          fc-cache -f
+      - name: Render Sinhala scholarship video
+        run: python school/build_resources.py --video-dir school/output/video
+      - uses: actions/upload-artifact@v4
+        with:
+          name: grade5-quiz-mp4
+          path: school/output/video/grade5-quiz.mp4
           retention-days: 30
