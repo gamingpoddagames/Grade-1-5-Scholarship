@@ -24,16 +24,24 @@ def make_content(day, output_dir):
     # Keep Sinhala text in standard Unicode NFC form.
     item = {key: (unicodedata.normalize("NFC", value) if isinstance(value, str) else [unicodedata.normalize("NFC", v) for v in value] if isinstance(value, list) else value) for key, value in item.items()}
     correct = item["choices"][item["answer"]]
-    title = f"📚 පුංචි නැණ මඟ | {item['grade']} ශ්‍රේණිය | {item['topic']}"
+    # Plain Sinhala Facebook copy: avoid emoji/font fallback at the start of a line.
+    title = f"පුංචි නැණ මඟ - {item['grade']} ශ්‍රේණිය - {item['topic']}"
     message = "\n".join([
-        title, "",
-        "📝 අද ප්‍රශ්නය:", item["q"], "",
-        *[f"{chr(65 + i)}. {choice}" for i, choice in enumerate(item["choices"])],
-        "", "💡 දරුවා සමඟ පිළිතුර සාකච්ඡා කරන්න.",
-        f"✅ නිවැරදි පිළිතුර: {chr(65+item['answer'])}. {correct}",
-        f"📖 පැහැදිලි කිරීම: {item['explanation']}",
-        "", f"🔗 නොමිලේ Printable Papers + Quiz: {SITE}",
-        "", "#පුංචිනැණමඟ #SinhalaEducation #Grade5Scholarship"
+        title,
+        "",
+        "අද පුහුණු ප්‍රශ්නය",
+        item["q"],
+        "",
+        *[f"{chr(65 + i)}) {choice}" for i, choice in enumerate(item["choices"])],
+        "",
+        "දරුවාට මුලින් පිළිතුර තෝරාගැනීමට අවස්ථාව දෙන්න.",
+        "",
+        f"නිවැරදි පිළිතුර: {chr(65 + item['answer'])}) {correct}",
+        f"පැහැදිලි කිරීම: {item['explanation']}",
+        "",
+        f"නොමිලේ ප්‍රශ්න පත්‍ර සහ පිළිතුරු: {SITE}",
+        "",
+        "#Grade5Scholarship #SinhalaEducation"
     ])
     message = unicodedata.normalize("NFC", message)
     if "\ufffd" in message:
@@ -65,6 +73,22 @@ def publish(message, page_id, token, version="v27.0"):
     if not result.get("id"):
         raise RuntimeError("Facebook did not return a post ID")
     print("Facebook post published:", result["id"])
+    # Compare the text returned by Graph API with the original UTF-8 payload.
+    # Read-back may be unavailable for some Page tokens; posting must not fail for that reason.
+    try:
+        query = urllib.parse.urlencode({"fields": "message", "access_token": token})
+        url = f"https://graph.facebook.com/{version}/{result['id']}?{query}"
+        with urllib.request.urlopen(url, timeout=20) as response:
+            saved = json.load(response).get("message")
+        if saved is None:
+            print("Facebook text verification: message field unavailable.")
+        elif unicodedata.normalize("NFC", saved) == unicodedata.normalize("NFC", message):
+            print("Facebook text verification: Unicode text matches exactly.")
+        else:
+            print("Facebook text verification: returned text differs from sent message.")
+    except (urllib.error.URLError, ValueError, KeyError):
+        print("Facebook text verification: not available with this Page token.")
+
 
 def main():
     parser = argparse.ArgumentParser()
