@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y fonts-noto-core
-          python -m pip install 'weasyprint>=62,<69' 'Pillow>=11,<13'
+          python -m pip install 'weasyprint>=62,<69' 'Pillow>=11,<13' 'piper-tts>=1.3,<2'
           if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get install -y ffmpeg; fi
       - name: Render Sinhala logo, cover and favicon
         run: python school/brand_assets.py --output _site/assets
@@ -41,6 +41,14 @@ jobs:
         run: |
           python school/build_resources.py --video-dir _site/videos
           test -s _site/videos/grade5-quiz.mp4
+      - name: Add narrated Sinhala audio for website (keep silent fallback)
+        run: |
+          if python school/voice_video.py --video-dir _site/videos; then
+            cp _site/videos/grade5-quiz-voiced.mp4 _site/videos/grade5-quiz.mp4
+            echo 'Sinhala voiced video set as website default'
+          else
+            echo 'Warning: narration unavailable; publishing existing silent video'
+          fi
       - uses: actions/configure-pages@v5
       - name: Prepare site and sitemap
         run: |
