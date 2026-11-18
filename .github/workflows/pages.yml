@@ -31,7 +31,7 @@ jobs:
           sudo apt-get install -y fonts-noto-core
           python -m pip install 'weasyprint>=62,<69' 'Pillow>=11,<13'
       - name: Build downloadable PDF papers
-        run: python school/build_resources.py --pdf-dir _site/downloads
+        run: python school/build_resources.py --pdf-dir _site/downloads --site-dir _site
       - uses: actions/configure-pages@v5
       - name: Prepare site and sitemap
         run: |
@@ -42,6 +42,11 @@ jobs:
           <?xml version="1.0" encoding="UTF-8"?>
           <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-1/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-2/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-3/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-4/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/grade-5/</loc></url>
           </urlset>
           EOF
       - uses: actions/upload-pages-artifact@v3
