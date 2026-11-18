@@ -75,6 +75,13 @@ jobs:
           fc-cache -f
       - name: Render Sinhala scholarship video
         run: python school/build_resources.py --video-dir school/output/video
+      - name: Publish educational video to Facebook on scheduled or approved manual runs
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+        run: python school/facebook_video.py --video school/output/video/grade5-quiz.mp4
       - uses: actions/upload-artifact@v4
         with:
           name: grade5-quiz-mp4
