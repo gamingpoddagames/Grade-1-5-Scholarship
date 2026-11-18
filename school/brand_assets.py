@@ -9,6 +9,8 @@ from PIL import Image, ImageDraw, ImageFont, features
 
 FONT="/usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf"
 BOLD="/usr/share/fonts/truetype/noto/NotoSansSinhala-Bold.ttf"
+LATIN="/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+LATIN_BOLD="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 NAME="පුංචි නැණ මඟ"
 SUBTITLE="Grade 1–5 & Scholarship"
 
@@ -21,6 +23,13 @@ def font(size,bold=False):
     if not candidate.is_file():
         raise RuntimeError("Noto Sans Sinhala font not installed")
     return ImageFont.truetype(str(candidate),size,layout_engine=ImageFont.Layout.RAQM)
+
+def latin_font(size,bold=False):
+    """DejaVu Sans covers English letters and symbols absent from Sinhala-only font."""
+    path=Path(LATIN_BOLD if bold else LATIN)
+    if not path.is_file():
+        raise RuntimeError("DejaVu Latin font missing: install fonts-dejavu-core")
+    return ImageFont.truetype(str(path),size,layout_engine=ImageFont.Layout.RAQM)
 
 def center(draw,y,message,typeface,color,canvas_width):
     box=draw.textbbox((0,0),message,font=typeface,language="si")
@@ -55,7 +64,7 @@ def logo(size=900):
     book(d,size/2,int(340*s),1.23*s)
     center(d,int(570*s),NAME,font(int(61*s),True),"#08376b",size)
     d.rounded_rectangle((int(110*s),int(687*s),int(790*s),int(754*s)),radius=int(30*s),fill="#0a817f")
-    center(d,int(695*s),SUBTITLE,font(int(26*s),True),"#ffffff",size)
+    center(d,int(695*s),SUBTITLE,latin_font(max(12,int(26*s)),True),"#ffffff",size)
     d.arc((int(120*s),int(770*s),int(780*s),int(900*s)),180,360,fill="#8fc944",width=max(5,int(22*s)))
     return canvas
 
@@ -79,8 +88,8 @@ def cover(width=1640,height=624):
     d.rounded_rectangle((455,140,1540,515),radius=44,fill="#093f78")
     d.rounded_rectangle((475,164,1518,492),radius=33,outline="#2ce0bb",width=4)
     d.text((525,204),NAME,fill="#ffffff",font=font(91,True),language="si")
-    d.text((530,348),SUBTITLE,fill="#ffda62",font=font(54,True),language="si")
-    d.text((525,431),"Free Papers  •  Answers  •  Quiz Videos",fill="#e6faff",font=font(27),language="si")
+    d.text((530,348),SUBTITLE,fill="#ffda62",font=latin_font(54,True),language="en")
+    d.text((525,431),"Free Papers  •  Answers  •  Quiz Videos",fill="#e6faff",font=latin_font(27),language="en")
     return im
 
 def main():
