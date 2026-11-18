@@ -139,7 +139,7 @@ def video(outdir, questions, day):
         sequence.append((frame,duration))
     manifest=outdir / "frames.txt"
     manifest.write_text("".join(f"file '{p.name}'\nduration {duration}\n" for p,duration in sequence) + f"file '{sequence[-1][0].name}'\n",encoding="utf-8")
-    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",str(manifest),"-vf","fps=24,format=yuv420p","-movflags","+faststart","-c:v","libx264","-preset","veryfast",str(outdir/"grade5-quiz.mp4")],cwd=outdir,check=True)
+    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",manifest.name,"-vf","fps=24,format=yuv420p","-movflags","+faststart","-c:v","libx264","-preset","veryfast","grade5-quiz.mp4"],cwd=outdir,check=True)
     print("Built grade5-quiz.mp4 (silent, 9 seconds)")
 
 def main():
