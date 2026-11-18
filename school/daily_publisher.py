@@ -9,6 +9,7 @@ import pathlib
 import urllib.error
 import urllib.parse
 import urllib.request
+import unicodedata
 
 BASE = pathlib.Path(__file__).resolve().parent
 BANK = BASE / "questions.json"
@@ -20,6 +21,8 @@ def make_content(day, output_dir):
         raise ValueError("Question bank empty")
     index = (day - dt.date(2026, 11, 18)).days % len(questions)
     item = questions[index]
+    # Keep Sinhala text in standard Unicode NFC form.
+    item = {key: (unicodedata.normalize("NFC", value) if isinstance(value, str) else [unicodedata.normalize("NFC", v) for v in value] if isinstance(value, list) else value) for key, value in item.items()}
     correct = item["choices"][item["answer"]]
     title = f"📚 පුංචි නැණ මඟ | {item['grade']} ශ්‍රේණිය | {item['topic']}"
     message = "\n".join([
@@ -32,12 +35,16 @@ def make_content(day, output_dir):
         "", f"🔗 නොමිලේ Printable Papers + Quiz: {SITE}",
         "", "#පුංචිනැණමඟ #SinhalaEducation #Grade5Scholarship"
     ])
+    message = unicodedata.normalize("NFC", message)
+    if "\\ufffd" in message:
+        raise ValueError("Invalid replacement character in Sinhala content")
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "facebook_post.txt").write_text(message, encoding="utf-8")
     (output_dir / "question.json").write_text(json.dumps(item, ensure_ascii=False, indent=2), encoding="utf-8")
     paper = (f"<!doctype html><html lang='si'><meta charset='utf-8'>"
              f"<title>{html.escape(title)}</title>"
-             "<style>body{font-family:'Noto Sans Sinhala',sans-serif;max-width:760px;margin:40px auto;line-height:2}h1{font-size:24px}.answer{break-before:page}</style>"
+             "<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700&display=swap'>"
+             "<style>body{font-family:'Noto Sans Sinhala','Iskoola Pota','Nirmala UI',sans-serif;max-width:760px;margin:40px auto;line-height:2}h1{font-size:24px}.answer{break-before:page}</style>"
              f"<h1>{html.escape(title)}</h1><p>දිනය: {day.isoformat()}</p>"
              f"<h2>{html.escape(item['q'])}</h2>"
              + "".join(f"<p>{chr(65+i)}. {html.escape(c)}</p>" for i,c in enumerate(item["choices"]))
