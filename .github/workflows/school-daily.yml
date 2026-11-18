@@ -7,6 +7,7 @@ on:
     paths:
       - 'school/daily_publisher.py'
       - 'school/questions.json'
+      - 'school/publish-request-*.txt'
       - '.github/workflows/school-daily.yml'
   workflow_dispatch:
     inputs:
@@ -46,8 +47,9 @@ jobs:
           FB_GRAPH_VERSION: v27.0
           RUN_EVENT: ${{ github.event_name }}
           MANUAL_PUBLISH: ${{ inputs.publish }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          if [[ "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" ]]; then
+          if [[ "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" || ( "$RUN_EVENT" == "push" && "$COMMIT_MESSAGE" == "Post approved Sinhala quiz to Facebook now" ) ]]; then
             python school/daily_publisher.py --publish
           else
             python school/daily_publisher.py
