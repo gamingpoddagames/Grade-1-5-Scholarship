@@ -8,6 +8,7 @@ on:
       - 'school/daily_publisher.py'
       - 'school/questions.json'
       - 'school/publish-request-*.txt'
+      - 'school/video-publish-request-*.txt'
       - '.github/workflows/school-daily.yml'
   workflow_dispatch:
     inputs:
@@ -76,7 +77,7 @@ jobs:
       - name: Render Sinhala scholarship video
         run: python school/build_resources.py --video-dir school/output/video
       - name: Publish educational video to Facebook on scheduled or approved manual runs
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) || (github.event_name == 'push' && github.event.head_commit.message == 'Publish approved Grade 5 quiz video now')
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
