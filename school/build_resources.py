@@ -91,6 +91,36 @@ def write_pdfs(folder, questions):
             HTML(string=page, base_url=str(HERE)).write_pdf(folder / name)
             print("Built", name)
 
+
+def grade_pages(site_root, questions):
+    """Indexable standalone grade pages with original questions and answer references."""
+    for grade in range(1, 6):
+        rows = [q for q in questions if q["grade"] == grade][:25]
+        blocks=[]
+        for ix,q in enumerate(rows,1):
+            options="".join(f"<li>{chr(65+j)}) {html.escape(str(choice))}</li>" for j,choice in enumerate(q["choices"]))
+            blocks.append(f"<section><h2>{ix}. {html.escape(q['q'])}</h2><ol class='options'>{options}</ol>"
+                          f"<details><summary>පිළිතුර බලන්න</summary><p>{html.escape(str(q['choices'][q['answer']]))} — {html.escape(q['explanation'])}</p></details></section>")
+        slug=f"grade-{grade}"
+        title=f"{grade} ශ්‍රේණිය නොමිලේ ප්‍රශ්න පත්‍ර හා පිළිතුරු"
+        page=(
+          "<!doctype html><html lang='si'><head><meta charset='utf-8'>"
+          "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+          f"<title>{title} | පුංචි නැණ මඟ</title>"
+          f"<meta name='description' content='{title}. ආදර්ශ ගණිත ප්‍රශ්න, නිවැරදි පිළිතුරු සහ PDF download.'>"
+          f"<link rel='canonical' href='{SITE}{slug}/'>"
+          "<link href='https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700&display=swap' rel='stylesheet'>"
+          "<style>body{font-family:'Noto Sans Sinhala',sans-serif;line-height:1.85;max-width:900px;margin:0 auto;padding:25px;background:#f4f8fc;color:#143050}header,section{background:white;padding:20px;border-radius:12px;margin:15px 0}section{break-inside:avoid}a{color:#126ba0}.options{padding-left:35px}summary{cursor:pointer}</style>"
+          "</head><body><header><p><a href='../'>මුල් පිටුව</a></p>"
+          f"<h1>{title}</h1><p>මෙම ගණිත අභ්‍යාස ස්වාධීනව නිර්මාණය කර ඇත. නිල විභාග පත්‍ර නොවේ.</p>"
+          f"<p><a href='../downloads/{slug}-paper.pdf'>ප්‍රශ්න පත්‍රය PDF</a> · <a href='../downloads/{slug}-answers.pdf'>පිළිතුරු පත්‍රය PDF</a></p>"
+          "</header>" + "".join(blocks) + "</body></html>"
+        )
+        target=site_root / slug
+        target.mkdir(parents=True,exist_ok=True)
+        (target/"index.html").write_text(page,encoding="utf-8")
+        print("Built SEO page",slug)
+
 def draw_text(draw, xy, text, font, fill, width=900, spacing=14):
     # draw multiline strings with real Sinhala glyph shaping (Pillow RAQM).
     words = str(text).split(" ")
@@ -146,9 +176,11 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--pdf-dir")
     p.add_argument("--video-dir")
+    p.add_argument("--site-dir")
     args=p.parse_args()
     questions=all_questions()
     if args.pdf_dir: write_pdfs(pathlib.Path(args.pdf_dir), questions)
+    if args.site_dir: grade_pages(pathlib.Path(args.site_dir), questions)
     if args.video_dir: video(pathlib.Path(args.video_dir),questions,dt.datetime.now(dt.timezone.utc).date())
 
 if __name__=="__main__": main()
