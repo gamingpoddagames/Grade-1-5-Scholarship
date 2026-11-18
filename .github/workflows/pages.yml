@@ -12,8 +12,8 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: scholarship-pages
-  cancel-in-progress: false
+  group: scholarship-pages-v2
+  cancel-in-progress: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
