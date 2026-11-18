@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/import-banner-once.yml'
+      - 'school/import_user_banner.py'
   workflow_dispatch:
 permissions:
   contents: write
