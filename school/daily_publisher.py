@@ -36,7 +36,7 @@ def make_content(day, output_dir):
         "", "#පුංචිනැණමඟ #SinhalaEducation #Grade5Scholarship"
     ])
     message = unicodedata.normalize("NFC", message)
-    if "\\ufffd" in message:
+    if "\ufffd" in message:
         raise ValueError("Invalid replacement character in Sinhala content")
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "facebook_post.txt").write_text(message, encoding="utf-8")
