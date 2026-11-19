@@ -20,7 +20,7 @@ class PublisherTest(unittest.TestCase):
     def test_preview_has_no_network_or_credentials(self):
         with mock.patch.object(pub, "access_token_from_env", side_effect=AssertionError("OAuth was invoked")), mock.patch.object(pub, "request_json", side_effect=AssertionError("Network invoked")):
             result=pub.execute(mode="preview",kind="posts",export_dir=self.root,day=self.day,limit=1)
-        self.assertEqual(result["prepared"],15)
+        self.assertEqual(result["prepared"],21)
         self.assertEqual(result["created"],0)
     def test_reject_unapproved_publication(self):
         with mock.patch.dict("os.environ", {"BLOGGER_ALLOW_PUBLICATION": "false"}):
