@@ -121,12 +121,15 @@ def grade_pages(site_root, questions):
         print("Built SEO page",slug)
 
 def draw_text(draw, xy, text, font, fill, width=900, spacing=14):
-    # draw multiline strings with real Sinhala glyph shaping (Pillow RAQM).
+    # Draw Sinhala with RAQM; split out Latin/numeric/punctuation into a font with glyph coverage.
+    from font_safety import mixed_width, draw_mixed
+    latin_only = 'Sinhala' not in str(getattr(font,'path',''))
     words = str(text).split(" ")
     lines, line = [], ""
     for word in words:
         candidate = (line + " " + word).strip()
-        if draw.textbbox((0,0), candidate, font=font, language="si")[2] <= width:
+        candidate_width=(draw.textbbox((0,0),candidate,font=font,language="en")[2] if latin_only else mixed_width(draw,candidate,font))
+        if candidate_width <= width:
             line = candidate
         else:
             if line: lines.append(line)
@@ -134,7 +137,10 @@ def draw_text(draw, xy, text, font, fill, width=900, spacing=14):
     if line: lines.append(line)
     x,y = xy
     for line in lines:
-        draw.text((x,y), line, font=font, fill=fill, language="si")
+        if latin_only:
+            draw.text((x,y),line,font=font,fill=fill,language="en")
+        else:
+            draw_mixed(draw,(x,y),line,font,fill)
         y += font.size + spacing
     return y
 
