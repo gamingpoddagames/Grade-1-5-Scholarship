@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'school/voice_video.py'
+      - 'school/build_resources.py'
+      - 'school/font_safety.py'
+      - 'school/test_font_safety.py'
       - 'school/voice-publish-request-*.txt'
       - '.github/workflows/voice-video.yml'
   schedule:
@@ -38,7 +41,9 @@ jobs:
           if ! command -v ffmpeg >/dev/null 2>&1; then
             sudo apt-get install -y ffmpeg
           fi
-          python -m pip install 'Pillow>=11,<13' 'piper-tts>=1.3,<2'
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'piper-tts>=1.3,<2'
+      - name: Validate complete Sinhala/Latin font coverage before making/publishing video
+        run: python -m unittest discover -s school -p 'test_font_safety.py' -v
       - name: Render matching original Sinhala quiz video
         run: python school/build_resources.py --video-dir voice_output
       - name: Add free Sinhala narration
