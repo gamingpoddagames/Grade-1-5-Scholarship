@@ -9,6 +9,7 @@ import html
 import json
 from pathlib import Path
 from curriculum_bank import get_questions, SUBJECTS
+from parent_learning_guides import GUIDES, render_guide
 
 SITE="https://gamingpoddagames.github.io/Grade-1-5-Scholarship/"
 FB="https://www.facebook.com/profile.php?id=61596326146776"
@@ -57,6 +58,15 @@ def export(dest):
             filename=f"grade-{grade}-{subject}.html"
             (dest/filename).write_text(body,encoding="utf-8")
             manifest.append({"title":title,"file":filename,"grade":grade,"subject":subject,"labels":[f"Grade {grade}","Sinhala education",SUBJECTS[subject]]})
+    # Six distinct parent guides extend the limited evergreen editorial queue.
+    # Every guide has its own useful explanation and activity, not a copied paper.
+    for guide in GUIDES:
+        filename=f"guide-{guide['slug']}.html"
+        body=render_guide(guide)
+        if len(body)<1000:raise ValueError("Guide unexpectedly short: "+guide["slug"])
+        (dest/filename).write_text(body,encoding="utf-8")
+        manifest.append({"title":guide["title"],"file":filename,"grade":None,
+                         "subject":"parent-guide","labels":guide["labels"]})
     pages={
       "about":"<h2>අප ගැන</h2><p>පුංචි නැණ මඟ යනු ශ්‍රී ලංකාවේ 1–5 ශ්‍රේණි දරුවන් සඳහා නොමිලේ අධ්‍යාපනික මඟපෙන්වීම් ලබා දෙන ස්වාධීන බ්ලොග් අඩවියකි. මෙහි ගණිතය, සිංහල සහ පරිසරය ආශ්‍රිත පුහුණු අදහස් දෙමාපියන් සහ ගුරුවරුන් සඳහා ලියවෙයි.</p><p>මෙය රජයේ නිල අධ්‍යාපන අඩවියක් හෝ නිල ශිෂ්‍යත්ව විභාග පත්‍ර නිකුත් කරන සේවාවක් නොවේ. අන්තර්ගතය භාවිත කිරීමට පෙර පාඩම් මට්ටම පරීක්ෂා කරන්න.</p><p>වෙනත් නොමිලේ අභ්‍යාස: <a href='"+SITE+"'>පුංචි නැණ මඟ ප්‍රශ්න පත්‍ර අඩවිය</a>.</p>",
       "contact":"<h2>සම්බන්ධතා</h2><p>අන්තර්ගත දෝෂයක්, අලුත් අධ්‍යාපනික අදහසක් හෝ සාමාන්‍ය යෝජනාවක් තිබේ නම් දෙමාපියෙකු හෝ ගුරුවරයෙකු ලෙස අපගේ <a href='"+FB+"'>Facebook Page</a> හරහා පණිවිඩයක් යවන්න.</p><p>දරුවෙකුගේ නම, පාසල, උපන් දිනය, ලිපිනය, ඡායාරූප හෝ සම්බන්ධතා අංක වැනි පුද්ගලික දත්ත එවන්න එපා.</p>",
@@ -91,7 +101,7 @@ Contact for parents/teachers: https://www.facebook.com/profile.php?id=6159632614
 No guarantee of AdSense approval, page views, ad impressions or earnings.
 """
     (dest/"README.md").write_text(readme,encoding="utf-8")
-    print("Prepared",len(manifest),"Blogger article files and",len(pages),"policy page drafts in",dest)
+    print("Prepared",len(manifest),"original Blogger article/guide files and",len(pages),"policy page drafts in",dest)
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--output",default="blogger_output")
