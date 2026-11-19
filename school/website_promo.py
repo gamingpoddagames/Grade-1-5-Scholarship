@@ -12,6 +12,7 @@ import subprocess
 import unicodedata
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from brand_assets import font, latin_font, logo
+from font_safety import draw_mixed, mixed_width, check_caption
 from voice_video import download, MODEL_URL, CONFIG_URL
 
 BLOG="https://punchinanamaga.blogspot.com/"
@@ -23,7 +24,7 @@ TOPICS=[
  ("01", "නොමිලේ ඉගෙනුම", "1 සිට 5 ශ්‍රේණිය දක්වා", "ගණිතය • සිංහල • පරිසරය", "දරුවාට ගැළපෙන සිංහල පුහුණු ලිපි සහ පැහැදිලි කළ පිළිතුරු.", "#SinhalaEducation #Grade1to5"),
  ("02", "ශිෂ්‍යත්ව පුහුණුව", "5 ශ්‍රේණියට සූදානම් වෙමු", "Online Quiz • PDF ප්‍රශ්න", "දවසකට කෙටි පුහුණුවකින් ඉගෙනීමේ පුරුද්ද ගොඩනඟන්න.", "#Grade5Scholarship #ScholarshipSriLanka"),
  ("03", "දෙමාපියන්ට උපදෙස්", "නිවසේ ඉගෙනීම පහසුයි", "පුහුණු ප්‍රශ්න • පිළිතුරු", "නිවසේදී දරුවා සමඟ කිරීමට ගැළපෙන අධ්‍යාපනික අදහස්.", "#ParentsSriLanka #SinhalaLearning"),
- ("04", "පාසල් පාඩම්", "නොමිලේ අධ්‍යාපනික සම්පත්", "Grade 1–5 • Scholarship", "අලුත් සිංහල පාඩම් කියවන්න. PDF සහ Online Quiz ද සොයාගන්න.", "#SriLankaEducation #FreeLearning"),
+ ("04", "පාසල් පාඩම්", "නොමිලේ අධ්‍යාපනික සම්පත්", "1 සිට 5 ශ්‍රේණි හා ශිෂ්‍යත්වය", "අලුත් සිංහල පාඩම් කියවන්න. PDF සහ Online Quiz ද සොයාගන්න.", "#SriLankaEducation #FreeLearning"),
 ]
 BLUE="#103a6b"; TEAL="#087f85"; INK="#173858"; YELLOW="#ffd34f"
 
@@ -35,8 +36,8 @@ def wrap(draw,text,face,max_width):
     lines=[]; current=""
     for word in words:
         trial=(current+" "+word).strip()
-        bounds=draw.textbbox((0,0),trial,font=face,language="si")
-        if bounds[2]-bounds[0]>max_width and current:
+        width=mixed_width(draw,trial,face)
+        if width>max_width and current:
             lines.append(current);current=word
         else:current=trial
     if current:lines.append(current)
@@ -46,8 +47,8 @@ def text_lines(draw,txt,face,color,x,y,width,spacing=20,max_lines=5):
     lines=wrap(draw,txt,face,width)
     if len(lines)>max_lines:raise ValueError("Caption overflow; shorten copy")
     for line in lines:
-        draw.text((x,y),line,font=face,fill=color,language="si",stroke_width=0)
-        bb=draw.textbbox((0,0),line,font=face,language="si")
+        draw_mixed(draw,(x,y),line,face,color)
+        bb=draw.textbbox((0,0),"සහ",font=face,language="si")
         y+=bb[3]-bb[1]+spacing
     return y
 
@@ -65,7 +66,7 @@ def branding(im,scale=1):
     icon=logo(210).resize((int(118*scale),int(118*scale)))
     if icon.mode=="RGBA": im.paste(icon,(x,y),icon)
     else: im.paste(icon,(x,y))
-    d.text((x+int(144*scale),y+int(16*scale)),"පුංචි නැණ මඟ",font=font(int(48*scale),True),fill="white",language="si")
+    draw_mixed(d,(x+int(144*scale),y+int(16*scale)),"පුංචි නැණ මඟ",font(int(48*scale),True),"white")
     d.text((x+int(145*scale),y+int(83*scale)),"Grade 1–5 • Scholarship",font=latin_font(int(25*scale)),fill="#d4eaf7")
 
 def card(topic,output):
@@ -79,7 +80,7 @@ def card(topic,output):
     y=text_lines(d,services,font(37,True),TEAL,131,max(y+26,665),825,12,2)
     y=text_lines(d,description,font(37),INK,132,max(y+38,795),815,18,4)
     d.rounded_rectangle((100,1085,980,1248),radius=29,fill=YELLOW)
-    d.text((149,1101),"නොමිලේ පාඩම් බලන්න",font=font(46,True),fill=BLUE,language="si")
+    draw_mixed(d,(149,1101),"නොමිලේ පාඩම් බලන්න",font(46,True),BLUE)
     d.text((148,1178),"punchinanamaga.blogspot.com",font=latin_font(33),fill=BLUE)
     output.parent.mkdir(parents=True,exist_ok=True);im.save(output,optimize=True)
     return output
@@ -105,16 +106,16 @@ def slide(topic,index):
         yy=text_lines(d,line,font(39),TEAL,113,yy,850,20,4)
     d.rounded_rectangle((67,1500,1015,1760),radius=39,fill=YELLOW)
     d.text((114,1541),"www.punchinanamaga.blogspot.com",font=latin_font(37),fill=BLUE)
-    d.text((115,1640),"නොමිලේ ඉගෙනගන්න",font=font(46,True),fill=BLUE,language="si")
+    draw_mixed(d,(115,1640),"නොමිලේ ඉගෙනගන්න",font(46,True),BLUE)
     return im
 
 def caption(topic):
     return unicodedata.normalize("NFC", "\n".join([
       "පුංචි නැණ මඟ | "+topic[2],"",
       topic[4],"",
-      "📝 1–5 ශ්‍රේණි සිංහල පුහුණු ප්‍රශ්න සහ ලිපි",
-      "📚 5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව හා Quiz",
-      "📄 නොමිලේ ප්‍රශ්න සහ පිළිතුරු PDF","",
+      "- 1–5 ශ්‍රේණි සිංහල පුහුණු ප්‍රශ්න සහ ලිපි",
+      "- 5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව හා Quiz",
+      "- නොමිලේ ප්‍රශ්න සහ පිළිතුරු PDF","",
       "අලුත් පාඩම් සහ කියවිය හැකි ලිපි:",
       PROMO_LINK,
       "PDF සහ Online Quiz:",
@@ -168,7 +169,9 @@ def main():
     day=dt.date.fromisoformat(args.date) if args.date else (dt.datetime.now(dt.timezone.utc)+dt.timedelta(hours=5,minutes=30)).date()
     topic=choose(day);out=pathlib.Path(args.output);out.mkdir(parents=True,exist_ok=True)
     card(topic,out/"school-website-invite.png")
-    (out/"facebook-caption.txt").write_text(caption(topic),encoding="utf-8")
+    text=caption(topic)
+    check_caption(text)
+    (out/"facebook-caption.txt").write_text(text,encoding="utf-8")
     (out/"topic.json").write_text(json.dumps({"date":day.isoformat(),"number":topic[0],"title":topic[2],"blog":BLOG,"campaign_url":PROMO_LINK},ensure_ascii=False,indent=2),encoding="utf-8")
     print("PROMO CARD READY:",out/"school-website-invite.png")
     if args.video:print("PROMO VIDEO READY:",make_video(topic,out,args.voice))
