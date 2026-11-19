@@ -1,0 +1,64 @@
+name: School Daily Telegram Operations Report
+on:
+  schedule:
+    # 08:30 Asia/Colombo daily; GitHub schedules may run late
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      send:
+        description: "Send daily report to configured private Telegram chat?"
+        type: boolean
+        default: true
+        required: true
+  push:
+    branches: [main]
+    paths:
+      - 'school/telegram_report.py'
+      - 'school/test_telegram_report.py'
+      - '.github/workflows/school-telegram-report.yml'
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: school-telegram-daily-report
+  cancel-in-progress: false
+jobs:
+  private-daily-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate private report formatting without network
+        run: python -m unittest discover -s school -p 'test_telegram_report.py' -v
+      - name: Generate report and optionally deliver to Telegram
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          EVENT_NAME: ${{ github.event_name }}
+          SEND_MANUALLY: ${{ inputs.send }}
+        run: |
+          if [[ "$EVENT_NAME" == "schedule" ]] || [[ "$EVENT_NAME" == "workflow_dispatch" && "$SEND_MANUALLY" == "true" ]]; then
+            if [[ -n "$TELEGRAM_BOT_TOKEN" && -n "$TELEGRAM_CHAT_ID" ]]; then
+              python school/telegram_report.py --send
+            else
+              echo "::warning::Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID. Report generated as artifact only."
+              python school/telegram_report.py
+            fi
+          else
+            python school/telegram_report.py
+          fi
+      - name: Save daily private report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: punchi-nena-maga-telegram-report
+          path: reports/daily-telegram-report.txt
+          if-no-files-found: warn
+          retention-days: 14
