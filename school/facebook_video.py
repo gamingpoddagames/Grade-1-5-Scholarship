@@ -7,6 +7,7 @@ from pathlib import Path
 import urllib.error
 import urllib.request
 import uuid
+from font_safety import check_caption
 
 def upload(path, page_id, access_token, version, *, title=None, description=None):
     path=Path(path)
@@ -16,11 +17,13 @@ def upload(path, page_id, access_token, version, *, title=None, description=None
     fields={
         "access_token":access_token,
         "title":title or "පුංචි නැණ මඟ - 5 ශ්‍රේණිය ශිෂ්‍යත්ව ප්‍රශ්නය",
-        "description":("5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව: ප්‍රශ්නයට පිළිතුර සිතා බලන්න. "
+        "description":description or ("5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව: ප්‍රශ්නයට පිළිතුර සිතා බලන්න. "
                        "නොමිලේ පත්‍ර හා පිළිතුරු: "
                        "https://gamingpoddagames.github.io/Grade-1-5-Scholarship/ "
                        "#Grade5Scholarship #SinhalaEducation")
     }
+    check_caption(fields["title"])
+    check_caption(fields["description"])
     body=bytearray()
     for key,value in fields.items():
         body.extend((f"--{boundary}\r\nContent-Disposition: form-data; name=\"{key}\"\r\n\r\n{value}\r\n").encode("utf-8"))
