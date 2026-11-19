@@ -65,14 +65,11 @@ jobs:
           LIMIT_INPUT: ${{ inputs.limit }}
         run: |
           if [ "$RUN_EVENT" = "schedule" ]; then
-            if [ "$BLOGGER_AUTOMATION_ENABLED" != "true" ]; then
-              echo "Scheduled Blogger publishing disabled until BLOGGER_AUTOMATION_ENABLED=true."
+            if ! python -c "import json; c=json.load(open('school/blogger_launch.json')); assert c.get('authorized_publish') is True and c.get('daily') is True and c.get('blog_id') == '1195814952260080161'"; then
+              echo "Scheduled Blogger publishing disabled by configuration."
               exit 0
             fi
-            if [ "$BLOGGER_ALLOW_PUBLICATION" != "true" ]; then
-              echo "Scheduled job: publication not permitted; no changes made."
-              exit 0
-            fi
+            export BLOGGER_ALLOW_PUBLICATION=true
             MODE="publish"
             KIND="posts"
             LIMIT="1"
@@ -83,7 +80,7 @@ jobs:
           fi
           python school/blogger_publisher.py --mode "$MODE" --kind "$KIND" --limit "$LIMIT" --export-dir blogger_output
       - name: Launch consented Blogger pages and first article
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Authorize Blogger launch and daily publishing'
         env:
           BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
           BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
