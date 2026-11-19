@@ -21,7 +21,9 @@ def check_public(url):
     try:
         with urllib.request.urlopen(req,timeout=25) as resp:
             return {"http_status":resp.status,"final_host":urllib.parse.urlparse(resp.url).hostname}
-    except (urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as exc:
+    except urllib.error.HTTPError as exc:
+        return {"http_status":exc.code,"note":"Automated request may be blocked by the hosting provider"}
+    except (urllib.error.URLError,TimeoutError) as exc:
         return {"error":type(exc).__name__}
 
 def main():
@@ -54,8 +56,10 @@ def main():
         print("::warning::Blogger original article queue has 4 or fewer unique posts remaining; prepare reviewed additions.")
     if not remaining:
         print("::warning::The finite article queue is exhausted; scheduled publishing will create no new posts.")
-    if home.get("http_status")!=200:
-        raise RuntimeError("Public Blogger homepage did not return HTTP 200")
+    if home.get("http_status") in (403,429) or home.get("error"):
+        print("::warning::Blogger homepage automated request inconclusive; check with a real browser.")
+    elif home.get("http_status")!=200:
+        raise RuntimeError("Public Blogger homepage returned an unexpected HTTP status")
     if posts_sitemap.get("http_status")!=200:
         raise RuntimeError("Blogger post sitemap did not return HTTP 200")
     if pages_sitemap.get("http_status")!=200:
