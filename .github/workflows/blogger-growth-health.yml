@@ -1,0 +1,38 @@
+name: Weekly Blogger Growth Health Check
+on:
+  schedule:
+    # Sunday 10:30 Sri Lanka; schedule may run late
+    - cron: '0 5 * * 0'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'school/growth_healthcheck.py'
+      - '.github/workflows/blogger-growth-health.yml'
+permissions:
+  contents: read
+jobs:
+  read-only-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build original editorial inventory
+        run: python school/blogger_export.py --output blogger_output
+      - name: Read-only checks of Blogger account, website and sitemap
+        env:
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+        run: python school/growth_healthcheck.py
+      - name: Keep safe weekly report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blogger-weekly-growth-health
+          path: health_output/weekly-health.json
+          if-no-files-found: warn
+          retention-days: 30
