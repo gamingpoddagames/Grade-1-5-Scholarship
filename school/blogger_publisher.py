@@ -82,9 +82,7 @@ def list_existing(kind, token):
     titles = set()
     endpoint = f"{API}/blogs/{EXPECTED_BLOG_ID}/{kind}"
     statuses = ("live", "draft") if kind == "pages" else ("live", "draft", "scheduled")
-    # Blogger posts API uses published/draft/scheduled; pages use live/draft.
-    if kind == "posts":
-        statuses = ("published", "draft", "scheduled")
+    # Official Blogger API v3 uses live/draft/scheduled for posts.
     for status in statuses:
         page_token = None
         while True:
@@ -125,6 +123,8 @@ def execute(*, mode, kind, export_dir, day, limit=1, token_factory=access_token_
         for title, _, _ in items[:limit]:
             print("Candidate title:", title)
         return {"prepared": len(items), "created": 0, "skipped": 0}
+    if kind == "pages" and mode == "draft":
+        raise RuntimeError("Blogger API page drafting is not reliably supported; review and explicitly publish pages instead")
     if mode == "publish" and os.getenv("BLOGGER_ALLOW_PUBLICATION", "").lower() != "true":
         raise RuntimeError("Public posting disabled: set BLOGGER_ALLOW_PUBLICATION=true in GitHub Actions Variables")
     token = token_factory()
@@ -145,8 +145,9 @@ def execute(*, mode, kind, export_dir, day, limit=1, token_factory=access_token_
                    "blog": {"id": EXPECTED_BLOG_ID}, "title": title, "content": content}
         if kind == "posts":
             payload["labels"] = labels
-        params = urllib.parse.urlencode({"isDraft": "true" if mode == "draft" else "false"})
-        result = request_json(f"{API}/blogs/{EXPECTED_BLOG_ID}/{kind}?{params}",
+        params = urllib.parse.urlencode({"isDraft": "true" if mode == "draft" else "false"}) if kind == "posts" else ""
+        suffix = "?" + params if params else ""
+        result = request_json(f"{API}/blogs/{EXPECTED_BLOG_ID}/{kind}{suffix}",
                               access_token=token, method="POST", payload=payload)
         if not result.get("id"):
             raise RuntimeError("Blogger did not confirm an item ID")
