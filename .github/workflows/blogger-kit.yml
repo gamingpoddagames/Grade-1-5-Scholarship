@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'school/blogger_export.py'
+      - 'school/parent_learning_guides.py'
       - 'school/curriculum_bank.py'
       - '.github/workflows/blogger-kit.yml'
   workflow_dispatch:
@@ -20,24 +21,28 @@ jobs:
           python-version: '3.12'
       - name: Compile and create original Sinhala article drafts
         run: |
-          python -m py_compile school/blogger_export.py
+          python -m py_compile school/blogger_export.py school/parent_learning_guides.py
           python school/blogger_export.py --output blogger_output
           python - <<'PY'
           import json, pathlib
           root=pathlib.Path("blogger_output")
           posts=json.loads((root/"post-index.json").read_text(encoding="utf-8"))
-          assert len(posts)==15
+          assert len(posts)==21
           for row in posts:
               article=(root/row["file"]).read_text(encoding="utf-8")
-              assert "<h2>" in article and "<details>" in article
-              assert "නිල විභාග" in article and len(article)>1800
+              assert "<h2>" in article
+              assert "නිල විභාග" in article or "නිල අඩවියක් නොවේ" in article
+              if row["subject"] == "parent-guide":
+                  assert "<h3>" in article and len(article)>1500
+              else:
+                  assert "<details>" in article and len(article)>1800
           pages=json.loads((root/"pages-index.json").read_text(encoding="utf-8"))
           assert {p["slug"] for p in pages}=={"about","contact","privacy","terms"}
           for row in pages:
               content=(root/row["file"]).read_text(encoding="utf-8")
               assert "<h2>" in content and len(content)>100
           assert "AdSense" in (root/"page-privacy.html").read_text(encoding="utf-8")
-          print("PASS: 15 original HTML articles, 4 policy pages, explanatory answers and setup guide.")
+          print("PASS: 21 original HTML articles/guides, 4 policy pages, explanatory answers and setup guide.")
           PY
       - uses: actions/upload-artifact@v4
         with:
