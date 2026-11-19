@@ -7,6 +7,7 @@ from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 
 from brand_assets import font,latin_font,logo
+from font_safety import draw_mixed, mixed_width, check_caption
 from page_branding_upload import multipart
 
 def wrap(draw,text,face,max_width):
@@ -14,7 +15,7 @@ def wrap(draw,text,face,max_width):
     current=""
     for word in str(text).split():
         line=(current+" "+word).strip()
-        w=draw.textbbox((0,0),line,font=face,language="si")[2]
+        w=mixed_width(draw,line,face)
         if w <= max_width:
             current=line
         else:
@@ -25,7 +26,7 @@ def wrap(draw,text,face,max_width):
 
 def line(draw,text,x,y,face,color,max_width,lineheight):
     for value in wrap(draw,text,face,max_width):
-        draw.text((x,y),value,font=face,fill=color,language="si")
+        draw_mixed(draw,(x,y),value,face,color)
         y+=lineheight
     return y
 
@@ -36,25 +37,26 @@ def create_card(question,target):
     d.rounded_rectangle((45,42,1035,335),radius=42,fill="#0a477a")
     brand=logo(220).resize((158,158))
     canvas.paste(brand,(88,104))
-    d.text((280,105),"පුංචි නැණ මඟ",font=font(58,True),fill="white",language="si")
+    draw_mixed(d,(280,105),"පුංචි නැණ මඟ",font(58,True),"white")
     d.text((284,210),"Grade 1–5 & Scholarship",font=latin_font(32),fill="#ccecf4")
     d.rounded_rectangle((93,382,987,1140),radius=32,fill="#f4f9ff")
-    d.text((139,421),f"{question['grade']} ශ්‍රේණිය - {question['topic']}",font=font(35,True),fill="#0f7774",language="si")
+    draw_mixed(d,(139,421),f"{question['grade']} ශ්‍රේණිය - {question['topic']}",font(35,True),"#0f7774")
     y=line(d,question["q"],140,522,font(58,True),"#173453",800,89)+40
     for idx,choice in enumerate(question["choices"]):
         if y>1060:
             raise ValueError("Question card exceeds available space; manual review required")
         d.rounded_rectangle((132,y-8,943,y+78),radius=16,fill="#ffffff",outline="#c3d9ea",width=3)
-        d.text((157,y+2),f"{chr(65+idx)}) {choice}",font=font(43),fill="#193956",language="si")
+        draw_mixed(d,(157,y+2),f"{chr(65+idx)}) {choice}",font(43),"#193956")
         y+=118
     d.rounded_rectangle((93,1170,987,1248),radius=22,fill="#0e837d")
-    d.text((140,1184),"නොමිලේ ප්‍රශ්න පත්‍ර සහ පිළිතුරු",font=font(35,True),fill="white",language="si")
+    draw_mixed(d,(140,1184),"නොමිලේ ප්‍රශ්න පත්‍ර සහ පිළිතුරු",font(35,True),"white")
     target=Path(target)
     target.parent.mkdir(parents=True,exist_ok=True)
     canvas.save(target,optimize=True)
     print("Sinhala branded card generated:",target)
 
 def publish(image,caption):
+    check_caption(caption)
     page=os.getenv("FB_PAGE_ID")
     token=os.getenv("FB_PAGE_ACCESS_TOKEN")
     if not page or not token:
