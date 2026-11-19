@@ -1,0 +1,40 @@
+name: Build Blogger Starter Kit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'school/blogger_export.py'
+      - 'school/curriculum_bank.py'
+      - '.github/workflows/blogger-kit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  blogger-kit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and create original Sinhala article drafts
+        run: |
+          python -m py_compile school/blogger_export.py
+          python school/blogger_export.py --output blogger_output
+          python - <<'PY'
+          import json, pathlib
+          root=pathlib.Path("blogger_output")
+          posts=json.loads((root/"post-index.json").read_text(encoding="utf-8"))
+          assert len(posts)==15
+          for row in posts:
+              article=(root/row["file"]).read_text(encoding="utf-8")
+              assert "<h2>" in article and "<details>" in article
+              assert "නිල විභාග" in article and len(article)>1800
+          print("PASS: 15 original HTML articles with answer explanations, index and Blogger setup guide.")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: punchi-nena-maga-blogger-starter
+          path: blogger_output/
+          retention-days: 30
