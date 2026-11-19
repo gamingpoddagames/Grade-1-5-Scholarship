@@ -1,0 +1,83 @@
+name: Blogger Auto Publisher (Google OAuth)
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Preview only, create private draft, or publish publicly (requires additional opt-in)"
+        type: choice
+        options: [preview, draft, publish]
+        default: preview
+        required: true
+      kind:
+        description: "Educational article or Blogger policy page"
+        type: choice
+        options: [posts, pages]
+        default: posts
+        required: true
+      limit:
+        description: "Maximum items to create, 1–4"
+        type: choice
+        options: ['1', '2', '3', '4']
+        default: '1'
+        required: true
+  schedule:
+    # 05:45 UTC = 11:15 Sri Lanka; schedule may run late
+    - cron: '45 5 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'school/blogger_publisher.py'
+      - 'school/test_blogger_publisher.py'
+      - '.github/workflows/blogger-publish.yml'
+permissions:
+  contents: read
+concurrency:
+  group: punchi-nena-maga-blogger-publishing
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run offline publisher tests
+        run: |
+          python -m unittest discover -s school -p 'test_blogger_publisher.py' -v
+      - name: Build Blogger content package
+        run: python school/blogger_export.py --output blogger_output
+      - name: Preview planned Blogger item (always safe)
+        run: python school/blogger_publisher.py --mode preview --kind posts --limit 1 --export-dir blogger_output
+      - name: Execute Blogger publishing mode (only with credentials + explicit opt-in)
+        if: github.event_name != 'push'
+        env:
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          BLOGGER_AUTOMATION_ENABLED: ${{ vars.BLOGGER_AUTOMATION_ENABLED }}
+          RUN_EVENT: ${{ github.event_name }}
+          MODE_INPUT: ${{ inputs.mode }}
+          KIND_INPUT: ${{ inputs.kind }}
+          LIMIT_INPUT: ${{ inputs.limit }}
+        run: |
+          if [ "$RUN_EVENT" = "schedule" ]; then
+            if [ "$BLOGGER_AUTOMATION_ENABLED" != "true" ]; then
+              echo "Scheduled Blogger publishing disabled until BLOGGER_AUTOMATION_ENABLED=true."
+              exit 0
+            fi
+            if [ "$BLOGGER_ALLOW_PUBLICATION" != "true" ]; then
+              echo "Scheduled job: publication not permitted; no changes made."
+              exit 0
+            fi
+            MODE="publish"
+            KIND="posts"
+            LIMIT="1"
+          else
+            MODE="${MODE_INPUT:-preview}"
+            KIND="${KIND_INPUT:-posts}"
+            LIMIT="${LIMIT_INPUT:-1}"
+          fi
+          python school/blogger_publisher.py --mode "$MODE" --kind "$KIND" --limit "$LIMIT" --export-dir blogger_output
