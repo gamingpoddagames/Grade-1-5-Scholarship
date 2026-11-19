@@ -111,6 +111,8 @@ jobs:
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-5/environment/</loc></url>
           </urlset>
           EOF
+      - name: Validate Sinhala SEO and sitemap before deployment
+        run: python school/seo_audit.py _site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
