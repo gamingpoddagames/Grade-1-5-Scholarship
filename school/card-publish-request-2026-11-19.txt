@@ -1,1 +1,3 @@
 Owner approved: publish one original Sinhala practice question as a designed branded image card to the Punche Nena Maga Facebook Page, using existing secure secrets. This avoids Sinhala desktop browser shaping issues. Do not create a duplicate text feed post.
+
+2026-11-19 recovery: the 08:47 Sri Lanka cron produced no run as of 14:43. Trigger one owner-authorized branded question card now. No credentials.
