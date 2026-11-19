@@ -3,7 +3,7 @@
 
 Defaults to local offline preview. Google credentials are ONLY read at runtime
 from environment variables. No keys or refresh tokens are printed or saved.
-Existing draft/published titles are never overwritten. No deletes.
+Existing published titles are never overwritten; exact-match drafts may be published. No deletes.
 """
 import argparse
 import datetime as dt
@@ -79,7 +79,7 @@ def authenticate_blog(token):
     return result
 
 def list_existing(kind, token):
-    titles = set()
+    titles = {}
     endpoint = f"{API}/blogs/{EXPECTED_BLOG_ID}/{kind}"
     statuses = ("live", "draft") if kind == "pages" else ("live", "draft", "scheduled")
     # Official Blogger API v3 uses live/draft/scheduled for posts.
@@ -91,7 +91,10 @@ def list_existing(kind, token):
                 params["pageToken"] = page_token
             url = endpoint + "?" + urllib.parse.urlencode(params)
             data = request_json(url, access_token=token)
-            titles.update((item.get("title") or "").strip() for item in data.get("items", []))
+            for item in data.get("items", []):
+                title = (item.get("title") or "").strip()
+                if title and (title not in titles or status == "live"):
+                    titles[title] = {"id": str(item.get("id", "")), "status": status}
             next_token = data.get("nextPageToken")
             if not next_token:
                 break
@@ -134,12 +137,30 @@ def execute(*, mode, kind, export_dir, day, limit=1, token_factory=access_token_
     created = 0
     skipped = 0
     for title, content, labels in items:
-        if title in existing:
-            skipped += 1
+        previous = existing.get(title)
+        if previous:
+            if (mode == "publish" and kind == "posts" and previous["status"] == "draft"
+                    and created < limit and previous["id"]):
+                original = request_json(
+                    f"{API}/blogs/{EXPECTED_BLOG_ID}/posts/{previous['id']}",
+                    access_token=token)
+                if original.get("content", "").strip() == content.strip():
+                    result = request_json(
+                        f"{API}/blogs/{EXPECTED_BLOG_ID}/posts/{previous['id']}/publish",
+                        access_token=token, method="POST")
+                    if not result.get("id"):
+                        raise RuntimeError("Blogger did not confirm draft publication")
+                    print("PUBLISHED MATCHING DRAFT:", title, "| ID", str(result["id"]))
+                    created += 1
+                else:
+                    print("SKIPPED edited draft (not overwritten):", title)
+                    skipped += 1
+            else:
+                skipped += 1
             continue
         if created >= limit:
             break
-        if len(content) < 500 or "<h2>" not in content:
+        if len(content) < (200 if kind == "pages" else 500) or "<h2>" not in content:
             raise ValueError("Article too short or malformed; publication stopped")
         payload = {"kind": "blogger#post" if kind == "posts" else "blogger#page",
                    "blog": {"id": EXPECTED_BLOG_ID}, "title": title, "content": content}
@@ -155,7 +176,7 @@ def execute(*, mode, kind, export_dir, day, limit=1, token_factory=access_token_
         print(("DRAFT CREATED" if mode == "draft" else "PUBLISHED") + ": " + title +
               " | ID " + str(result["id"]))
         created += 1
-        existing.add(title)
+        existing[title] = {"id": str(result["id"]), "status": "draft" if mode == "draft" else "live"}
     print(f"COMPLETE: mode={mode} kind={kind} new={created} preexisting_titles_skipped={skipped}")
     return {"prepared": len(items), "created": created, "skipped": skipped}
 
