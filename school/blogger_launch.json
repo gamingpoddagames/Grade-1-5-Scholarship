@@ -4,5 +4,6 @@
   "authorized_publish": true,
   "daily": true,
   "launch_date": "2026-11-19",
-  "policy": "One published original Sinhala article per day. Pages published once. Do not create advertisements or claim AdSense approval."
+  "policy": "One published original Sinhala article per day. Pages published once. Do not create advertisements or claim AdSense approval.",
+  "launch_retry": "2026-11-19 after safely handling Blogger API 404 on draft"
 }
