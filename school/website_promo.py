@@ -16,6 +16,8 @@ from voice_video import download, MODEL_URL, CONFIG_URL
 
 BLOG="https://punchinanamaga.blogspot.com/"
 RESOURCES="https://gamingpoddagames.github.io/Grade-1-5-Scholarship/"
+PROMO_LINK=BLOG+"?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
+RESOURCE_PROMO=RESOURCES+"?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TOPICS=[
  ("01", "නොමිලේ ඉගෙනුම", "1 සිට 5 ශ්‍රේණිය දක්වා", "ගණිතය • සිංහල • පරිසරය", "දරුවාට ගැළපෙන සිංහල පුහුණු ලිපි සහ පැහැදිලි කළ පිළිතුරු.", "#SinhalaEducation #Grade1to5"),
@@ -114,9 +116,9 @@ def caption(topic):
       "📚 5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව හා Quiz",
       "📄 නොමිලේ ප්‍රශ්න සහ පිළිතුරු PDF","",
       "අලුත් පාඩම් සහ කියවිය හැකි ලිපි:",
-      BLOG,
+      PROMO_LINK,
       "PDF සහ Online Quiz:",
-      RESOURCES,"",
+      RESOURCE_PROMO,"",
       "මෙම පුහුණු සම්පත් අපගේ මුල් නිර්මාණයි. නිල විභාග ප්‍රශ්න පත්‍ර ලෙස නොසලකන්න.",
       topic[5]+" #PunchiNenaMaga"
     ]))
@@ -167,7 +169,7 @@ def main():
     topic=choose(day);out=pathlib.Path(args.output);out.mkdir(parents=True,exist_ok=True)
     card(topic,out/"school-website-invite.png")
     (out/"facebook-caption.txt").write_text(caption(topic),encoding="utf-8")
-    (out/"topic.json").write_text(json.dumps({"date":day.isoformat(),"number":topic[0],"title":topic[2],"blog":BLOG},ensure_ascii=False,indent=2),encoding="utf-8")
+    (out/"topic.json").write_text(json.dumps({"date":day.isoformat(),"number":topic[0],"title":topic[2],"blog":BLOG,"campaign_url":PROMO_LINK},ensure_ascii=False,indent=2),encoding="utf-8")
     print("PROMO CARD READY:",out/"school-website-invite.png")
     if args.video:print("PROMO VIDEO READY:",make_video(topic,out,args.voice))
 if __name__=="__main__":main()
