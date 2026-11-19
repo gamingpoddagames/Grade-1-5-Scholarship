@@ -29,6 +29,7 @@ on:
       - 'school/blogger_publisher.py'
       - 'school/test_blogger_publisher.py'
       - '.github/workflows/blogger-publish.yml'
+      - 'school/blogger_launch.json'
 permissions:
   contents: read
 concurrency:
@@ -81,3 +82,21 @@ jobs:
             LIMIT="${LIMIT_INPUT:-1}"
           fi
           python school/blogger_publisher.py --mode "$MODE" --kind "$KIND" --limit "$LIMIT" --export-dir blogger_output
+      - name: Launch consented Blogger pages and first article
+        if: github.event_name == 'push'
+        env:
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: 'true'
+        run: |
+          python - <<'PY'
+          import json
+          cfg=json.load(open("school/blogger_launch.json",encoding="utf-8"))
+          assert cfg["blog_id"]=="1195814952260080161"
+          assert cfg["authorized_publish"] is True
+          assert cfg["daily"] is True
+          print("Owner-authorized public launch configuration accepted.")
+          PY
+          python school/blogger_publisher.py --mode publish --kind pages --limit 4 --export-dir blogger_output
+          python school/blogger_publisher.py --mode publish --kind posts --limit 1 --export-dir blogger_output
