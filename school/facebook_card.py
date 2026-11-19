@@ -55,8 +55,21 @@ def create_card(question,target):
     canvas.save(target,optimize=True)
     print("Sinhala branded card generated:",target)
 
+def validate_card(image):
+    """Fail closed if the final image is absent, corrupt or the wrong size."""
+    path = Path(image)
+    if not path.is_file() or path.stat().st_size < 10000:
+        raise RuntimeError("Facebook image quality gate failed: missing or empty artwork")
+    with Image.open(path) as rendered:
+        if rendered.size != (1080, 1350) or rendered.mode != "RGB":
+            raise RuntimeError("Facebook image quality gate failed: invalid dimensions or color mode")
+        rendered.verify()
+    print("Facebook card quality gate passed: 1080x1350 RGB PNG")
+
+
 def publish(image,caption):
     check_caption(caption)
+    validate_card(image)
     page=os.getenv("FB_PAGE_ID")
     token=os.getenv("FB_PAGE_ACCESS_TOKEN")
     if not page or not token:
