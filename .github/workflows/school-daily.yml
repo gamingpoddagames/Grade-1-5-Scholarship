@@ -7,6 +7,8 @@ on:
     paths:
       - 'school/daily_publisher.py'
       - 'school/facebook_card.py'
+      - 'school/font_safety.py'
+      - 'school/test_font_safety.py'
       - 'school/card-publish-request-*.txt'
       - 'school/questions.json'
       - 'school/publish-request-*.txt'
@@ -36,7 +38,9 @@ jobs:
       - name: Install Sinhala card image renderer
         run: |
           if ! test -f /usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf; then sudo apt-get install -y fonts-noto-core; fi
-          python -m pip install 'Pillow>=11,<13'
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
+      - name: Fail-closed Sinhala font and Facebook caption quality gate
+        run: python -m unittest discover -s school -p 'test_font_safety.py' -v
       - name: Check Facebook configuration (without revealing secrets)
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -78,7 +82,7 @@ jobs:
           python-version: '3.12'
       - name: Install video dependencies
         run: |
-          python -m pip install 'Pillow>=11,<13'
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
           if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get install -y ffmpeg; fi
           if ! test -f /usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf; then sudo apt-get install -y fonts-noto-core; fi
           fc-cache -f
