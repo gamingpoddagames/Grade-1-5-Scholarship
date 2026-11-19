@@ -8,14 +8,14 @@ import urllib.error
 import urllib.request
 import uuid
 
-def upload(path, page_id, access_token, version):
+def upload(path, page_id, access_token, version, *, title=None, description=None):
     path=Path(path)
     if not path.is_file() or path.stat().st_size==0:
         raise ValueError("Quiz video file is absent or empty")
     boundary="SchoolUpload"+uuid.uuid4().hex
     fields={
         "access_token":access_token,
-        "title":"පුංචි නැණ මඟ - 5 ශ්‍රේණිය ශිෂ්‍යත්ව ප්‍රශ්නය",
+        "title":title or "පුංචි නැණ මඟ - 5 ශ්‍රේණිය ශිෂ්‍යත්ව ප්‍රශ්නය",
         "description":("5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව: ප්‍රශ්නයට පිළිතුර සිතා බලන්න. "
                        "නොමිලේ පත්‍ර හා පිළිතුරු: "
                        "https://gamingpoddagames.github.io/Grade-1-5-Scholarship/ "
