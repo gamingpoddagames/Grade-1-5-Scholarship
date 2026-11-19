@@ -31,7 +31,7 @@ permissions:
   contents: read
 concurrency:
   group: school-website-visitor-promotion
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   original-site-promotion:
     runs-on: ubuntu-latest
@@ -58,14 +58,9 @@ jobs:
           KIND=photo
           if [[ "$RUN_EVENT" == "schedule" && "$SCHEDULE" == "45 9 * * 2,6" ]]; then KIND=video; fi
           if [[ "$RUN_EVENT" == "workflow_dispatch" ]]; then KIND="${CHOICE:-photo}"; fi
-          # Explicit owner-approved push publishes the photo now; other pushes safely preview video.
-          if [[ "$RUN_EVENT" == "push" ]]; then
-            if [[ "${{ github.event.head_commit.message }}" == "Publish approved Punchi Nena Maga website invitation now" ]]; then
-              KIND=photo
-            else
-              KIND=video
-            fi
-          fi
+          # Push changes preview photo+caption only. Video slides are tested by the font gate;
+          # scheduled video days still render narration and post the actual MP4.
+          if [[ "$RUN_EVENT" == "push" ]]; then KIND=photo; fi
           if [[ "$KIND" == "video" ]]; then
             python school/website_promo.py --output promo_output --video --voice
             ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 promo_output/school-promo.mp4
