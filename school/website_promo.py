@@ -3,6 +3,7 @@
 
 Does NOT post without --publish handled by separate workflow. Only known owned URLs.
 No child personal data, false official-exam claims or third-party stock media.
+All Facebook image text now runs through Sinhala/Latin glyph coverage checks.
 """
 import argparse
 import datetime as dt
