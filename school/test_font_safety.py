@@ -72,8 +72,9 @@ class FacebookGlyphGateTests(unittest.TestCase):
                 im = Image.new("RGB", (1000, 130), "white")
                 draw = ImageDraw.Draw(im)
                 draw_mixed(draw, (20, 20), value, face, "black")
-                self.assertIsNotNone(im.getbbox())
-                self.assertNotEqual(im.getpixel((20, 20)), im.getpixel((999, 129)))
+                from PIL import ImageChops
+                difference = ImageChops.difference(im, Image.new("RGB", im.size, "white"))
+                self.assertIsNotNone(difference.getbbox(), "Text did not render any visible pixels")
         with tempfile.TemporaryDirectory() as tmp:
             output = pathlib.Path(tmp) / "cover.jpg"
             cover().save(output)
