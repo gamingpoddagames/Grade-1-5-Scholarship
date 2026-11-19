@@ -2,6 +2,8 @@
 """Offline checks only; never send real Telegram messages."""
 import datetime as dt
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from unittest import mock
 import telegram_report as r
 
@@ -37,7 +39,8 @@ class ReportingTests(unittest.TestCase):
             def __exit__(self,*exc):pass
             def read(self,*args):return b'{"ok":true,"result":{"message_id":12}}'
         with mock.patch.object(r.urllib.request,"urlopen",return_value=Fake()) as call:
-            self.assertTrue(r.telegram_send("hello","secret-bot","-100123"))
+            with redirect_stdout(StringIO()):
+                self.assertTrue(r.telegram_send("hello","secret-bot","-100123"))
             req=call.call_args.args[0]
             self.assertIn("secret-bot",req.full_url)
             self.assertIn(b"chat_id=-100123",req.data)
