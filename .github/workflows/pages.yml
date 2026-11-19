@@ -51,6 +51,14 @@ jobs:
         run: python school/validate_curriculum.py --site-dir _site
       - name: Generate parent guides and site policies
         run: python school/site_extras.py _site
+      - name: Generate contact and monetization-readiness pages
+        env:
+          ADSENSE_PUBLISHER_ID: ${{ vars.ADSENSE_PUBLISHER_ID }}
+        run: |
+          python school/monetization_readiness.py _site
+          test -s _site/contact/index.html
+          test -s _site/support/index.html
+          if test -n "$ADSENSE_PUBLISHER_ID"; then test -s _site/ads.txt; fi
       - name: Publish sample Grade 5 quiz video
         run: |
           python school/build_resources.py --video-dir _site/videos
@@ -84,6 +92,8 @@ jobs:
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/about/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/privacy/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/terms/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/contact/</loc></url>
+            <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/support/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-1/math/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-1/sinhala/</loc></url>
             <url><loc>https://gamingpoddagames.github.io/Grade-1-5-Scholarship/practice/grade-1/environment/</loc></url>
