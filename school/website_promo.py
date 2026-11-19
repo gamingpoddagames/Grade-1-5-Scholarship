@@ -118,7 +118,7 @@ def caption(topic):
       "PDF සහ Online Quiz:",
       RESOURCES,"",
       "මෙම පුහුණු සම්පත් අපගේ මුල් නිර්මාණයි. නිල විභාග ප්‍රශ්න පත්‍ර ලෙස නොසලකන්න.",
-      topic[5]
+      topic[5]+" #PunchiNenaMaga"
     ]))
 
 def make_video(topic,folder,with_voice):
