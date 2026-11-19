@@ -11,6 +11,7 @@ import urllib.parse
 import urllib.request
 import unicodedata
 from build_resources import all_questions
+from font_safety import check_caption
 
 BASE = pathlib.Path(__file__).resolve().parent
 BANK = BASE / "questions.json"
@@ -47,8 +48,7 @@ def make_content(day, output_dir):
         "#Grade5Scholarship #SinhalaEducation"
     ])
     message = unicodedata.normalize("NFC", message)
-    if "\ufffd" in message:
-        raise ValueError("Invalid replacement character in Sinhala content")
+    check_caption(message)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "facebook_post.txt").write_text(message, encoding="utf-8")
     (output_dir / "question.json").write_text(json.dumps(item, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -65,6 +65,7 @@ def make_content(day, output_dir):
     return message
 
 def publish(message, page_id, token, version="v27.0"):
+    check_caption(message)
     payload = urllib.parse.urlencode({"message":message,"access_token":token}).encode("utf-8")
     request = urllib.request.Request(f"https://graph.facebook.com/{version}/{page_id}/feed",data=payload,method="POST")
     try:
