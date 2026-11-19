@@ -31,7 +31,13 @@ jobs:
               article=(root/row["file"]).read_text(encoding="utf-8")
               assert "<h2>" in article and "<details>" in article
               assert "නිල විභාග" in article and len(article)>1800
-          print("PASS: 15 original HTML articles with answer explanations, index and Blogger setup guide.")
+          pages=json.loads((root/"pages-index.json").read_text(encoding="utf-8"))
+          assert {p["slug"] for p in pages}=={"about","contact","privacy","terms"}
+          for row in pages:
+              content=(root/row["file"]).read_text(encoding="utf-8")
+              assert "<h2>" in content and len(content)>100
+          assert "AdSense" in (root/"page-privacy.html").read_text(encoding="utf-8")
+          print("PASS: 15 original HTML articles, 4 policy pages, explanatory answers and setup guide.")
           PY
       - uses: actions/upload-artifact@v4
         with:
