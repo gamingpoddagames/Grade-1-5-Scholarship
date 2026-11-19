@@ -1,0 +1,86 @@
+name: School Website Visitor Promotion (FB Photo and Sinhala Video)
+on:
+  schedule:
+    # Monday, Thursday 12:20 Sri Lanka — website invitation photo
+    - cron: '50 6 * * 1,4'
+    # Tuesday, Saturday 15:15 Sri Lanka — Sinhala voiceover invitation video
+    - cron: '45 9 * * 2,6'
+  push:
+    branches: [main]
+    paths:
+      - 'school/website_promo.py'
+      - 'school/website_promo_publish.py'
+      - 'school/facebook_video.py'
+      - '.github/workflows/school-website-promo.yml'
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: 'Produce invitation photo or narrated video'
+        type: choice
+        options: [photo, video]
+        default: photo
+        required: true
+      publish:
+        description: 'Publish to the authorized Facebook Page'
+        type: boolean
+        default: false
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: school-website-visitor-promotion
+  cancel-in-progress: false
+jobs:
+  original-site-promotion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install free Sinhala graphic, narration and video tools
+        run: |
+          if ! test -f /usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf; then sudo apt-get update && sudo apt-get install -y fonts-noto-core; fi
+          if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get install -y ffmpeg; fi
+          python -m pip install 'Pillow>=11,<13' 'piper-tts>=1.3,<2'
+      - name: Render approved original content and sanity check media
+        env:
+          RUN_EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          CHOICE: ${{ inputs.kind }}
+        run: |
+          python -m py_compile school/website_promo.py school/website_promo_publish.py school/facebook_video.py
+          KIND=photo
+          if [[ "$RUN_EVENT" == "schedule" && "$SCHEDULE" == "45 9 * * 2,6" ]]; then KIND=video; fi
+          if [[ "$RUN_EVENT" == "workflow_dispatch" ]]; then KIND="${CHOICE:-photo}"; fi
+          # Push previews both creative formats, without publishing; one test render.
+          if [[ "$RUN_EVENT" == "push" ]]; then KIND=video; fi
+          if [[ "$KIND" == "video" ]]; then
+            python school/website_promo.py --output promo_output --video --voice
+            ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 promo_output/school-promo.mp4
+          else
+            python school/website_promo.py --output promo_output
+          fi
+          test -s promo_output/school-website-invite.png
+          grep -Fq 'https://punchinanamaga.blogspot.com/' promo_output/facebook-caption.txt
+          echo "PROMO_KIND=$KIND" >> "$GITHUB_ENV"
+          echo "Original promotional media validated (no claim of public upload)."
+      - name: Publish website invitation to our authorized Facebook Page
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) || (github.event_name == 'push' && github.event.head_commit.message == 'Publish approved Punchi Nena Maga website invitation now')
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+        run: python school/website_promo_publish.py --kind "$PROMO_KIND" --output promo_output
+      - name: Save original invitation image, caption and mobile MP4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: punchi-nena-maga-site-invitation
+          path: |
+            promo_output/school-website-invite.png
+            promo_output/facebook-caption.txt
+            promo_output/topic.json
+            promo_output/school-promo.mp4
+          retention-days: 30
