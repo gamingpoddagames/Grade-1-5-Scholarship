@@ -9,6 +9,7 @@ import os
 import pathlib
 import urllib.error
 import urllib.request
+import urllib.parse
 
 from blogger_publisher import (API, EXPECTED_BLOG_ID, EXPECTED_BLOG_HOST,
     access_token_from_env, authenticate_blog, list_existing)
@@ -19,7 +20,7 @@ def check_public(url):
     req=urllib.request.Request(url,headers={"User-Agent":"PunchiNenaMaga-SiteMonitor/1.0"})
     try:
         with urllib.request.urlopen(req,timeout=25) as resp:
-            return {"http_status":resp.status,"final_host":urllib.request.urlparse(resp.url).hostname}
+            return {"http_status":resp.status,"final_host":urllib.parse.urlparse(resp.url).hostname}
     except (urllib.error.HTTPError,urllib.error.URLError,TimeoutError) as exc:
         return {"error":type(exc).__name__}
 
