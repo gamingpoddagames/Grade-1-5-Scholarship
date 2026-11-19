@@ -93,6 +93,26 @@ class PublisherTest(unittest.TestCase):
         self.assertEqual(result["created"],1)
         self.assertTrue(any("/posts/existing1/publish" in x[0] for x in seen))
         self.assertFalse(any("isDraft=false" in x[0] for x in seen))
+    def test_inaccessible_draft_does_not_stop_other_posts(self):
+        first=pub.planned_items(self.root,"posts",self.day)[0][0]
+        sent=[]
+        def fake(url,*,access_token=None,method="GET",payload=None):
+            if url.endswith("/blogs/"+pub.EXPECTED_BLOG_ID):
+                return {"id":pub.EXPECTED_BLOG_ID,"url":"https://punchinanamaga.blogspot.com/"}
+            if "/posts/existing404" in url:
+                raise RuntimeError("Blogger/Google request failed (HTTP 404)")
+            if method=="GET" and "status=draft" in url:
+                return {"items":[{"id":"existing404","title":first}]}
+            if method=="GET":
+                return {"items":[]}
+            sent.append(payload["title"])
+            return {"id":"new123"}
+        with mock.patch.dict("os.environ",{"BLOGGER_ALLOW_PUBLICATION":"true"}):
+            with mock.patch.object(pub,"request_json",side_effect=fake):
+                result=pub.execute(mode="publish",kind="posts",export_dir=self.root,day=self.day,limit=1,token_factory=lambda:"fake")
+        self.assertEqual(result["created"],1)
+        self.assertEqual(result["skipped"],1)
+        self.assertNotIn(first,sent)
     def test_missing_secrets_do_not_access_network(self):
         with mock.patch.dict("os.environ",{},clear=True):
             with self.assertRaisesRegex(RuntimeError,"Required GitHub Actions secrets"):
