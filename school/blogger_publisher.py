@@ -141,9 +141,18 @@ def execute(*, mode, kind, export_dir, day, limit=1, token_factory=access_token_
         if previous:
             if (mode == "publish" and kind == "posts" and previous["status"] == "draft"
                     and created < limit and previous["id"]):
-                original = request_json(
-                    f"{API}/blogs/{EXPECTED_BLOG_ID}/posts/{previous['id']}",
-                    access_token=token)
+                try:
+                    original = request_json(
+                        f"{API}/blogs/{EXPECTED_BLOG_ID}/posts/{previous['id']}?view=ADMIN",
+                        access_token=token)
+                except RuntimeError as exc:
+                    # Blogger may list a draft which posts.get cannot retrieve.
+                    # Do not fail the whole job or replace the existing draft.
+                    if "HTTP 404" in str(exc):
+                        print("SKIPPED inaccessible draft (preserved):", title)
+                        skipped += 1
+                        continue
+                    raise
                 if original.get("content", "").strip() == content.strip():
                     result = request_json(
                         f"{API}/blogs/{EXPECTED_BLOG_ID}/posts/{previous['id']}/publish",
