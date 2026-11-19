@@ -56,6 +56,32 @@ class FacebookGlyphGateTests(unittest.TestCase):
                         script_runs(str(val),face)
             create_card(questions[0],root/"question.png")
             self.assertGreater((root/"question.png").stat().st_size,10000)
+    def test_real_facebook_artwork_and_sinhala_conjuncts(self):
+        # Verify the final PNG payloads, not only the strings used to draw them.
+        from brand_assets import logo, cover
+        from PIL import Image
+        samples = [
+            "ශ්‍රී ලංකාව", "ප්‍රශ්න", "ශ්‍රේණිය", "විද්‍යාව",
+            "ගණිතය සහ සිංහල", "පුංචි නැණ මඟ",
+        ]
+        face = font(52, True)
+        for value in samples:
+            with self.subTest(value=value):
+                runs = script_runs(value, face)
+                self.assertTrue(any(kind == "si" for kind, _ in runs))
+                im = Image.new("RGB", (1000, 130), "white")
+                draw = ImageDraw.Draw(im)
+                draw_mixed(draw, (20, 20), value, face, "black")
+                self.assertIsNotNone(im.getbbox())
+                self.assertNotEqual(im.getpixel((20, 20)), im.getpixel((999, 129)))
+        with tempfile.TemporaryDirectory() as tmp:
+            output = pathlib.Path(tmp) / "cover.jpg"
+            cover().save(output)
+            with Image.open(output) as image:
+                image.verify()
+            self.assertGreater(output.stat().st_size, 10000)
+            self.assertEqual(logo(240).size, (240, 240))
+
     def test_no_invisible_formatting_in_captions(self):
         for raw in ["normal test","පුංචි නැණ මඟ - පාඩම්", "https://punchinanamaga.blogspot.com/?utm_source=facebook"]:
             self.assertTrue(check_caption(raw))
