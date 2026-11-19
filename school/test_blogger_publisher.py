@@ -45,7 +45,7 @@ class PublisherTest(unittest.TestCase):
                 return {"id":pub.EXPECTED_BLOG_ID,"url":"https://punchinanamaga.blogspot.com/"}
             if method=="GET":
                 if "status=live" in url:
-                    return {"items":[{"title":old_title}]}
+                    return {"items":[{"title":old_title,"id":"999"}]}
                 return {"items":[]}
             return {"id":"12345"}
         with mock.patch.object(pub,"request_json", side_effect=fake_request):
@@ -72,6 +72,27 @@ class PublisherTest(unittest.TestCase):
             self.assertEqual(result["created"],1)
             self.assertEqual(len([a for a in calls if a[1]=="POST"]),1)
             self.assertNotIn("isDraft", [a for a in calls if a[1]=="POST"][0][0])
+    def test_only_exact_match_draft_is_published(self):
+        candidates=pub.planned_items(self.root,"posts",self.day)
+        original_title, original_body, _=candidates[0]
+        seen=[]
+        def fake(url,*,access_token=None,method="GET",payload=None):
+            seen.append((url,method))
+            if url.endswith("/blogs/"+pub.EXPECTED_BLOG_ID):
+                return {"id":pub.EXPECTED_BLOG_ID,"url":"https://punchinanamaga.blogspot.com/"}
+            if "/posts/existing1/publish" in url:
+                return {"id":"existing1"}
+            if url.endswith("/posts/existing1"):
+                return {"id":"existing1","content":original_body}
+            if method=="GET" and "status=draft" in url:
+                return {"items":[{"id":"existing1","title":original_title}]}
+            return {"items":[]}
+        with mock.patch.dict("os.environ",{"BLOGGER_ALLOW_PUBLICATION":"true"}):
+            with mock.patch.object(pub,"request_json",side_effect=fake):
+                result=pub.execute(mode="publish",kind="posts",export_dir=self.root,day=self.day,limit=1,token_factory=lambda:"fake")
+        self.assertEqual(result["created"],1)
+        self.assertTrue(any("/posts/existing1/publish" in x[0] for x in seen))
+        self.assertFalse(any("isDraft=false" in x[0] for x in seen))
     def test_missing_secrets_do_not_access_network(self):
         with mock.patch.dict("os.environ",{},clear=True):
             with self.assertRaisesRegex(RuntimeError,"Required GitHub Actions secrets"):
