@@ -82,7 +82,7 @@ class PublisherTest(unittest.TestCase):
                 return {"id":pub.EXPECTED_BLOG_ID,"url":"https://punchinanamaga.blogspot.com/"}
             if "/posts/existing1/publish" in url:
                 return {"id":"existing1"}
-            if url.endswith("/posts/existing1"):
+            if "/posts/existing1?view=ADMIN" in url:
                 return {"id":"existing1","content":original_body}
             if method=="GET" and "status=draft" in url:
                 return {"items":[{"id":"existing1","title":original_title}]}
