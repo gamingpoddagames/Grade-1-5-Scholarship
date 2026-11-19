@@ -57,6 +57,15 @@ def export(dest):
             filename=f"grade-{grade}-{subject}.html"
             (dest/filename).write_text(body,encoding="utf-8")
             manifest.append({"title":title,"file":filename,"grade":grade,"subject":subject,"labels":[f"Grade {grade}","Sinhala education",SUBJECTS[subject]]})
+    pages={
+      "about":"<h2>අප ගැන</h2><p>පුංචි නැණ මඟ යනු ශ්‍රී ලංකාවේ 1–5 ශ්‍රේණි දරුවන් සඳහා නොමිලේ අධ්‍යාපනික මඟපෙන්වීම් ලබා දෙන ස්වාධීන බ්ලොග් අඩවියකි. මෙහි ගණිතය, සිංහල සහ පරිසරය ආශ්‍රිත පුහුණු අදහස් දෙමාපියන් සහ ගුරුවරුන් සඳහා ලියවෙයි.</p><p>මෙය රජයේ නිල අධ්‍යාපන අඩවියක් හෝ නිල ශිෂ්‍යත්ව විභාග පත්‍ර නිකුත් කරන සේවාවක් නොවේ. අන්තර්ගතය භාවිත කිරීමට පෙර පාඩම් මට්ටම පරීක්ෂා කරන්න.</p><p>වෙනත් නොමිලේ අභ්‍යාස: <a href='"+SITE+"'>පුංචි නැණ මඟ ප්‍රශ්න පත්‍ර අඩවිය</a>.</p>",
+      "contact":"<h2>සම්බන්ධතා</h2><p>අන්තර්ගත දෝෂයක්, අලුත් අධ්‍යාපනික අදහසක් හෝ සාමාන්‍ය යෝජනාවක් තිබේ නම් දෙමාපියෙකු හෝ ගුරුවරයෙකු ලෙස අපගේ <a href='"+FB+"'>Facebook Page</a> හරහා පණිවිඩයක් යවන්න.</p><p>දරුවෙකුගේ නම, පාසල, උපන් දිනය, ලිපිනය, ඡායාරූප හෝ සම්බන්ධතා අංක වැනි පුද්ගලික දත්ත එවන්න එපා.</p>",
+      "privacy":"<h2>පෞද්ගලිකත්ව ප්‍රතිපත්තිය</h2><p>මෙම බ්ලොග් අඩවියට පිවිසීමට දරුවන්ගෙන් නමක්, ගිණුමක් හෝ දුරකථන අංකයක් ඉල්ලා නොසිටිමු. Blogger සේවාව Google විසින් පවත්වාගෙන යන අතර cookies, hosting logs සහ වෙනත් තාක්ෂණික දත්ත එහි අදාළ ප්‍රතිපත්ති යටතේ සකස් විය හැක. Blogger භාවිත කරන widgets, embedded content හෝ comment functionality හරහා ද තෙවන පාර්ශ්ව සේවා සම්බන්ධ විය හැක.</p><p>Google AdSense සම්බන්ධතා ඉල්ලීමක්/සමාලෝචනයක් සිදුවිය හැකි නමුත් ads පෙන්වීමට අනුමැතිය ලැබී ඇතැයි මෙහි කියන්නේ නැත. අනාගතයේ වෙළඳ දැන්වීම් සක්‍රිය කරන විට cookies/ads disclosure, අවශ්‍ය consent සහ දරුවන් සඳහා අදාළ child-directed protections පිළිබඳ නිසි සැකසුම් පළමුව සකස් කළ යුතුය.</p><p>දරුවන්ගේ පුද්ගලික තොරතුරු comments හෝ messages තුළ පළ නොකරන්න. අවශ්‍ය විට අන්තර්ගත ගැටලු සඳහා <a href='"+FB+"'>අපගේ Facebook Page</a> හරහා වැඩිහිටියෙකුට සම්බන්ධ විය හැක.</p><p>Google privacy policy: <a href='https://policies.google.com/privacy'>https://policies.google.com/privacy</a>.</p>",
+      "terms":"<h2>භාවිත නියමයන්</h2><p>මෙහි ලිපි අධ්‍යාපනික පුහුණුව සඳහා සපයන ස්වාධීන මූලාශ්‍ර වේ. නිල පාඨපොත්, පාසල් විභාග පත්‍ර හෝ රජයේ විෂය නිර්දේශ සහතිකය ලෙස භාවිත නොකරන්න.</p><p>දෙමාපියන්ට සහ ගුරුවරුන්ට දරුවාගේ මට්ටමට ගැළපෙන ලෙස ප්‍රශ්න තෝරාගැනීමට සහ වැරදි පිළිතුරු නැවත පරීක්ෂා කිරීමට අපි නිර්දේශ කරමු. නිවැරදිභාවයේ ගැටලුවක් දුටුවහොත් අපට දැනුම් දෙන්න.</p>"
+    }
+    for slug,body in pages.items():
+        (dest/f"page-{slug}.html").write_text(body,encoding="utf-8")
+    (dest/"pages-index.json").write_text(json.dumps([{"slug":slug,"file":f"page-{slug}.html"} for slug in pages],ensure_ascii=False,indent=2),encoding="utf-8")
     (dest/"post-index.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf-8")
     readme="""# පුංචි නැණ මඟ — Blogger starter package (free)
     
@@ -67,7 +76,7 @@ This is a review-before-posting pack, NOT a completed Blogger blog or an AdSense
 3. In Settings, add a clear original blog description; enable Search visibility; choose HTTPS.
 4. Use Posts > New Post, switch to HTML view, paste the content from each grade-*-*.html file. Set the title from post-index.json.
 5. Review Sinhala spelling and factual accuracy before publishing. Do not blindly mass-publish 15 near-identical posts: distribute and improve the articles.
-6. Create public About, Contact, Privacy and Terms pages that correctly describe THIS Blogger site and its actual tracking/advertising state. Do not copy the GitHub privacy policy unchanged.
+6. Review and add About, Contact, Privacy and Terms in Blogger > Pages. Use the prepared page-*.html drafts. Confirm actual widgets, comments and cookie practices before publishing.
 7. In Blogger, go to Earnings to check AdSense eligibility and connect the EXISTING AdSense account. Do NOT open a second AdSense account.
 8. Ads remain OFF until Blogger/AdSense says approved and child-directed advertising and privacy requirements have been reviewed.
 
@@ -82,7 +91,7 @@ Contact for parents/teachers: https://www.facebook.com/profile.php?id=6159632614
 No guarantee of AdSense approval, page views, ad impressions or earnings.
 """
     (dest/"README.md").write_text(readme,encoding="utf-8")
-    print("Prepared",len(manifest),"Blogger article files in",dest)
+    print("Prepared",len(manifest),"Blogger article files and",len(pages),"policy page drafts in",dest)
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--output",default="blogger_output")
