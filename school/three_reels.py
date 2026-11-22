@@ -6,6 +6,8 @@ import html
 import os
 import subprocess
 from gtts import gTTS
+import subprocess
+from gtts import gTTS
 from pathlib import Path
 from build_resources import all_questions, video
 from blogger_publisher import access_token_from_env, authenticate_blog, list_existing, request_json, API, EXPECTED_BLOG_ID
@@ -33,6 +35,28 @@ def run(day, output, publish=False):
         # Render precisely the selected question, not an unrelated date-indexed one.
         video(folder, [q], day)
         movie = folder / "grade5-quiz.mp4"
+        correct = str(q["choices"][q["answer"]])
+        speech = (str(q["q"]) + " " +
+                  " ".join(str(choice) + " ද?" for choice in q["choices"]) +
+                  " පිළිතුර හිතන්න. නිවැරදි පිළිතුර, " + correct + ".")
+        audio = folder / "sinhala-voice.mp3"
+        gTTS(text=speech, lang="si", slow=False, timeout=(5,30)).save(str(audio))
+        seconds = float(subprocess.check_output(
+            ["ffprobe","-v","error","-show_entries","format=duration",
+             "-of","default=noprint_wrappers=1:nokey=1",str(audio)],
+            text=True).strip())
+        narrated = folder / "quiz-narrated.mp4"
+        duration = max(12.0, seconds + 1.5)
+        subprocess.run([
+            "ffmpeg","-hide_banner","-loglevel","error","-y",
+            "-i",str(movie),"-i",str(audio),
+            "-filter_complex","[0:v]setpts=PTS*" + str(duration/9.0) + "[v]",
+            "-map","[v]","-map","1:a","-c:v","libx264",
+            "-preset","veryfast","-c:a","aac","-b:a","128k",
+            "-pix_fmt","yuv420p","-t",str(duration),
+            "-movflags","+faststart",str(narrated)
+        ],check=True)
+        movie = narrated
         voice_text = (str(q["q"]) + " " +
                       " ".join(str(choice) + " ද?" for choice in q["choices"]) +
                       " පිළිතුර හිතන්න. නිවැරදි පිළිතුර, " + str(q["choices"][q["answer"]]) + ".")
