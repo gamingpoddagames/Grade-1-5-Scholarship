@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from build_resources import video
 from quiz_topics import select
-from blogger_publisher import access_token_from_env, authenticate_blog, list_existing, request_json, API, EXPECTED_BLOG_ID
+from crosspost import Crossposter
 from facebook_video import upload
 from blogger_link_safety import FACEBOOK_LANDING_URL
 
@@ -16,12 +16,7 @@ def run(day, output, publish=False):
     selected = [select(day, offset=i + 1) for i in range(3)]
     if len({q["q"] for q in selected}) != 3:
         raise RuntimeError("Daily reel questions repeated")
-    blogger_token = None
-    existing = {}
-    if publish:
-        blogger_token = access_token_from_env()
-        authenticate_blog(blogger_token)
-        existing = list_existing("posts", blogger_token)
+    crossposter = Crossposter() if publish else None
     for i, q in enumerate(selected, 1):
         folder = output / ("reel-" + str(i))
         # Render precisely the selected question, not an unrelated date-indexed one.
@@ -42,23 +37,17 @@ def run(day, output, publish=False):
         print("Rendered reel", i, movie)
         if not publish:
             continue
-        if not os.getenv("FB_PAGE_ID") or not os.getenv("FB_PAGE_ACCESS_TOKEN"):
-            raise RuntimeError("Missing Facebook Page credentials; publishing stopped")
-        # Publish Blogger content first; never overwrite an existing post.
-        if title not in existing:
-            result = request_json(f"{API}/blogs/{EXPECTED_BLOG_ID}/posts?isDraft=false",
-                access_token=blogger_token, method="POST",
-                payload={"kind":"blogger#post","blog":{"id":EXPECTED_BLOG_ID},
-                         "title":title,"content":body,"labels":["සිංහල ප්‍රශ්න","ශිෂ්‍යත්ව"]})
-            if not result.get("id"):
-                raise RuntimeError("Blogger did not confirm post")
-            print("Blogger post published:", result.get("url","(URL unavailable)"))
-            existing[title] = {"id":str(result["id"]),"status":"live"}
-        else:
-            print("Blogger post already exists; preserving:",title)
-        upload(movie, os.environ["FB_PAGE_ID"], os.environ["FB_PAGE_ACCESS_TOKEN"],
-               os.getenv("FB_GRAPH_VERSION","v27.0"), title=title,
-               description=f"{q['q']} පිළිතුර සිතා බලන්න. {FACEBOOK_LANDING_URL}")
+        caption = (
+            q["q"] + "\n\n" +
+            "\n".join(f'{chr(65+j)}) {choice}' for j, choice in enumerate(q["choices"])) +
+            "\n\nපිළිතුර සිතන්න. වීඩියෝව අවසානයේ නිවැරදි පිළිතුර!\n" +
+            FACEBOOK_LANDING_URL)
+        blog_url, fb_id = crossposter.publish(
+            question=q, title=title, media_kind="video",
+            media_path=movie, caption=caption,
+            version=os.getenv("FB_GRAPH_VERSION", "v27.0"))
+        print("Crossposted reel", i, blog_url, fb_id)
+
 if __name__ == "__main__":
     p=argparse.ArgumentParser()
     p.add_argument("--publish",action="store_true")
