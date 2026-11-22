@@ -8,6 +8,7 @@ on:
       - 'school/daily_publisher.py'
       - 'school/facebook_card.py'
       - 'school/visual_quiz.py'
+      - 'school/test_visual_quiz.py'
       - 'school/font_safety.py'
       - 'school/test_font_safety.py'
       - 'school/card-publish-request-*.txt'
@@ -42,6 +43,8 @@ jobs:
           python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
       - name: Fail-closed Sinhala font and Facebook caption quality gate
         run: python -m unittest discover -s school -p 'test_font_safety.py' -v
+      - name: Verify picture quiz bank and same-photo selection
+        run: python -m unittest discover -s school -p 'test_visual_quiz.py' -v
       - name: Check Facebook configuration (without revealing secrets)
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
