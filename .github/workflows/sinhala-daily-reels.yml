@@ -31,7 +31,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg fonts-noto-core fonts-dejavu-core
-          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'edge-tts==7.3.1'
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4'
       - name: Make quiz and upload to the school Page
         env:
           TRIGGER: ${{ github.event_name }}

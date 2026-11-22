@@ -4,7 +4,6 @@ import hashlib
 import json
 import os
 import subprocess
-import sys
 import tempfile
 import urllib.parse
 import urllib.request
@@ -12,6 +11,7 @@ from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from gtts import gTTS
 from PIL import Image, ImageDraw, ImageFont, ImageOps, features
 
 from blogger_link_safety import FACEBOOK_LANDING_URL
@@ -120,9 +120,7 @@ def render(row, output):
             frame(image, stage, picture, credit, question, answer, reason)
             audio = folder / f'{stage}.mp3'
             if speech:
-                subprocess.run([sys.executable, '-m', 'edge_tts', '--voice', 'si-LK-ThiliniNeural',
-                                '--rate=-13%', '--pitch=+2Hz', '--text', speech, '--write-media', str(audio)],
-                               check=True, timeout=45)
+                gTTS(text=speech, lang='si', slow=False, timeout=(5, 30)).save(str(audio))
                 duration = float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration',
                                                          '-of','csv=p=0',str(audio)])) + .45
                 source = ['-i', audio]
