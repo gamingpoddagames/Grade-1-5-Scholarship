@@ -9,6 +9,7 @@ import datetime as dt
 import html
 import os
 import re
+import unicodedata
 import urllib.parse
 import urllib.request
 import json
@@ -181,9 +182,9 @@ class Crossposter:
     def publish(self, *, question, title, media_kind, media_path, caption,
                 image_info=None, version="v27.0"):
         """Return Blogger URL and optional Meta ID; abort on uncertain retry."""
-        if media_kind not in {"video", "photo"}:
-            raise ValueError("Media kind must be video or photo")
-        if not Path(media_path).is_file():
+        if media_kind not in {"video", "photo", "text"}:
+            raise ValueError("Media kind must be video, photo or text")
+        if media_kind != "text" and not Path(media_path).is_file():
             raise RuntimeError("Media is missing; nothing published")
         article, created = self.article(question, title, media_kind, image_info)
         article_url = validate_blog_url(article.get("url"))
@@ -207,6 +208,7 @@ class Crossposter:
         full_caption = caption.replace(FACEBOOK_LANDING_URL, article_url)
         if article_url not in full_caption:
             full_caption += "\n\n" + article_url
+        full_caption = unicodedata.normalize("NFC", full_caption)
         check_caption(full_caption)
 
         # Reserve the single remote attempt in durable Blogger state *first*.
@@ -218,9 +220,14 @@ class Crossposter:
             object_id = upload(
                 media_path, os.environ["FB_PAGE_ID"], os.environ["FB_PAGE_ACCESS_TOKEN"],
                 version, title=title, description=full_caption)
-        else:
+        elif media_kind == "photo":
             from facebook_card import publish
             object_id = publish(media_path, full_caption)
+        else:
+            from daily_publisher import publish
+            object_id = publish(
+                full_caption, os.environ["FB_PAGE_ID"],
+                os.environ["FB_PAGE_ACCESS_TOKEN"], version)
         if not object_id:
             raise RuntimeError("Facebook did not return a confirmed object ID")
         print("Facebook delivery confirmed:", object_id)
