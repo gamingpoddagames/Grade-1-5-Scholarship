@@ -59,17 +59,17 @@ def spoken_number(value):
 def speech_ready(text):
     """Prepare Sinhala speech text; refuse unknown Latin words/symbols."""
     text = str(text)
-    text = re.sub(r"රු\\.", "රුපියල් ", text)
+    text = re.sub(r"රු\.", "රුපියල් ", text)
     # Fractions are read as numerator over denominator, not a URL or date.
-    text = re.sub(r"(?<![\\d/])(\\d+)\\s*/\\s*(\\d+)(?![\\d/])",
+    text = re.sub(r"(?<![\d/])(\d+)\s*/\s*(\d+)(?![\d/])",
                   lambda m: spoken_number(m.group(1)) + " බෙදූ " + spoken_number(m.group(2)), text)
-    text = re.sub(r"\\d+", lambda m: spoken_number(m.group()), text)
+    text = re.sub(r"\d+", lambda m: spoken_number(m.group()), text)
     for old, new in (("×", " ගුණ කිරීම "), ("÷", " බෙදීම "), ("+", " එකතු කිරීම "),
                      ("=", " සමානයි "), ("-", " අඩු කිරීම "), ("...", " "),
                      ("?", " ද? ")):
         text = text.replace(old, new)
-    text = re.sub(r"\\s+", " ", text).strip()
-    if re.search(r"[A-Za-z]|[×÷=+]|\\d", text):
+    text = re.sub(r"\s+", " ", text).strip()
+    if re.search(r"[A-Za-z]|[×÷=+]|\d", text):
         raise ValueError("Unsupported token remains in Sinhala narration: " + text)
     return text
 
