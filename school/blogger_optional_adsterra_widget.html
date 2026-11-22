@@ -1,0 +1,31 @@
+<!-- Punchi Nena Maga: optional, clearly labeled Adsterra ad for Blogger HTML/JavaScript gadget.
+     IMPORTANT: verify that this is an approved, family-appropriate unit in YOUR Adsterra dashboard.
+     The /14/ path is often associated with Social Bar; it is NOT a conventional banner slot.
+     No mandatory redirect, no hidden destination, no forced ad click. -->
+<section lang="si" id="punchi-sponsored" style="margin:20px auto;max-width:700px;padding:14px;border:1px solid #d8e4ea;border-radius:12px;line-height:1.8;font-family:'Noto Sans Sinhala',sans-serif;background:#fff;color:#16324d">
+  <p style="margin:0 0 8px;font-weight:700">දැන්වීම / Sponsored advertisement</p>
+  <p style="margin:0 0 12px">අපේ නොමිලේ අධ්‍යාපනික සේවාවට සහාය වීමට කැමති නම් පමණක් දැන්වීම පෙන්වන්න. දැන්වීම නොබලා පාඩම් කියවිය හැකිය.</p>
+  <button type="button" id="punchi-show-ad" style="padding:10px 15px;border:0;border-radius:8px;background:#176e75;color:white;cursor:pointer">දැන්වීම පෙන්වන්න</button>
+  <span id="punchi-ad-status" role="status" style="margin-left:10px"></span>
+</section>
+<script>
+(function () {
+  'use strict';
+  var button = document.getElementById('punchi-show-ad');
+  var status = document.getElementById('punchi-ad-status');
+  if (!button || !status) return;
+  button.addEventListener('click', function () {
+    button.disabled = true;
+    status.textContent = 'දැන්වීම පූරණය වෙමින් පවතී.';
+    var ad = document.createElement('script');
+    ad.setAttribute('data-cfasync', 'false');
+    ad.src = 'https://bicea.org/14/3777aa5b8fbe2c3a7513a1e6dc0637c5';
+    ad.async = true;
+    ad.onerror = function () {
+      status.textContent = 'දැන්වීම දැන් ලබාගත නොහැක.';
+      button.disabled = false;
+    };
+    document.body.appendChild(ad);
+  }, {once:true});
+})();
+</script>
