@@ -45,6 +45,7 @@ def upload(path, page_id, access_token, version, *, title=None, description=None
     if not answer.get("id"):
         raise RuntimeError("Meta video endpoint did not confirm a video ID")
     print("Facebook video published:",answer["id"])
+    return str(answer["id"])
 
 def main():
     parser=argparse.ArgumentParser()
