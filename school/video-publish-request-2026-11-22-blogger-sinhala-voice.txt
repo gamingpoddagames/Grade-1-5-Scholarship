@@ -1,0 +1,1 @@
+Authorized by project owner on 2026-11-22: generate and publish a new original Sinhala narrated educational invitation video to the connected Facebook Page. Use only the Blogger page URL and the updated Sinhala voice pronunciation normalizer. Do not claim publication unless the API returns a video ID.
