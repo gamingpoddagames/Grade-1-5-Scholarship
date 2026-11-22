@@ -125,7 +125,16 @@ def main():
     item=json.loads(Path(args.question).read_text(encoding="utf-8"))
     create_card(item,args.output)
     if args.publish:
-        caption=Path(args.caption).read_text(encoding="utf-8")
-        publish(args.output,caption)
+        from crosspost import Crossposter, today_in_sri_lanka
+        import datetime as dt
+        caption = Path(args.caption).read_text(encoding="utf-8")
+        day = dt.date.fromisoformat(item["content_date"]) if item.get("content_date") else today_in_sri_lanka()
+        blog_url, fb_id = Crossposter().publish(
+            question=item,
+            title=f"පුංචි නැණ මඟ | {day.isoformat()} | අද පින්තූර ප්‍රශ්නය",
+            media_kind="photo", media_path=args.output,
+            caption=caption, image_info=item,
+            version=os.getenv("FB_GRAPH_VERSION", "v27.0"))
+        print("Crossposted daily image:", blog_url, fb_id)
 
 if __name__=="__main__":main()
