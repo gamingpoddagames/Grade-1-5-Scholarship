@@ -24,28 +24,28 @@ SHUTTLE = ('STS120LaunchHiRes-edit1.jpg', 'NASA / STS-120')
 GALAXY = ('Hubble2005-01-barred-spiral-galaxy-NGC1300.jpg', 'NGC 1300 | NASA / ESA / Hubble')
 QUESTIONS = [
     (EARTH, 'ලෝකයේ විශාලම සාගරය මොකක් ද?', 'පැසිෆික් සාගරය',
-     'ප්‍රමාණයෙන් එය අත්ලාන්තික් සාගරයට වඩා විශාලයි.'),
+     'ලෝකයේ ලොකුම සාගරය ඒකයි.'),
     (MARS, 'රතු ග්‍රහලෝකය කියන්නේ මොන ග්‍රහලෝකයට ද?', 'අඟහරු',
      'එහි මතුපිට යකඩ ඔක්සයිඩ් නිසා රතු පාටින් පේනවා.'),
-    (GALAXY, 'අපේ සෞරග්‍රහ මණ්ඩලය තියෙන්නේ මොන මන්දාකිණියේ ද?', 'ක්ෂීරපථයේ',
-     'සූර්යයාත් ක්ෂීරපථයේ තියෙන තරුවක්.'),
+    (GALAXY, 'අපේ සූර්යයා තියෙන්නේ මොන මන්දාකිණියේ ද?', 'ක්ෂීරපථයේ',
+     'අපේ සූර්යයාත් ඒ මන්දාකිණියේ තරුවක්.'),
     (SHUTTLE, 'රොකට්ටුවක් ගුවන්ගත වෙන්නේ කොහොම ද?', 'වායුව පහළට වේගයෙන් පිට කරලා',
      'වායුව පහළට යද්දී රොකට්ටුව ඉහළට තල්ලු වෙනවා.'),
     (EARTH, 'ලෝකයේ විශාලම මහද්වීපය මොකක් ද?', 'ආසියාව',
      'ශ්‍රී ලංකාවත් ආසියාවට අයිතියි.'),
-    (MARS, 'අඟහරුගේ චන්ද්‍රිකා කීයක් තියෙනවා ද?', 'දෙකයි',
-     'ඒවා ෆෝබෝස් සහ ඩීමෝස්.'),
+    (MARS, 'අඟහරු වටා සඳවල් කීයක් යනවා ද?', 'දෙකයි',
+     'අඟහරු වටා සඳවල් දෙකක් ගමන් කරනවා.'),
     (EARTH, 'පෘථිවියේ දවල් සහ රෑ මාරු වෙන්නේ ඇයි?', 'පෘථිවිය කැරකෙන නිසා',
      'සූර්යයාට මුහුණ දෙන පැත්තට දවල්. අනෙක් පැත්තට රෑ.'),
-    (EARTH, 'පෘථිවියේ ස්වාභාවික චන්ද්‍රිකාව මොකක් ද?', 'සඳ',
+    (EARTH, 'පෘථිවිය වටා යන අපට රෑට පෙනෙන වස්තුව මොකක් ද?', 'සඳ',
      'සඳ පෘථිවිය වටා ගමන් කරනවා.'),
     (GALAXY, 'මන්දාකිණියක් කියන්නේ මොකක් ද?', 'තරු විශාල සමූහයක්',
      'තරු සමඟ වායු සහ දූවිලිත් එහි තියෙනවා.'),
-    (EARTH, 'දක්ෂිණ ධ්‍රැවය තියෙන්නේ මොන මහද්වීපයේ ද?', 'ඇන්ටාක්ටිකාවේ',
+    (EARTH, 'පෘථිවියේ දකුණු ධ්‍රැවය තියෙන්නේ මොන මහද්වීපයේ ද?', 'ඇන්ටාක්ටිකාවේ',
      'එය පෘථිවියේ දකුණු කෙළවරේ තියෙනවා.'),
     (MARS, 'පෘථිවියට පස්සේ සූර්යයාගෙන් ඈතට හමුවන ග්‍රහලෝකය මොකක් ද?', 'අඟහරු',
      'පෘථිවිය තුන්වැනියි. අඟහරු හතරවැනියි.'),
-    (EARTH, 'පෘථිවියේ ඍතු වෙනස් වීමට ප්‍රධාන හේතුව මොකක් ද?', 'පෘථිවි අක්ෂයේ ඇලය',
+    (EARTH, 'පෘථිවියේ කාල හතර වෙනස් වෙන්නේ ඇයි?', 'පෘථිවියේ කැරකෙන අක්ෂය ඇල නිසා',
      'පෘථිවිය සූර්යයා වටා යද්දී ඒ ඇලය නිසා ලැබෙන හිරු එළිය වෙනස් වෙනවා.'),
 ]
 
@@ -98,22 +98,30 @@ def frame(path, stage, picture, credit, question, answer, reason):
     canvas.save(path)
 
 
+def narration(question, answer, reason):
+    # Keep the exact words from the cards and use punctuation only to cue pauses.
+    spoken_question = question.replace('සාගරය මොකක් ද?', 'සාගරය, මොකක් ද?')
+    spoken_answer = answer.replace('පැසිෆික් සාගරය', 'පැසිෆික්, සාගරය')
+    return spoken_question, f'{spoken_answer}. {reason}'
+
+
 def render(row, output):
     (filename, credit), question, answer, reason = row
     picture = photo(filename)
     with tempfile.TemporaryDirectory() as directory:
         folder = Path(directory)
         clips = []
-        stages = [('question', question)]
+        spoken_question, spoken_answer = narration(question, answer, reason)
+        stages = [('question', spoken_question)]
         stages += [(str(i), '') for i in range(5, 0, -1)]
-        stages += [('answer', f'{answer}. {reason}')]
+        stages += [('answer', spoken_answer)]
         for stage, speech in stages:
             image = folder / f'{stage}.png'
             frame(image, stage, picture, credit, question, answer, reason)
             audio = folder / f'{stage}.mp3'
             if speech:
                 subprocess.run([sys.executable, '-m', 'edge_tts', '--voice', 'si-LK-ThiliniNeural',
-                                '--rate=-10%', '--pitch=+6Hz', '--text', speech, '--write-media', str(audio)],
+                                '--rate=-13%', '--pitch=+2Hz', '--text', speech, '--write-media', str(audio)],
                                check=True, timeout=45)
                 duration = float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration',
                                                          '-of','csv=p=0',str(audio)])) + .45
