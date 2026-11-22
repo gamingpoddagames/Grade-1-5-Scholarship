@@ -1,1 +1,2 @@
-Preview the quiz with production-news narration timing and encoding.
+slot=1
+Publish a different world-knowledge quiz with the SL NEWS voice.

@@ -48,6 +48,13 @@ jobs:
             '30 7 * * *') slot=1 ;;
             '30 12 * * *') slot=2 ;;
           esac
+          if [[ "$TRIGGER" == push && -f school/daily-reel-launch.txt ]]; then
+            case "$(head -n 1 school/daily-reel-launch.txt)" in
+              slot=0) slot=0 ;;
+              slot=1) slot=1 ;;
+              slot=2) slot=2 ;;
+            esac
+          fi
           args=(--slot "$slot")
           if [[ "$ATTEMPT" == 1 && ( "$TRIGGER" == schedule || ( "$TRIGGER" == push && "$COMMIT_MESSAGE" != "Preview SL NEWS voice in quiz" ) || "$PUBLISH" == true ) ]]; then
             args+=(--publish)
