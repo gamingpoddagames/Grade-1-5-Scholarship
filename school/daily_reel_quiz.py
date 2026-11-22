@@ -18,28 +18,35 @@ from blogger_link_safety import FACEBOOK_LANDING_URL
 from facebook_video import upload
 
 FONT = Path('/usr/share/fonts/truetype/noto')
-MANGO = ('Mango_(1).jpg', 'Renee Comet / NCI (public domain)')
-EARTH = ('The_Earth_seen_from_Apollo_17.jpg', 'NASA / Apollo 17 (public domain)')
+EARTH = ('The_Earth_seen_from_Apollo_17.jpg', 'NASA / Apollo 17')
+MARS = ('Mars_Valles_Marineris.jpeg', 'NASA / JPL-Caltech')
+SHUTTLE = ('STS120LaunchHiRes-edit1.jpg', 'NASA / STS-120')
+GALAXY = ('Hubble2005-01-barred-spiral-galaxy-NGC1300.jpg', 'NGC 1300 | NASA / ESA / Hubble')
 QUESTIONS = [
-    (MANGO, 'අඹ අයිති මොන ඵල වර්ගයට ද?', 'ඩ්‍රූප්',
-     'අඹ ගෙඩියේ බීජය වටා තද ආවරණයක් තියෙනවා.',
-     'අඹ අයිති වෙන්නේ මොන ඵල වර්ගයට ද?',
-     'නිවැරදි පිළිතුර, ඩ්‍රූප්. අඹ ගෙඩියේ බීජය වටා තද ආවරණයක් තියෙනවා.'),
-    (EARTH, 'පෘථිවියට ස්වාභාවික චන්ද්‍රිකා කීයක් තියෙනවා ද?', 'එකයි',
-     'ඒ අපේ සඳයි.', 'පෘථිවියට ස්වාභාවික චන්ද්‍රිකා කීයක් තියෙනවා ද?',
-     'එකයි. ඒ අපේ සඳයි.'),
-    (EARTH, 'පෘථිවියේ දවසක් ඇතිවන්නේ කොහොම ද?', 'පෘථිවිය කැරකෙන නිසා',
-     'පෘථිවිය තමන්ගේ අක්ෂය වටා කැරකෙනවා.', 'පෘථිවියේ දවසක් ඇතිවන්නේ කොහොම ද?',
-     'පෘථිවිය තමන්ගේ අක්ෂය වටා කැරකෙන නිසා දවල් සහ රෑ මාරුවෙන් මාරුවට එනවා.'),
-    (MANGO, 'අඹ ගෙඩියක සාමාන්‍යයෙන් බීජ කීයක් තියෙනවා ද?', 'එකයි',
-     'බීජය තියෙන්නේ තද ඇටය ඇතුළේ.', 'අඹ ගෙඩියක සාමාන්‍යයෙන් බීජ කීයක් තියෙනවා ද?',
-     'එකයි. බීජය තියෙන්නේ තද ඇටය ඇතුළේ.'),
-    (EARTH, 'සූර්යයාට ළඟින් පෘථිවිය කීවැනි ග්‍රහලෝකය ද?', 'තුන්වැනි ග්‍රහලෝකය',
-     'බුධ සහ සිකුරු පෘථිවියට කලින් තියෙනවා.', 'සූර්යයාට ළඟින් පෘථිවිය කීවැනි ග්‍රහලෝකය ද?',
-     'තුන්වැනි ග්‍රහලෝකය. මුලින් බුධ. ඊළඟට සිකුරු. ඉන් පස්සේ පෘථිවිය.'),
-    (EARTH, 'පෘථිවියේ ඍතු වෙනස් වීමට ප්‍රධාන හේතුව මොකක් ද?', 'අක්ෂයේ ඇලය',
-     'පෘථිවියේ අක්ෂය ඇල වී තිබෙනවා.', 'පෘථිවියේ ඍතු වෙනස් වීමට ප්‍රධාන හේතුව මොකක් ද?',
-     'පෘථිවියේ අක්ෂය ඇල වෙලා තියෙනවා. පෘථිවිය සූර්යයා වටා යනකොට ඒ ඇලය නිසා උතුරු සහ දකුණු අර්ධ ගෝලවලට ලැබෙන හිරු එළිය වෙනස් වෙනවා.'),
+    (EARTH, 'ලෝකයේ විශාලම සාගරය මොකක් ද?', 'පැසිෆික් සාගරය',
+     'ප්‍රමාණයෙන් එය අත්ලාන්තික් සාගරයට වඩා විශාලයි.'),
+    (MARS, 'රතු ග්‍රහලෝකය කියන්නේ මොන ග්‍රහලෝකයට ද?', 'අඟහරු',
+     'එහි මතුපිට යකඩ ඔක්සයිඩ් නිසා රතු පාටින් පේනවා.'),
+    (GALAXY, 'අපේ සෞරග්‍රහ මණ්ඩලය තියෙන්නේ මොන මන්දාකිණියේ ද?', 'ක්ෂීරපථයේ',
+     'සූර්යයාත් ක්ෂීරපථයේ තියෙන තරුවක්.'),
+    (SHUTTLE, 'රොකට්ටුවක් ගුවන්ගත වෙන්නේ කොහොම ද?', 'වායුව පහළට වේගයෙන් පිට කරලා',
+     'වායුව පහළට යද්දී රොකට්ටුව ඉහළට තල්ලු වෙනවා.'),
+    (EARTH, 'ලෝකයේ විශාලම මහද්වීපය මොකක් ද?', 'ආසියාව',
+     'ශ්‍රී ලංකාවත් ආසියාවට අයිතියි.'),
+    (MARS, 'අඟහරුගේ චන්ද්‍රිකා කීයක් තියෙනවා ද?', 'දෙකයි',
+     'ඒවා ෆෝබෝස් සහ ඩීමෝස්.'),
+    (EARTH, 'පෘථිවියේ දවල් සහ රෑ මාරු වෙන්නේ ඇයි?', 'පෘථිවිය කැරකෙන නිසා',
+     'සූර්යයාට මුහුණ දෙන පැත්තට දවල්. අනෙක් පැත්තට රෑ.'),
+    (EARTH, 'පෘථිවියේ ස්වාභාවික චන්ද්‍රිකාව මොකක් ද?', 'සඳ',
+     'සඳ පෘථිවිය වටා ගමන් කරනවා.'),
+    (GALAXY, 'මන්දාකිණියක් කියන්නේ මොකක් ද?', 'තරු විශාල සමූහයක්',
+     'තරු සමඟ වායු සහ දූවිලිත් එහි තියෙනවා.'),
+    (EARTH, 'දක්ෂිණ ධ්‍රැවය තියෙන්නේ මොන මහද්වීපයේ ද?', 'ඇන්ටාක්ටිකාවේ',
+     'එය පෘථිවියේ දකුණු කෙළවරේ තියෙනවා.'),
+    (MARS, 'පෘථිවියට පස්සේ සූර්යයාගෙන් ඈතට හමුවන ග්‍රහලෝකය මොකක් ද?', 'අඟහරු',
+     'පෘථිවිය තුන්වැනියි. අඟහරු හතරවැනියි.'),
+    (EARTH, 'පෘථිවියේ ඍතු වෙනස් වීමට ප්‍රධාන හේතුව මොකක් ද?', 'පෘථිවි අක්ෂයේ ඇලය',
+     'පෘථිවිය සූර්යයා වටා යද්දී ඒ ඇලය නිසා ලැබෙන හිරු එළිය වෙනස් වෙනවා.'),
 ]
 
 
@@ -61,9 +68,9 @@ def response_bytes(response):
 
 
 def frame(path, stage, picture, credit, question, answer, reason):
-    canvas = Image.new('RGB', (720, 1280), '#101f2d')
+    canvas = Image.new('RGB', (720, 1280), '#101827')
     draw = ImageDraw.Draw(canvas)
-    draw.rounded_rectangle((55, 100, 665, 770), 34, fill='#193347')
+    draw.rounded_rectangle((55, 100, 665, 770), 34, fill='#1c2e45')
     def label(y, message, size, color='#fff4df', latin=False):
         font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf' if latin else str(FONT/'NotoSansSinhala-Bold.ttf'), size)
         lines = ['']
@@ -76,30 +83,30 @@ def frame(path, stage, picture, credit, question, answer, reason):
         for line in lines:
             draw.text((360,y), line, font=font, anchor='mt', fill=color, language='si')
             y += int(size * 1.4)
-    label(135, 'පුංචි නැණ මඟ', 33, '#8ee1cb')
-    label(215, question, 43)
+    label(135, 'පුංචි නැණ මඟ   ලෝක දැනුම', 28, '#8ee1cb')
+    label(220, question, 38)
     canvas.paste(picture, ((720-picture.width)//2, 390+(335-picture.height)//2))
     label(735, credit, 17, '#d5e7ed', latin=True)
     if stage == 'answer':
         label(811, 'නිවැරදි පිළිතුර', 29, '#8ee1cb')
-        label(870, answer, 47, '#ffcf79')
-        label(962, reason, 30)
+        label(870, answer, 40, '#ffcf79')
+        label(990, reason, 30)
     else:
         label(820, 'පිළිතුර හිතන්න', 30)
         draw.ellipse((293,880,427,1014), outline='#8ee1cb', width=7)
-        label(900, stage if stage.isdigit() else '?', 72, '#ffcf79')
+        label(900, stage if stage.isdigit() else '?', 72, '#ffcf79', latin=True)
     canvas.save(path)
 
 
 def render(row, output):
-    (filename, credit), question, answer, reason, spoken_question, spoken_answer = row
+    (filename, credit), question, answer, reason = row
     picture = photo(filename)
     with tempfile.TemporaryDirectory() as directory:
         folder = Path(directory)
         clips = []
-        stages = [('question', spoken_question + ' ටිකක් හිතන්න.')]
+        stages = [('question', question)]
         stages += [(str(i), '') for i in range(5, 0, -1)]
-        stages += [('answer', spoken_answer)]
+        stages += [('answer', f'{answer}. {reason}')]
         for stage, speech in stages:
             image = folder / f'{stage}.png'
             frame(image, stage, picture, credit, question, answer, reason)
