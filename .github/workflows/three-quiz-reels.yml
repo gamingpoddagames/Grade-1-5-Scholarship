@@ -34,6 +34,7 @@ jobs:
           python -m compileall -q school
           python -m unittest discover -s school -p 'test_font_safety.py' -v
           python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
+          python -m unittest discover -s school -p 'test_crosspost.py' -v
       - name: Generate three distinct daily reels and optional publication
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -45,10 +46,10 @@ jobs:
           RUN_EVENT: ${{ github.event_name }}
           MANUAL_PUBLISH: ${{ inputs.publish }}
         run: |
-          if [[ "$BLOGGER_ALLOW_PUBLICATION" == "true" && ( "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" ) ]]; then
+          if [[ "$BLOGGER_ALLOW_PUBLICATION" != "false" && ( "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" ) ]]; then
             python school/three_reels.py --publish
           else
-            echo "Preview only: publication requires BLOGGER_ALLOW_PUBLICATION=true"
+            echo "Preview only: manual preview or Blogger publication explicitly disabled"
             python school/three_reels.py
           fi
       - uses: actions/upload-artifact@v4
