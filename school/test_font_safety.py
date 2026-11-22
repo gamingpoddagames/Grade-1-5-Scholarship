@@ -13,6 +13,9 @@ from website_promo import TOPICS, card, caption, slide
 from build_resources import all_questions, video
 from facebook_card import create_card
 from daily_publisher import make_content
+from voice_video import speech_ready
+from website_promo import caption as promo_caption
+from facebook_video import upload as facebook_video_upload
 
 class FacebookGlyphGateTests(unittest.TestCase):
     def test_real_fonts_support_separate_sinhala_latin_runs(self):
@@ -82,6 +85,31 @@ class FacebookGlyphGateTests(unittest.TestCase):
                 image.verify()
             self.assertGreater(output.stat().st_size, 10000)
             self.assertEqual(logo(240).size, (240, 240))
+
+    def test_facebook_links_are_blogger_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            message = make_content(dt.date(2026, 11, 22), pathlib.Path(tmp))
+            self.assertIn("https://punchinanamaga.blogspot.com/", message)
+            self.assertNotIn("github.io", message)
+            for topic in TOPICS:
+                text = promo_caption(topic)
+                self.assertIn("punchinanamaga.blogspot.com", text)
+                self.assertNotIn("github.io", text)
+
+    def test_sinhala_spoken_math_and_english_terms(self):
+        examples = [
+            "රු. 900 ÷ 6 = 150යි.",
+            "1/2 + 1/4 = ?",
+            "8 × 6 = කීයද?",
+            "PDF සහ Online Quiz",
+        ]
+        for sample in examples:
+            with self.subTest(sample=sample):
+                spoken = speech_ready(sample)
+                self.assertNotRegex(spoken, r"[A-Za-z0-9×÷=+]")
+                self.assertTrue(spoken.strip())
+        self.assertIn("අන්තර්ජාල ප්‍රශ්නාවලි", speech_ready("Online Quiz"))
+        self.assertIn("රුපියල්", speech_ready("රු. 900"))
 
     def test_no_invisible_formatting_in_captions(self):
         for raw in ["normal test","පුංචි නැණ මඟ - පාඩම්", "https://punchinanamaga.blogspot.com/?utm_source=facebook"]:
