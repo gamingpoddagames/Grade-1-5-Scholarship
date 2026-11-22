@@ -197,8 +197,19 @@ class Crossposter:
                 "Facebook was not reposted to avoid duplicates")
         value = state.group(1)
         if value.startswith("PUBLISHED:"):
+            fb_id = value.partition(":")[2]
+            # A verified permalink can become available later; repair an embed
+            # without ever reposting the already-published Facebook video.
+            if EMBED_MARKER not in article.get("content", ""):
+                permalink = verified_facebook_permalink(
+                    fb_id, os.environ["FB_PAGE_ACCESS_TOKEN"], version, media_kind)
+                if permalink:
+                    self.update(
+                        article["id"],
+                        article["content"] + facebook_embed(permalink, media_kind))
+                    print("Recovered missing Facebook embed on existing Blogger article")
             print("SKIPPED duplicate Facebook post for existing Blogger article:", article_url)
-            return article_url, value.partition(":")[2]
+            return article_url, fb_id
         if value == "PENDING":
             raise RuntimeError(
                 "Facebook delivery previously attempted with uncertain result. "
