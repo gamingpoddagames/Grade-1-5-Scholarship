@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Post an original quiz MP4 to an authorized Facebook Page via Graph API."""
 import argparse
+from blogger_link_safety import validate_blogger_links
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,7 @@ def upload(path, page_id, access_token, version, *, title=None, description=None
     }
     check_caption(fields["title"])
     check_caption(fields["description"])
+    validate_blogger_links(fields["description"])
     body=bytearray()
     for key,value in fields.items():
         body.extend((f"--{boundary}\r\nContent-Disposition: form-data; name=\"{key}\"\r\n\r\n{value}\r\n").encode("utf-8"))

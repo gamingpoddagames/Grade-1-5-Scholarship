@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic school-content publisher. No AI and no third-party Python packages."""
 import argparse
+from blogger_link_safety import validate_blogger_links
 import datetime as dt
 import html
 import json
@@ -64,6 +65,7 @@ def make_content(day, output_dir):
 
 def publish(message, page_id, token, version="v27.0"):
     check_caption(message)
+    validate_blogger_links(message)
     payload = urllib.parse.urlencode({"message":message,"access_token":token}).encode("utf-8")
     request = urllib.request.Request(f"https://graph.facebook.com/{version}/{page_id}/feed",data=payload,method="POST")
     try:

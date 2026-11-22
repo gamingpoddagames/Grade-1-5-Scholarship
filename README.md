@@ -1,6 +1,7 @@
 # පුංචි නැණ මඟ | Grade 1–5 & Scholarship
 
-**Website:** https://gamingpoddagames.github.io/Grade-1-5-Scholarship/
+**Website:** https://punchinanamaga.blogspot.com/
+**PDF/quiz resource hosting:** https://gamingpoddagames.github.io/Grade-1-5-Scholarship/
 **Repository:** https://github.com/gamingpoddagames/Grade-1-5-Scholarship
 
 ## Working features
@@ -37,3 +38,6 @@ Use original educational content and useful teacher/parent explanations to earn 
 - Further curriculum-specific question review, diversity and voice pronunciation QA
 - Automated analytics/Search Console reporting
 - AdSense after website quality and policy review
+
+## Blogger monetization
+The verified existing Adsterra Social Bar is an optional footer gadget on Blogger. Facebook lesson links stay on the owned Blogger domain and are validated before publishing. See [the installation and rollback notes](school/ADSTERra_SETUP.md). Ad creatives and earnings are not established by script loading alone.

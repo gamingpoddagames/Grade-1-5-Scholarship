@@ -1,31 +1,45 @@
-<!-- Punchi Nena Maga: optional, clearly labeled Adsterra ad for Blogger HTML/JavaScript gadget.
-     IMPORTANT: verify that this is an approved, family-appropriate unit in YOUR Adsterra dashboard.
-     The /14/ path is often associated with Social Bar; it is NOT a conventional banner slot.
-     No mandatory redirect, no hidden destination, no forced ad click. -->
-<section lang="si" id="punchi-sponsored" style="margin:20px auto;max-width:700px;padding:14px;border:1px solid #d8e4ea;border-radius:12px;line-height:1.8;font-family:'Noto Sans Sinhala',sans-serif;background:#fff;color:#16324d">
-  <p style="margin:0 0 8px;font-weight:700">දැන්වීම / Sponsored advertisement</p>
-  <p style="margin:0 0 12px">අපේ නොමිලේ අධ්‍යාපනික සේවාවට සහාය වීමට කැමති නම් පමණක් දැන්වීම පෙන්වන්න. දැන්වීම නොබලා පාඩම් කියවිය හැකිය.</p>
-  <button type="button" id="punchi-show-ad" style="padding:10px 15px;border:0;border-radius:8px;background:#176e75;color:white;cursor:pointer">දැන්වීම පෙන්වන්න</button>
-  <span id="punchi-ad-status" role="status" style="margin-left:10px"></span>
+<!-- Verified in the owner's Adsterra dashboard on 2026-11-22:
+     punchinanamaga.blogspot.com, website 6219537, Social Bar 32413123.
+     Adult ads OFF. Popunder is not installed. Paste once into a footer HTML/JavaScript gadget.
+     The external script loads only after an explicit choice; no automatic navigation. -->
+<section lang="si" id="punchi-sponsored" aria-label="විකල්ප වෙළඳ දැන්වීම්"
+ style="box-sizing:border-box;margin:20px auto;max-width:700px;padding:18px;border:1px solid #d8e4ea;border-radius:12px;line-height:1.85;font-family:'Noto Sans Sinhala','Nirmala UI',sans-serif;background:#fff;color:#16324d;text-align:left">
+  <p style="margin:0 0 8px;font-weight:700">දැන්වීම / Advertisement — දෙමාපියන් සහ ගුරුවරුන් සඳහා</p>
+  <p style="margin:0 0 12px">පාඩම්, ප්‍රශ්න පත්‍ර සහ පිළිතුරු නොමිලේ භාවිත කළ හැකිය. දැන්වීම් පෙන්වීම හෝ ඒවා මත ක්ලික් කිරීම අවශ්‍ය නැත.</p>
+  <p style="margin:0 0 12px;font-size:14px">පහත බොත්තම තේරුවොත් Adsterra තෙවන පාර්ශ්ව දැන්වීම් පූරණය වේ. එම සේවාව cookies සහ තාක්ෂණික දත්ත භාවිත කළ හැකිය. මෙය කැමති වැඩිහිටියන් සඳහා විකල්පයකි.</p>
+  <button type="button" id="punchi-show-ad" style="max-width:100%;white-space:normal;padding:12px 16px;border:0;border-radius:8px;background:#176e75;color:white;cursor:pointer;font:inherit">විකල්ප දැන්වීම් පෙන්වන්න</button>
+  <p id="punchi-ad-status" role="status" aria-live="polite" style="margin:10px 0 0;font-size:14px"></p>
 </section>
 <script>
 (function () {
   'use strict';
   var button = document.getElementById('punchi-show-ad');
   var status = document.getElementById('punchi-ad-status');
-  if (!button || !status) return;
+  if (!button || !status || button.getAttribute('data-bound')) return;
+  button.setAttribute('data-bound', 'true');
   button.addEventListener('click', function () {
+    if (document.getElementById('punchi-adsterra-loader')) return;
     button.disabled = true;
-    status.textContent = 'දැන්වීම පූරණය වෙමින් පවතී.';
+    status.textContent = '\u0daf\u0dd0\u0db1\u0dca\u0dc0\u0dd3\u0db8\u0dca \u0db4\u0dd6\u0dbb\u0dab\u0dba \u0dc0\u0dd9\u0db8\u0dd2\u0db1\u0dca \u0db4\u0dc0\u0dad\u0dd3. \u0db4\u0dcf\u0da9\u0db8\u0dca \u0daf\u0dd2\u0d9c\u0da7\u0db8 \u0db7\u0dcf\u0dc0\u0dd2\u0dad \u0d9a\u0dc5 \u0dc4\u0dd0\u0d9a\u0dd2\u0dba.';
     var ad = document.createElement('script');
+    ad.id = 'punchi-adsterra-loader';
     ad.setAttribute('data-cfasync', 'false');
     ad.src = 'https://bicea.org/14/3777aa5b8fbe2c3a7513a1e6dc0637c5';
     ad.async = true;
+    var timer = setTimeout(function () {
+      status.textContent = '\u0daf\u0dd0\u0db1\u0dca\u0dc0\u0dd3\u0db8\u0dca \u0db1\u0ddc\u0db4\u0dd9\u0db1\u0dda \u0db1\u0db8\u0dca \u0db4\u0dc3\u0dd4\u0dc0 \u0d8b\u0dad\u0dca\u0dc3\u0dcf\u0dc4 \u0d9a\u0dbb\u0db1\u0dca\u0db1. \u0db4\u0dcf\u0da9\u0db8\u0dca \u0dc3\u0db3\u0dc4\u0dcf \u0db6\u0dcf\u0db0\u0dcf\u0dc0\u0d9a\u0dca \u0db1\u0dd0\u0dad.';
+    }, 12000);
+    ad.onload = function () {
+      clearTimeout(timer);
+      status.textContent = '\u0daf\u0dd0\u0db1\u0dca\u0dc0\u0dd3\u0db8\u0dca \u0d9a\u0dda\u0dad\u0dba \u0db4\u0dd6\u0dbb\u0dab\u0dba \u0dc0\u0dd2\u0dba. \u0daf\u0dd0\u0db1\u0dca\u0dc0\u0dd3\u0db8\u0dca \u0dad\u0dd2\u0db6\u0dda \u0db1\u0db8\u0dca \u0db4\u0dd9\u0db1\u0dca\u0dc0\u0db1\u0dd4 \u0d87\u0dad.';
+    };
     ad.onerror = function () {
-      status.textContent = 'දැන්වීම දැන් ලබාගත නොහැක.';
+      clearTimeout(timer);
+      status.textContent = '\u0daf\u0dd0\u0db1\u0dca\u0dc0\u0dd3\u0db8\u0dca \u0daf\u0dd0\u0db1\u0dca \u0dbd\u0db6\u0dcf\u0d9c\u0dad \u0db1\u0ddc\u0dc4\u0dd0\u0d9a. \u0db4\u0dcf\u0da9\u0db8\u0dca \u0daf\u0dd2\u0d9c\u0da7\u0db8 \u0db7\u0dcf\u0dc0\u0dd2\u0dad \u0d9a\u0dc5 \u0dc4\u0dd0\u0d9a\u0dd2\u0dba.';
+      ad.remove();
       button.disabled = false;
     };
     document.body.appendChild(ad);
-  }, {once:true});
+  });
 })();
 </script>

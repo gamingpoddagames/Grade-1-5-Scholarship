@@ -1,0 +1,33 @@
+name: Validate Blogger Monetization and Facebook Links
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'school/blogger_link_safety.py'
+      - 'school/test_blogger_link_safety.py'
+      - 'school/blogger_optional_adsterra_widget.html'
+      - 'school/test_ad_widget.js'
+      - 'school/daily_publisher.py'
+      - 'school/facebook_card.py'
+      - 'school/facebook_video.py'
+      - 'school/website_promo_publish.py'
+      - '.github/workflows/blogger-monetization-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Reject advertiser and redirect destinations
+        run: python -m unittest discover -s school -p 'test_blogger_link_safety.py' -v
+      - name: Validate opt-in loader without requesting ads
+        run: node school/test_ad_widget.js

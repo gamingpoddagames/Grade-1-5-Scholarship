@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Sinhala Unicode-safe original Facebook question image cards and Page photo posts."""
 import argparse
+from blogger_link_safety import validate_blogger_links
 import json
 import os
 from pathlib import Path
@@ -69,6 +70,7 @@ def validate_card(image):
 
 def publish(image,caption):
     check_caption(caption)
+    validate_blogger_links(caption)
     validate_card(image)
     page=os.getenv("FB_PAGE_ID")
     token=os.getenv("FB_PAGE_ACCESS_TOKEN")

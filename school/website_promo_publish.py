@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Publish only approved original website-invitation media to authorized school Facebook Page."""
 import argparse
+from blogger_link_safety import validate_blogger_links
 import os
 from pathlib import Path
 from facebook_card import publish as publish_photo
@@ -13,8 +14,7 @@ def main():
     a=p.parse_args()
     folder=Path(a.output)
     caption=(folder/"facebook-caption.txt").read_text(encoding="utf-8")
-    if "https://punchinanamaga.blogspot.com/" not in caption:
-        raise RuntimeError("Invitation must link to the correct public Blogger website")
+    validate_blogger_links(caption)
     if not (os.environ.get("FB_PAGE_ID") and os.environ.get("FB_PAGE_ACCESS_TOKEN")):
         raise RuntimeError("No authorized Facebook Page token: leaving media as artifact only")
     if a.kind=="photo":
