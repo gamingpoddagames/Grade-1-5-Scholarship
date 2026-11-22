@@ -9,6 +9,7 @@ import subprocess
 import urllib.request
 
 from build_resources import all_questions
+from visual_quiz import select
 
 MODEL_URL="https://huggingface.co/unicef/piper-si_LK-ashoka-medium/resolve/main/si_LK-ashoka-medium.onnx"
 CONFIG_URL="https://huggingface.co/unicef/piper-si_LK-ashoka-medium/resolve/main/si_LK-ashoka-medium.onnx.json"
@@ -88,10 +89,9 @@ def main():
     config=model_dir/"si_LK-ashoka-medium.onnx.json"
     download(MODEL_URL,model)
     download(CONFIG_URL,config)
-    # Same UTC date selection as the independent video renderer.
-    day=dt.datetime.now(dt.timezone.utc).date()
-    qs=[q for q in all_questions() if q["grade"]==5]
-    question=qs[day.toordinal()%len(qs)]
+    # Colombo date matches the photo card and narrated Reel.
+    day=(dt.datetime.now(dt.timezone.utc)+dt.timedelta(hours=5,minutes=30)).date()
+    question=select(day)
     correct=question["choices"][question["answer"]]
     scripts=[
         "ආයුබෝවන්! පුංචි නැණ මඟ සමඟ අද ශිෂ්‍යත්ව පුහුණු ප්‍රශ්නය අසමු. "
