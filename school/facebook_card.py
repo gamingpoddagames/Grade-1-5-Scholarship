@@ -48,7 +48,7 @@ def create_card(question,target):
             raise ValueError("Question card exceeds available space; manual review required")
         d.rounded_rectangle((132,y-8,943,y+78),radius=16,fill="#ffffff",outline="#c3d9ea",width=3)
         draw_mixed(d,(157,y+2),f"{chr(65+idx)}) {choice}",font(43),"#193956")
-        y+=118
+        y+=92
     d.rounded_rectangle((93,1170,987,1248),radius=22,fill="#0e837d")
     draw_mixed(d,(140,1184),"නොමිලේ ප්‍රශ්න පත්‍ර සහ පිළිතුරු",font(35,True),"white")
     target=Path(target)
