@@ -25,10 +25,10 @@ Blogger escapes some non-ASCII characters inside gadget scripts. Keep JavaScript
 
 - Verified the installed footer, opt-in button and exact code on the public Blogger site.
 - Verified zero copies of the external Social Bar script before the choice, and one loader afterwards; onload completed and the page stayed on Blogger.
-- A rendered Adsterra creative and credited impression/revenue were **not confirmed** in this check. A script onload event alone is not proof of either.
+- The dashboard Statistics view, filtered to this exact website and SocialBar_1, showed recorded impressions and clicks. This establishes reported activity for the unit; it does not identify which visitor caused it or prove this browser test earned revenue. A rendered creative was not visually confirmed in this browser. A script onload event alone is not proof of a paid impression.
 - No paid creative was clicked, no automated impression loop was run, and no income is inferred from website approval.
 - Confirm real traffic reporting in Adsterra Statistics filtered to this website and unit. Empty reporting can mean no qualifying impressions, reporting delay, inventory or delivery restrictions; investigate with Adsterra rather than repeatedly refreshing/clicking ads.
-- Desktop footer verified; real mobile creative delivery remains to be checked.
+- Desktop footer verified, including links to the four published Privacy, About, Contact and Terms pages; real mobile creative delivery remains to be checked.
 
 ## Facebook destinations
 
