@@ -24,6 +24,7 @@ def make_content(day, output_dir):
     item = select(day)
     # Keep Sinhala text in standard Unicode NFC form.
     item = {key: (unicodedata.normalize("NFC", value) if isinstance(value, str) else [unicodedata.normalize("NFC", v) for v in value] if isinstance(value, list) else value) for key, value in item.items()}
+    item["content_date"] = day.isoformat()
     correct = item["choices"][item["answer"]]
     # Plain Sinhala Facebook copy: avoid emoji/font fallback at the start of a line.
     title = f"පුංචි නැණ මඟ - {item['grade']} ශ්‍රේණිය - {item['topic']}"
