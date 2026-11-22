@@ -30,13 +30,50 @@ QUIZZES = [
 ]
 
 def select(day, offset=0):
-    """Different question each day and each reel; stable if the run retries."""
+    """Four different reels/day, with no recycled static questions for at least a month.
+
+    After the reviewed and existing school bank is exhausted, generate
+    fresh arithmetic questions with computed, verified answers.
+    """
     if isinstance(day, str):
         day = dt.date.fromisoformat(day)
-    index = ((day - dt.date(2026, 11, 22)).days + offset) % len(QUIZZES)
-    question, choices, answer, topic = QUIZZES[index]
+    if not 0 <= offset < 4:
+        raise ValueError("Only reel offsets 0..3 are supported")
+    index = (day - dt.date(2026, 11, 22)).days * 4 + 7 + offset
+    if index < 0:
+        raise ValueError("Quiz date is before the generation start")
+    if index < len(QUIZZES):
+        question, choices, answer, topic = QUIZZES[index]
+        return {
+            "grade": 5, "topic": topic, "q": question,
+            "choices": list(choices), "answer": answer,
+            "explanation": "නිවැරදි පිළිතුර: " + choices[answer] + "."
+        }
+
+    # The existing education question bank is reused without repeating prompts.
+    from build_resources import all_questions
+    seen = {q for q, _, _, _ in QUIZZES}
+    bank = []
+    for item in all_questions():
+        if item["q"] not in seen and len(item["choices"]) == 4:
+            seen.add(item["q"])
+            bank.append(item)
+    remaining = index - len(QUIZZES)
+    if remaining < len(bank):
+        return dict(bank[remaining])
+
+    # Unlimited date-derived questions: numbers grow with the day's absolute index.
+    serial = remaining - len(bank)
+    left = 45 + serial * 3
+    right = 3 + serial % 9
+    result = left + right
+    options = [result, result + 2, result + 5, result - 3]
+    shift = serial % 4
+    options = options[shift:] + options[:shift]
     return {
-        "grade": 5, "topic": topic,
-        "q": question, "choices": list(choices), "answer": answer,
-        "explanation": "නිවැරදි පිළිතුර: " + choices[answer] + ".",
+        "grade": 5, "topic": "ශිෂ්‍යත්ව ගණිතය",
+        "q": f"{left} + {right} = කීයද?",
+        "choices": [str(n) for n in options],
+        "answer": options.index(result),
+        "explanation": f"නිවැරදි පිළිතුර {result}යි."
     }
