@@ -152,7 +152,7 @@ def video(outdir, questions, day):
     from brand_assets import latin_font
     if not features.check("raqm"):
         raise RuntimeError("Pillow RAQM shaping is required for Sinhala video")
-    filtered = [q for q in questions if q["grade"] == 5]
+    filtered = [q for q in questions if len(q.get("choices", [])) == 4]
     q = filtered[day.toordinal() % len(filtered)]
     outdir.mkdir(parents=True, exist_ok=True)
     f32 = latin_font(32)
@@ -165,13 +165,13 @@ def video(outdir, questions, day):
         d=ImageDraw.Draw(im)
         d.rounded_rectangle((60,105,1020,1815),radius=42,fill="#16375c")
         y=draw_text(d,(112,170),"පුංචි නැණ මඟ",f58,"#ffffff")
-        y=draw_text(d,(112,310),"5 ශ්‍රේණිය - ශිෂ්‍යත්ව ප්‍රශ්නය",f42,"#80e6d7")
+        y=draw_text(d,(112,310),"අලුත් ප්‍රශ්නය",f42,"#80e6d7")
         y=draw_text(d,(112,530),q["q"],f48,"#ffffff",width=860,spacing=26)+75
         for k,ch in enumerate(q["choices"]):
             d.rounded_rectangle((105,y-8,980,y+86),radius=15,fill="#244d75")
             y=draw_text(d,(145,y+10),f"{chr(65+k)}) {ch}",f42,"#ffffff",width=790)+40
         if show_answer:
-            y=draw_text(d,(112,min(y+110,1470)),f"පිළිතුර: {chr(65+q['answer'])}) {q['choices'][q['answer']]}",f48,"#7ff0ba")
+            y=draw_text(d,(112,min(y+110,1470)),f"නිවැරදි පිළිතුර: {chr(65+q['answer'])}) {q['choices'][q['answer']]}",f48,"#7ff0ba")
         else:
             y=draw_text(d,(112,min(y+110,1470)),"පිළිතුර සිතන්න...",f48,"#ffc85c")
         draw_text(d,(112,1710),"Grade 1–5 Free Papers | Punchi Nena Maga",f32,"#d9e9fa")
