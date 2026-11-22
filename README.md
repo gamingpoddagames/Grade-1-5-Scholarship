@@ -41,3 +41,8 @@ Use original educational content and useful teacher/parent explanations to earn 
 
 ## Blogger monetization
 The verified existing Adsterra Social Bar is an optional footer gadget on Blogger. Facebook lesson links stay on the owned Blogger domain and are validated before publishing. See [the installation and rollback notes](school/ADSTERra_SETUP.md). Ad creatives and earnings are not established by script loading alone.
+
+## Visual-first picture quiz (22 November 2026)
+The Facebook image card and original Sinhala quiz Reel now share a single daily, curated photograph and the same grade-5 question, selected by Asia/Colombo date. Nature, wildlife, ocean life, space and Sri Lankan heritage are the primary visual niches. Eight vetted images and two question variants per image provide 16 distinct daily questions before repeating; the previous one-off ocean question script now selects the current picture question. Photos are credited in the artwork and captions; source links and licences are documented in [the visual quiz image rights file](school/VISUAL_QUIZ_IMAGE_RIGHTS.md). Missing images block publishing, rather than allowing irrelevant photos. The original Grade 1–5 mathematics/PDF resources are unchanged.
+
+Run `python -m unittest discover -s school -p 'test_visual_quiz.py' -v` for the offline question bank. A live GitHub Action run is still needed to confirm Wikimedia downloads, rendered cards and actual Facebook publishing.
