@@ -1,0 +1,1 @@
+Approved to publish one original Sinhala ocean quiz image post to the existing Punchi Nena Maga Facebook Page. The workflow must fail visibly if Meta credentials are absent or posting fails.
