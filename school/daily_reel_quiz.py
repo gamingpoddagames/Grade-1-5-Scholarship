@@ -99,10 +99,8 @@ def frame(path, stage, picture, credit, question, answer, reason):
 
 
 def narration(question, answer, reason):
-    # Keep the exact words from the cards and use punctuation only to cue pauses.
-    spoken_question = question.replace('සාගරය මොකක් ද?', 'සාගරය, මොකක් ද?')
-    spoken_answer = answer.replace('පැසිෆික් සාගරය', 'පැසිෆික්, සාගරය')
-    return f'{spoken_question} පිළිතුර හිතන්න.', f'{spoken_answer}. {reason}'
+    # Match the news bulletin's complete sentences without quiz-specific comma cues.
+    return f'{question} පිළිතුර හිතන්න.', f'{answer}. {reason}'
 
 
 def render(row, output):
@@ -120,7 +118,7 @@ def render(row, output):
             frame(image, stage, picture, credit, question, answer, reason)
             audio = folder / f'{stage}.mp3'
             if speech:
-                gTTS(text=speech, lang='si', slow=False, timeout=(5, 30)).save(str(audio))
+                gTTS(text=' '.join(speech.split()), lang='si', slow=False, timeout=(5, 30)).save(str(audio))
                 duration = float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration',
                                                          '-of','csv=p=0',str(audio)])) + .45
                 source = ['-i', audio]
@@ -129,7 +127,7 @@ def render(row, output):
                 source = ['-f','lavfi','-i','anullsrc=r=48000:cl=mono']
             clip = folder / f'{stage}.mp4'
             ffmpeg('-loop',1,'-framerate',30,'-i',image,*source,'-t',f'{duration:.3f}','-af','apad',
-                   '-c:v','libx264','-preset','fast','-pix_fmt','yuv420p','-c:a','aac','-ar',48000,'-ac',1,clip)
+                   '-c:v','libx264','-preset','fast','-pix_fmt','yuv420p','-c:a','aac','-b:a','96k','-ar',48000,'-ac',1,clip)
             clips.append(clip)
         manifest = folder/'clips.txt'
         manifest.write_text(''.join(f"file '{clip.name}'\n" for clip in clips))
