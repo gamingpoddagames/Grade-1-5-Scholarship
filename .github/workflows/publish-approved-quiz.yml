@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'school/publish-approved-ocean-quiz.txt'
+      - 'school/facebook_card.py'
   workflow_dispatch:
 permissions:
   contents: read
