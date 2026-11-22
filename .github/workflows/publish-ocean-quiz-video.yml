@@ -1,9 +1,7 @@
-name: Publish Matching Ocean Quiz Video
+name: Publish Daily Rotating Sinhala Quiz Video
 on:
-  push:
-    paths:
-      - 'school/publish-ocean-quiz-video-request.txt'
-      - 'school/publish_ocean_quiz_video.py'
+  schedule:
+    - cron: '15 6 * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -30,5 +28,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ocean-quiz-video
-          path: school/output/ocean-quiz-video/
+          name: daily-quiz-video
+          path: school/output/daily-quiz-video/
