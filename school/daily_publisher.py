@@ -15,8 +15,7 @@ from font_safety import check_caption
 
 BASE = pathlib.Path(__file__).resolve().parent
 BANK = BASE / "questions.json"
-SITE = "https://gamingpoddagames.github.io/Grade-1-5-Scholarship/"
-BLOG = "https://punchinanamaga.blogspot.com/?utm_source=facebook&utm_medium=social&utm_campaign=school_daily_quiz"
+BLOG = "https://punchinanamaga.blogspot.com/"
 
 def make_content(day, output_dir):
     questions = all_questions()
@@ -43,7 +42,6 @@ def make_content(day, output_dir):
         f"පැහැදිලි කිරීම: {item['explanation']}",
         "",
         f"නොමිලේ සිංහල පාඩම් සහ අලුත් ලිපි: {BLOG}",
-        f"ප්‍රශ්න පත්‍ර සහ Online Quiz: {SITE}",
         "",
         "#Grade5Scholarship #SinhalaEducation"
     ])
