@@ -294,7 +294,7 @@ def render_video(item, outdir):
                       if len(_wrap(d, item["q"], font(s, True), 840)) <= 2), font(34, True))
         if len(_wrap(d, item["q"], qface, 840)) > 2:
             raise ValueError("Question too long for visual Reel")
-        _write(d, item["q"], 110, 981, qface, "#ffffff", 68, 67)
+        _write(d, item["q"], 110, 981, qface, "#ffffff", 840, 67)
         for i, ch in enumerate(item["choices"]):
             top = 1185 + 116 * i
             fill = "#12866b" if reveal and i == item["answer"] else "#244f79"
