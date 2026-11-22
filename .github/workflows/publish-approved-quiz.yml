@@ -3,7 +3,6 @@ on:
   push:
     paths:
       - 'school/publish-approved-ocean-quiz.txt'
-      - 'school/facebook_card.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,6 +25,10 @@ jobs:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           FB_GRAPH_VERSION: v27.0
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
         run: python school/publish_approved_quiz.py
       - uses: actions/upload-artifact@v4
         if: always()
