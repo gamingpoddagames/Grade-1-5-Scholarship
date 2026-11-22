@@ -164,6 +164,33 @@ def video(outdir, questions, day):
         im=Image.new("RGB",(1080,1920),"#0c2343")
         d=ImageDraw.Draw(im)
         d.rounded_rectangle((60,105,1020,1815),radius=42,fill="#16375c")
+        # Original question-related illustration, drawn locally (no stock-image mismatch).
+        from PIL import ImageFilter
+        import hashlib, math
+        key = str(q["q"]) + str(q.get("topic",""))
+        theme = ("space" if any(word in key for word in ("ග්‍රහලෝක","අඟහරු","සූර්ය","චන්ද්‍ර","තරු"))
+                 else "ocean" if any(word in key for word in ("සාගර","මුහුද","දූපත"))
+                 else "math" if any(word in key for word in ("ගණිත","කීයද","මිල","එකතුව","÷","×","+","-"))
+                 else "nature")
+        d.rounded_rectangle((112,1050,968,1480),radius=30,fill="#0c294a")
+        if theme == "space":
+            d.ellipse((400,1090,695,1385),fill="#b74f32",outline="#f7b57d",width=9)
+            d.arc((360,1150,740,1320),10,170,fill="#ffd3a1",width=6)
+            for x,y in ((190,1120),(835,1160),(260,1360),(790,1400)):
+                d.ellipse((x,y,x+9,y+9),fill="#ffffff")
+        elif theme == "ocean":
+            d.ellipse((410,1100,660,1350),fill="#258dc1")
+            for y in range(1320,1450,28):
+                d.arc((155,y,915,y+65),180,350,fill="#64c8e8",width=7)
+        elif theme == "math":
+            d.rounded_rectangle((300,1095,780,1410),radius=28,fill="#296e92")
+            for x in (340,470,600,730):
+                for y in (1150,1250,1350):
+                    d.ellipse((x-22,y-22,x+22,y+22),fill="#f5d978")
+        else:
+            d.ellipse((675,1090,815,1230),fill="#ffcf66")
+            d.polygon([(160,1410),(430,1160),(640,1410)],fill="#267e75")
+            d.polygon([(420,1410),(710,1190),(950,1410)],fill="#35a48a")
         y=draw_text(d,(112,170),"පුංචි නැණ මඟ",f58,"#ffffff")
         y=draw_text(d,(112,310),"අලුත් ප්‍රශ්නය",f42,"#80e6d7")
         y=draw_text(d,(112,530),q["q"],f48,"#ffffff",width=860,spacing=26)+75
