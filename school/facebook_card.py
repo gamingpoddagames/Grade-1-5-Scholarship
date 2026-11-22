@@ -113,6 +113,7 @@ def publish(image,caption):
     if not out.get("id"):
         raise RuntimeError("Facebook Page photo creation did not return a photo ID")
     print("Facebook branded question photo published:",out["id"])
+    return str(out["id"])
 
 def main():
     parser=argparse.ArgumentParser()
