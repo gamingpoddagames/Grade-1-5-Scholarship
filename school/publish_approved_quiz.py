@@ -7,7 +7,8 @@ import datetime as dt
 import os
 from pathlib import Path
 
-from facebook_card import create_card, publish
+from facebook_card import create_card
+from crosspost import Crossposter
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from visual_quiz import select, image_credit
 
@@ -26,9 +27,15 @@ def main():
     )
     output = Path("school/output") / f"approved-visual-quiz-{day.isoformat()}.png"
     create_card(item, output)
-    if not os.getenv("FB_PAGE_ID") or not os.getenv("FB_PAGE_ACCESS_TOKEN"):
-        raise RuntimeError("Facebook Page credentials unavailable: picture quiz generated but NOT published")
-    publish(output, caption)
+    blog_url, fb_id = Crossposter().publish(
+        question=item,
+        title=f"පුංචි නැණ මඟ | {day.isoformat()} | අද පින්තූර ප්‍රශ්නය",
+        media_kind="photo",
+        media_path=output,
+        caption=caption,
+        image_info=item,
+        version=os.getenv("FB_GRAPH_VERSION", "v27.0"))
+    print("Crossposted approved photo quiz:", blog_url, fb_id)
 
 
 if __name__ == "__main__":
