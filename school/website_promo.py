@@ -109,17 +109,29 @@ def slide(topic,index):
     return im
 
 def caption(topic):
-    return unicodedata.normalize("NFC", "\n".join([
-      "පුංචි නැණ මඟ | "+topic[2],"",
-      topic[4],"",
-      "- 1–5 ශ්‍රේණි සිංහල පුහුණු ප්‍රශ්න සහ ලිපි",
-      "- 5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව හා Quiz",
-      "- නොමිලේ ප්‍රශ්න සහ පිළිතුරු PDF","",
-      "අලුත් පාඩම් සහ කියවිය හැකි ලිපි:",
-      PROMO_LINK,
-      "මෙම පුහුණු සම්පත් අපගේ මුල් නිර්මාණයි. නිල විභාග ප්‍රශ්න පත්‍ර ලෙස නොසලකන්න.",
-      topic[5]+" #PunchiNenaMaga"
-    ]))
+    """Reviewed Sinhala Facebook invitation using one transparent Blogger destination."""
+    number, tag, headline, services, description, hashtags = topic
+    lines = [
+        "පුංචි නැණ මඟ | " + headline,
+        "",
+        description,
+        "",
+        "දරුවාගේ ඉගෙනීමට උපකාරී වන දේවල්:",
+        "- 1 සිට 5 ශ්‍රේණිය දක්වා සිංහල පුහුණු ලිපි",
+        "- 5 ශ්‍රේණිය ශිෂ්‍යත්වයට අදාළ අභ්‍යාස",
+        "- නිවසේදී දරුවා සමඟ පුහුණු වීමට අදහස්",
+        "",
+        "නොමිලේ පාඩම් සහ අලුත් අධ්‍යාපනික ලිපි:",
+        PROMO_LINK,
+        "",
+        "මෙම අභ්‍යාස අපගේ මුල් නිර්මාණ වන අතර නිල විභාග ප්‍රශ්න පත්‍ර නොවේ.",
+        "#PunchiNenaMaga #SinhalaEducation #Grade5Scholarship",
+    ]
+    text = unicodedata.normalize("NFC", "\n".join(lines))
+    if text.count("https://punchinanamaga.blogspot.com/") != 1 or "github.io" in text:
+        raise ValueError("Unexpected website link in Facebook caption")
+    check_caption(text)
+    return text
 
 def make_video(topic,folder,with_voice):
     folder.mkdir(parents=True,exist_ok=True)
