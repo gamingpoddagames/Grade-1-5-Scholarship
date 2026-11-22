@@ -92,6 +92,7 @@ def publish(message, page_id, token, version="v27.0"):
             print("Facebook text verification: returned text differs from sent message.")
     except (urllib.error.URLError, ValueError, KeyError):
         print("Facebook text verification: not available with this Page token.")
+    return str(result["id"])
 
 
 def main():
@@ -104,11 +105,15 @@ def main():
     message = make_content(today, pathlib.Path(args.output))
     print("Content generated for", today.isoformat())
     if args.publish:
-        page_id = os.getenv("FB_PAGE_ID", "")
-        token = os.getenv("FB_PAGE_ACCESS_TOKEN", "")
-        if not (page_id and token):
-            print("Facebook disabled: missing FB_PAGE_ID or FB_PAGE_ACCESS_TOKEN. Files generated only.")
-            return
-        publish(message, page_id, token, os.getenv("FB_GRAPH_VERSION", "v27.0"))
+        from crosspost import Crossposter
+        q = select(today)
+        blog_url, fb_id = Crossposter().publish(
+            question=q,
+            title=f"පුංචි නැණ මඟ | {today.isoformat()} | දිනපතා ප්‍රශ්නය",
+            media_kind="text", media_path=None,
+            caption=message, image_info=q,
+            version=os.getenv("FB_GRAPH_VERSION", "v27.0"))
+        print("Crossposted daily text:", blog_url, fb_id)
+
 if __name__ == "__main__":
     main()
