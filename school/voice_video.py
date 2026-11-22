@@ -59,6 +59,10 @@ def spoken_number(value):
 def speech_ready(text):
     """Prepare Sinhala speech text; refuse unknown Latin words/symbols."""
     text = str(text)
+    for english, sinhala in (("Online Quiz", "අන්තර්ජාල ප්‍රශ්නාවලි"),
+                             ("Quiz", "ප්‍රශ්නාවලිය"), ("PDF", "පී ඩී එෆ්"),
+                             ("website", "අන්තර්ජාල අඩවිය"), ("question", "ප්‍රශ්නය")):
+        text = re.sub(re.escape(english), sinhala, text, flags=re.IGNORECASE)
     text = re.sub(r"රු\.", "රුපියල් ", text)
     # Fractions are read as numerator over denominator, not a URL or date.
     text = re.sub(r"(?<![\d/])(\d+)\s*/\s*(\d+)(?![\d/])",
