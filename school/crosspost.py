@@ -95,7 +95,7 @@ def verified_facebook_permalink(object_id, page_token, version, kind):
     """Resolve true Meta permalink; never infer a URL from an ID."""
     if not re.fullmatch(r"[0-9_]+", str(object_id)):
         return None
-    fields = "permalink_url,link" if kind == "photo" else "permalink_url"
+    fields = "link" if kind == "photo" else "permalink_url"
     params = urllib.parse.urlencode({"fields": fields, "access_token": page_token})
     url = f"https://graph.facebook.com/{version}/{object_id}?{params}"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
@@ -131,9 +131,10 @@ class Crossposter:
     """One session per workflow: publish article, then Facebook, then embed."""
 
     def __init__(self):
-        if os.getenv("BLOGGER_ALLOW_PUBLICATION", "").lower() != "true":
+        permission = os.getenv("BLOGGER_ALLOW_PUBLICATION", "").lower()
+        if permission not in ("", "true"):
             raise RuntimeError(
-                "Crossposting requires repository variable BLOGGER_ALLOW_PUBLICATION=true; "
+                "Blogger publication explicitly disabled or invalid in GitHub variables; "
                 "no unmatched Facebook post was sent")
         if not os.getenv("FB_PAGE_ID") or not os.getenv("FB_PAGE_ACCESS_TOKEN"):
             raise RuntimeError("Facebook Page credentials missing; no Blogger-only post was created")
