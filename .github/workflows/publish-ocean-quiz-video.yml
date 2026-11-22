@@ -1,0 +1,33 @@
+name: Publish Matching Ocean Quiz Video
+on:
+  push:
+    paths:
+      - 'school/publish-ocean-quiz-video-request.txt'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publish-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Sinhala font and video dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core ffmpeg
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
+      - name: Generate matching quiz video and publish to Facebook
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+        run: python school/publish_ocean_quiz_video.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ocean-quiz-video
+          path: school/output/ocean-quiz-video/
