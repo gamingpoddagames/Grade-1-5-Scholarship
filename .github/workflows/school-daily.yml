@@ -45,6 +45,8 @@ jobs:
         run: python -m unittest discover -s school -p 'test_font_safety.py' -v
       - name: Verify picture quiz bank and same-photo selection
         run: python -m unittest discover -s school -p 'test_visual_quiz.py' -v
+      - name: Validate Blogger-to-Facebook crossposting safeguards
+        run: python -m unittest discover -s school -p 'test_crosspost.py' -v
       - name: Check Facebook configuration (without revealing secrets)
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
