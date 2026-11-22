@@ -95,6 +95,8 @@ class FacebookGlyphGateTests(unittest.TestCase):
                 text = promo_caption(topic)
                 self.assertIn("punchinanamaga.blogspot.com", text)
                 self.assertNotIn("github.io", text)
+                self.assertEqual(text.count("https://punchinanamaga.blogspot.com/"), 1)
+                self.assertNotIn("adsterra", text.lower())
 
     def test_sinhala_spoken_math_and_english_terms(self):
         examples = [
