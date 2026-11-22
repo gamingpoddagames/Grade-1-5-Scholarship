@@ -1,1 +1,1 @@
-Generate one fresh narrated Sinhala quiz video on 2026-11-22. Use current rotating question bank; publish to authorized Facebook Page.
+Generate one new screenshot-style dark-blue Sinhala Quiz Reel using the corrected shared renderer. Request: 2026-11-22 20:02 Asia/Colombo. Verify unique question, A-D options, synchronized Sinhala voice, answer reveal, and post to authorized Facebook Page after tests pass.
