@@ -12,6 +12,7 @@ import urllib.parse
 import urllib.request
 import unicodedata
 from build_resources import all_questions
+from visual_quiz import select, image_credit
 from font_safety import check_caption
 
 BASE = pathlib.Path(__file__).resolve().parent
@@ -19,11 +20,8 @@ BANK = BASE / "questions.json"
 BLOG = FACEBOOK_LANDING_URL
 
 def make_content(day, output_dir):
-    questions = all_questions()
-    if not questions:
-        raise ValueError("Question bank empty")
-    index = (day - dt.date(2026, 11, 18)).days % len(questions)
-    item = questions[index]
+    # Use exactly the same curated photo-question as the Reel renderer.
+    item = select(day)
     # Keep Sinhala text in standard Unicode NFC form.
     item = {key: (unicodedata.normalize("NFC", value) if isinstance(value, str) else [unicodedata.normalize("NFC", v) for v in value] if isinstance(value, list) else value) for key, value in item.items()}
     correct = item["choices"][item["answer"]]
@@ -39,12 +37,13 @@ def make_content(day, output_dir):
         "",
         "දරුවාට මුලින් පිළිතුර තෝරාගැනීමට අවස්ථාව දෙන්න.",
         "",
-        f"නිවැරදි පිළිතුර: {chr(65 + item['answer'])}) {correct}",
-        f"පැහැදිලි කිරීම: {item['explanation']}",
+        "ඔබේ පිළිතුර A, B, C හෝ D ලෙස අදහස් දක්වන්න.",
+        "",
+        "ඡායාරූපය: " + image_credit(item),
         "",
         f"නොමිලේ සිංහල පාඩම් සහ අලුත් ලිපි: {BLOG}",
         "",
-        "#Grade5Scholarship #SinhalaEducation"
+        "#Grade5Scholarship #SinhalaPictureQuiz"
     ])
     message = unicodedata.normalize("NFC", message)
     check_caption(message)
