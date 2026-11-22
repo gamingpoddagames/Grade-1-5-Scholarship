@@ -19,7 +19,7 @@ def upload(path, page_id, access_token, version, *, title=None, description=None
         "title":title or "පුංචි නැණ මඟ - 5 ශ්‍රේණිය ශිෂ්‍යත්ව ප්‍රශ්නය",
         "description":description or ("5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව: ප්‍රශ්නයට පිළිතුර සිතා බලන්න. "
                        "නොමිලේ පත්‍ර හා පිළිතුරු: "
-                       "https://gamingpoddagames.github.io/Grade-1-5-Scholarship/ "
+                       "https://punchinanamaga.blogspot.com/ "
                        "#Grade5Scholarship #SinhalaEducation")
     }
     check_caption(fields["title"])
