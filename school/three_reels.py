@@ -28,11 +28,8 @@ def run(day, output, publish=False):
         existing = list_existing("posts", blogger_token)
     for i, q in enumerate(selected, 1):
         folder = output / ("reel-" + str(i))
-        # Existing renderer chooses question from date index; pass a matching day.
-        target_idx = grade5.index(q)
-        offset = (target_idx - day.toordinal()) % len(grade5)
-        render_day = day + dt.timedelta(days=offset)
-        video(folder, questions, render_day)
+        # Render precisely the selected question, not an unrelated date-indexed one.
+        video(folder, [q], day)
         movie = folder / "grade5-quiz.mp4"
         if not movie.is_file() or movie.stat().st_size < 1000:
             raise RuntimeError("MP4 render failed")
