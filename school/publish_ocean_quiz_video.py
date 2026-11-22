@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render and publish the approved ocean quiz as a matching Facebook video."""
+"""Render and publish a new original space quiz as a matching Facebook video."""
 import datetime as dt
 import os
 import subprocess
@@ -12,25 +12,24 @@ from blogger_link_safety import FACEBOOK_LANDING_URL
 QUESTION = {
     "grade": 5,
     "topic": "සාමාන්‍ය දැනුම",
-    "q": "ලෝකයේ විශාලතම සාගරය කුමක්ද?",
-    "choices": ["අත්ලාන්තික් සාගරය", "පැසිෆික් සාගරය", "ඉන්දියානු සාගරය", "ආක්ටික් සාගරය"],
-    "answer": 1,
-    "explanation": "ලෝකයේ විශාලතම සාගරය පැසිෆික් සාගරයයි."
+    "q": "රතු ග්‍රහලෝකය ලෙස හඳුන්වන්නේ කුමන ග්‍රහලෝකයද?",
+    "choices": ["සිකුරු", "බ්‍රහස්පති", "අඟහරු", "සෙනසුරු"],
+    "answer": 2,
+    "explanation": "රතු ග්‍රහලෝකය ලෙස හඳුන්වන්නේ අඟහරු ග්‍රහලෝකයයි."
 }
 if __name__ == "__main__":
-    output = Path("school/output/ocean-quiz-video")
+    output = Path("school/output/red-planet-quiz-video")
     video(output, [QUESTION], dt.date(2026, 11, 22))
     # Use the same Sinhala gTTS voice engine as the SL News 247 project.
     narration = (
-        "ලෝකයේ විශාලතම සාගරය කුමක්ද? "
-        "අත්ලාන්තික් සාගරය ද? පැසිෆික් සාගරය ද? "
-        "ඉන්දියානු සාගරය ද? ආක්ටික් සාගරය ද? "
-        "පිළිතුර හිතන්න. නිවැරදි පිළිතුර, පැසිෆික් සාගරයයි."
+        "රතු ග්‍රහලෝකය ලෙස හඳුන්වන්නේ කුමන ග්‍රහලෝකයද? "
+        "සිකුරු ද? බ්‍රහස්පති ද? අඟහරු ද? සෙනසුරු ද? "
+        "පිළිතුර හිතන්න. නිවැරදි පිළිතුර, අඟහරු ග්‍රහලෝකයයි."
     )
     audio = output / "sinhala-voice.mp3"
     gTTS(text=narration, lang="si", slow=False, timeout=(5,30)).save(str(audio))
     original = output / "grade5-quiz.mp4"
-    narrated = output / "ocean-quiz-narrated.mp4"
+    narrated = output / "red-planet-quiz-narrated.mp4"
     # Preserve the original question/answer frames and fit narration completely.
     subprocess.run([
         "ffmpeg","-hide_banner","-loglevel","error","-y",
@@ -47,8 +46,8 @@ if __name__ == "__main__":
     upload(
         narrated, page, token,
         os.getenv("FB_GRAPH_VERSION", "v27.0"),
-        title="පුංචි නැණ මඟ | ලෝකයේ විශාලතම සාගරය",
-        description=("ලෝකයේ විශාලතම සාගරය කුමක්ද? පිළිතුර සිතන්න! "
-                     "A) අත්ලාන්තික් B) පැසිෆික් C) ඉන්දියානු D) ආක්ටික්. "
+        title="පුංචි නැණ මඟ | රතු ග්‍රහලෝකය",
+        description=("රතු ග්‍රහලෝකය ලෙස හඳුන්වන්නේ කුමන ග්‍රහලෝකයද? පිළිතුර සිතන්න! "
+                     "A) සිකුරු B) බ්‍රහස්පති C) අඟහරු D) සෙනසුරු. "
                      f"තවත් ප්‍රශ්න: {FACEBOOK_LANDING_URL} #SinhalaQuiz #PunchiNenaMaga")
     )
