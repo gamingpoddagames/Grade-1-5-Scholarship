@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post an original quiz MP4 to an authorized Facebook Page via Graph API."""
 import argparse
-from blogger_link_safety import validate_blogger_links
+from blogger_link_safety import FACEBOOK_LANDING_URL, validate_blogger_links
 import json
 import os
 from pathlib import Path
@@ -20,7 +20,7 @@ def upload(path, page_id, access_token, version, *, title=None, description=None
         "title":title or "පුංචි නැණ මඟ - 5 ශ්‍රේණිය ශිෂ්‍යත්ව ප්‍රශ්නය",
         "description":description or ("5 ශ්‍රේණිය ශිෂ්‍යත්ව පුහුණුව: ප්‍රශ්නයට පිළිතුර සිතා බලන්න. "
                        "නොමිලේ පත්‍ර හා පිළිතුරු: "
-                       "https://punchinanamaga.blogspot.com/ "
+                       f"{FACEBOOK_LANDING_URL} "
                        "#Grade5Scholarship #SinhalaEducation")
     }
     check_caption(fields["title"])

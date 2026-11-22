@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic school-content publisher. No AI and no third-party Python packages."""
 import argparse
-from blogger_link_safety import validate_blogger_links
+from blogger_link_safety import FACEBOOK_LANDING_URL, validate_blogger_links
 import datetime as dt
 import html
 import json
@@ -16,7 +16,7 @@ from font_safety import check_caption
 
 BASE = pathlib.Path(__file__).resolve().parent
 BANK = BASE / "questions.json"
-BLOG = "https://punchinanamaga.blogspot.com/"
+BLOG = FACEBOOK_LANDING_URL
 
 def make_content(day, output_dir):
     questions = all_questions()

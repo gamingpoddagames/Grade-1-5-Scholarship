@@ -6,6 +6,7 @@ No child personal data, false official-exam claims or third-party stock media.
 All Facebook image text now runs through Sinhala/Latin glyph coverage checks.
 """
 import argparse
+from blogger_link_safety import FACEBOOK_LANDING_URL
 import datetime as dt
 import json
 import pathlib
@@ -17,7 +18,7 @@ from font_safety import draw_mixed, mixed_width, check_caption
 from voice_video import download, MODEL_URL, CONFIG_URL, speech_ready
 
 BLOG="https://punchinanamaga.blogspot.com/"
-PROMO_LINK=BLOG+"p/learning-welcome.html?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
+PROMO_LINK=FACEBOOK_LANDING_URL+"?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TOPICS=[
  ("01", "නොමිලේ ඉගෙනුම", "1 සිට 5 ශ්‍රේණිය දක්වා", "ගණිතය • සිංහල • පරිසරය", "දරුවාට ගැළපෙන සිංහල පුහුණු ලිපි සහ පැහැදිලි කළ පිළිතුරු.", "#SinhalaEducation #Grade1to5"),

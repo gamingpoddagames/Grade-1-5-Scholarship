@@ -3,6 +3,7 @@ import re
 from urllib.parse import parse_qsl, urlsplit
 
 BLOG_HOST = 'punchinanamaga.blogspot.com'
+FACEBOOK_LANDING_URL = f'https://{BLOG_HOST}/p/learning-welcome.html'
 URL_RE = re.compile(r'(?:https?://|//|www\.)[^\s<>\"\']+', re.IGNORECASE)
 REDIRECT_KEYS = {'url', 'target', 'redirect', 'redirect_url', 'redirect_uri', 'next', 'destination'}
 
