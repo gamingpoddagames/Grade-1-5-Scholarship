@@ -42,13 +42,40 @@ def create_card(question,target):
     d.text((284,210),"Grade 1–5 & Scholarship",font=latin_font(32),fill="#ccecf4")
     d.rounded_rectangle((93,382,987,1140),radius=32,fill="#f4f9ff")
     draw_mixed(d,(139,421),f"{question['grade']} ශ්‍රේණිය - {question['topic']}",font(35,True),"#0f7774")
-    y=line(d,question["q"],140,522,font(58,True),"#173453",800,89)+40
-    for idx,choice in enumerate(question["choices"]):
-        if y>1060:
-            raise ValueError("Question card exceeds available space; manual review required")
-        d.rounded_rectangle((132,y-8,943,y+78),radius=16,fill="#ffffff",outline="#c3d9ea",width=3)
-        draw_mixed(d,(157,y+2),f"{chr(65+idx)}) {choice}",font(43),"#193956")
-        y+=92
+    # Fit the entire question and four options inside the reserved panel.
+    # Try progressively smaller type rather than allowing text to overlap.
+    choices = question["choices"]
+    if len(choices) != 4:
+        raise ValueError("Quiz card requires exactly four answer options")
+    fitted = False
+    for qsize, osize, row_height, qheight in ((48,36,100,68),(42,33,94,61),(36,29,88,54),(31,26,82,48)):
+        qface = font(qsize, True)
+        oface = font(osize)
+        qlines = wrap(d, question["q"], qface, 780)
+        if any(mixed_width(d, value, qface) > 780 for value in qlines):
+            continue
+        option_lines = [wrap(d, f"{chr(65+i)}) {choice}", oface, 730) for i,choice in enumerate(choices)]
+        if any(len(lines) > 2 or any(mixed_width(d, value, oface)>730 for value in lines) for lines in option_lines):
+            continue
+        option_heights = [max(row_height, len(lines)*(osize+8)+20) for lines in option_lines]
+        top = 518 + len(qlines)*qheight + 28
+        if top + sum(option_heights) + 8 <= 1130:
+            fitted = True
+            break
+    if not fitted:
+        raise ValueError("Question and options do not fit even at minimum readable font size")
+    y = 518
+    for value in qlines:
+        draw_mixed(d,(140,y),value,qface,"#173453")
+        y += qheight
+    y += 28
+    for lines, height in zip(option_lines, option_heights):
+        d.rounded_rectangle((132,y,943,y+height-9),radius=15,fill="#ffffff",outline="#c3d9ea",width=3)
+        ty = y + 10
+        for value in lines:
+            draw_mixed(d,(157,ty),value,oface,"#193956")
+            ty += osize+8
+        y += height
     d.rounded_rectangle((93,1170,987,1248),radius=22,fill="#0e837d")
     draw_mixed(d,(140,1184),"නොමිලේ ප්‍රශ්න පත්‍ර සහ පිළිතුරු",font(35,True),"white")
     target=Path(target)
