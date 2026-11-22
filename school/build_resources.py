@@ -145,95 +145,11 @@ def draw_text(draw, xy, text, font, fill, width=900, spacing=14):
     return y
 
 def video(outdir, questions, day):
-    from visual_quiz import select, render_video
-    render_video(select(day), outdir)
-    return
-    from PIL import Image, ImageDraw, ImageFont, features
-    from brand_assets import latin_font
-    if not features.check("raqm"):
-        raise RuntimeError("Pillow RAQM shaping is required for Sinhala video")
-    filtered = [q for q in questions if len(q.get("choices", [])) == 4]
-    q = filtered[day.toordinal() % len(filtered)]
-    outdir.mkdir(parents=True, exist_ok=True)
-    f32 = latin_font(32)
-    f42 = ImageFont.truetype(font_path(), 42, layout_engine=ImageFont.Layout.RAQM)
-    f48 = ImageFont.truetype(font_path(), 48, layout_engine=ImageFont.Layout.RAQM)
-    f58 = ImageFont.truetype(font_path(), 58, layout_engine=ImageFont.Layout.RAQM)
-    sequence=[]
-    for i,(show_answer,duration) in enumerate([(False,5),(True,4)]):
-        im=Image.new("RGB",(1080,1920),"#0c2343")
-        d=ImageDraw.Draw(im)
-        d.rounded_rectangle((60,105,1020,1815),radius=42,fill="#16375c")
-        # Original, topic-aware decorative illustration; no external image licensing.
-        import hashlib
-        seed = int(hashlib.sha256(q["q"].encode("utf-8")).hexdigest()[:8],16)
-        topic = (q.get("topic","") + " " + q["q"]).lower()
-        if any(t in topic for t in ("ග්‍රහලෝක", "අභ්‍යවකාශ", "සූර්ය", "චන්ද්‍ර")):
-            for k in range(28):
-                sx=110+(seed+k*173)%850
-                sy=1050+(seed//3+k*97)%510
-                r=2+k%4
-                d.ellipse((sx-r,sy-r,sx+r,sy+r),fill="#b8d8ff")
-            d.ellipse((650,1120,915,1385),fill="#cc704e",outline="#ffb079",width=9)
-            d.arc((690,1160,870,1340),30,160,fill="#efab86",width=8)
-        elif any(t in topic for t in ("සාගර", "මුහුද", "ජල")):
-            for k in range(5):
-                yy=1170+k*67
-                d.arc((155,yy,930,yy+145),5,170,fill="#45b9e4",width=15)
-        elif any(t in topic for t in ("ගණිත", "කීයද", "මුළු මිල")):
-            for k,symbol in enumerate(("+","−","×","÷")):
-                d.text((180+k*190,1250),symbol,font=f58,fill="#73c8df")
-        else:
-            for k in range(8):
-                x=160+(seed+k*113)%720
-                y=1190+(seed//7+k*67)%260
-                d.ellipse((x,y,x+35,y+35),fill="#2d6686")
-
-        # Original question-related illustration, drawn locally (no stock-image mismatch).
-        from PIL import ImageFilter
-        import hashlib, math
-        key = str(q["q"]) + str(q.get("topic",""))
-        theme = ("space" if any(word in key for word in ("ග්‍රහලෝක","අඟහරු","සූර්ය","චන්ද්‍ර","තරු"))
-                 else "ocean" if any(word in key for word in ("සාගර","මුහුද","දූපත"))
-                 else "math" if any(word in key for word in ("ගණිත","කීයද","මිල","එකතුව","÷","×","+","-"))
-                 else "nature")
-        d.rounded_rectangle((112,1050,968,1480),radius=30,fill="#0c294a")
-        if theme == "space":
-            d.ellipse((400,1090,695,1385),fill="#b74f32",outline="#f7b57d",width=9)
-            d.arc((360,1150,740,1320),10,170,fill="#ffd3a1",width=6)
-            for x,y in ((190,1120),(835,1160),(260,1360),(790,1400)):
-                d.ellipse((x,y,x+9,y+9),fill="#ffffff")
-        elif theme == "ocean":
-            d.ellipse((410,1100,660,1350),fill="#258dc1")
-            for y in range(1320,1450,28):
-                d.arc((155,y,915,y+65),180,350,fill="#64c8e8",width=7)
-        elif theme == "math":
-            d.rounded_rectangle((300,1095,780,1410),radius=28,fill="#296e92")
-            for x in (340,470,600,730):
-                for y in (1150,1250,1350):
-                    d.ellipse((x-22,y-22,x+22,y+22),fill="#f5d978")
-        else:
-            d.ellipse((675,1090,815,1230),fill="#ffcf66")
-            d.polygon([(160,1410),(430,1160),(640,1410)],fill="#267e75")
-            d.polygon([(420,1410),(710,1190),(950,1410)],fill="#35a48a")
-        y=draw_text(d,(112,170),"පුංචි නැණ මඟ",f58,"#ffffff")
-        y=draw_text(d,(112,310),"අලුත් ප්‍රශ්නය",f42,"#80e6d7")
-        y=draw_text(d,(112,530),q["q"],f48,"#ffffff",width=860,spacing=26)+75
-        for k,ch in enumerate(q["choices"]):
-            d.rounded_rectangle((105,y-8,980,y+86),radius=15,fill="#244d75")
-            y=draw_text(d,(145,y+10),f"{chr(65+k)}) {ch}",f42,"#ffffff",width=790)+40
-        if show_answer:
-            y=draw_text(d,(112,min(y+110,1470)),f"නිවැරදි පිළිතුර: {chr(65+q['answer'])}) {q['choices'][q['answer']]}",f48,"#7ff0ba")
-        else:
-            y=draw_text(d,(112,min(y+110,1470)),"පිළිතුර සිතන්න...",f48,"#ffc85c")
-        draw_text(d,(112,1710),"Grade 1–5 Free Papers | Punchi Nena Maga",f32,"#d9e9fa")
-        frame=outdir / f"frame-{i}.png"
-        im.save(frame)
-        sequence.append((frame,duration))
-    manifest=outdir / "frames.txt"
-    manifest.write_text("".join(f"file '{p.name}'\nduration {duration}\n" for p,duration in sequence) + f"file '{sequence[-1][0].name}'\n",encoding="utf-8")
-    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",manifest.name,"-vf","fps=24,format=yuv420p","-movflags","+faststart","-c:v","libx264","-preset","veryfast","grade5-quiz.mp4"],cwd=outdir,check=True)
-    print("Built grade5-quiz.mp4 (silent, 9 seconds)")
+    """Use exactly the supplied quiz, with screenshot-style text and Sinhala audio."""
+    from quiz_reel_renderer import render_quiz_video
+    if not questions:
+        raise ValueError("Cannot render an empty quiz list")
+    return render_quiz_video(questions[0], outdir)
 
 def main():
     p=argparse.ArgumentParser()
