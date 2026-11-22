@@ -1,6 +1,7 @@
 """Render a Sinhala quiz and optionally upload it to the authorized school Page."""
 import argparse
 import hashlib
+import json
 import os
 import subprocess
 import sys
@@ -136,11 +137,24 @@ def main():
     output.parent.mkdir(exist_ok=True)
     render(row, output)
     if args.publish:
-        page_id = os.getenv('FB_PAGE_ID')
-        token = os.getenv('FB_PAGE_ACCESS_TOKEN')
-        if page_id != '61596326146776' or not token:
-            raise RuntimeError('Expected Punchi Nena Maga Facebook Page credentials are missing or mismatched')
-        upload(output, page_id, token, os.getenv('FB_GRAPH_VERSION', 'v27.0'),
+        page_id = os.getenv('FB_PAGE_ID', '').strip()
+        token = os.getenv('FB_PAGE_ACCESS_TOKEN', '').strip()
+        version = os.getenv('FB_GRAPH_VERSION', 'v27.0')
+        if not page_id.isdecimal() or not token:
+            raise RuntimeError('Facebook Page ID or Page token is missing or invalid')
+        request = urllib.request.Request(
+            f'https://graph.facebook.com/{version}/{page_id}?fields=id,name',
+            headers={'Authorization': f'Bearer {token}'},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=25) as response:
+                page = json.load(response)
+        except urllib.error.URLError:
+            raise RuntimeError('Could not verify the configured Facebook Page') from None
+        if 'පුංචි නැණ මඟ' not in page.get('name', ''):
+            raise RuntimeError('Facebook Page does not match Punchi Nena Maga')
+        print('Verified Facebook Page:', page['name'])
+        upload(output, page_id, token, version,
                title='පුංචි නැණ මඟ – සාමාන්‍ය දැනුම',
                description=f'{row[1]} තත්පර පහක් ඇතුළත හිතලා බලන්න.\n\nතවත් සිංහල පාඩම්\n{FACEBOOK_LANDING_URL}')
 
