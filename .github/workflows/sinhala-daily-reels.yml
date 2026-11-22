@@ -1,0 +1,60 @@
+name: Punchi Nena Maga Sinhala Quiz Videos
+on:
+  push:
+    branches: [main]
+    paths: ['school/daily-reel-launch.txt']
+  schedule:
+    - cron: '0 3 * * *'
+    - cron: '30 7 * * *'
+    - cron: '30 12 * * *'
+  workflow_dispatch:
+    inputs:
+      slot:
+        type: choice
+        options: ['0', '1', '2']
+        default: '0'
+      publish:
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  render-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-core fonts-dejavu-core
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'edge-tts==7.3.1'
+      - name: Make quiz and upload to the school Page
+        env:
+          TRIGGER: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
+          SLOT: ${{ inputs.slot }}
+          PUBLISH: ${{ inputs.publish }}
+          ATTEMPT: ${{ github.run_attempt }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+        run: |
+          slot="${SLOT:-0}"
+          case "$CRON" in
+            '30 7 * * *') slot=1 ;;
+            '30 12 * * *') slot=2 ;;
+          esac
+          args=(--slot "$slot")
+          if [[ "$ATTEMPT" == 1 && ( "$TRIGGER" == schedule || "$TRIGGER" == push || "$PUBLISH" == true ) ]]; then
+            args+=(--publish)
+          fi
+          python school/daily_reel_quiz.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sinhala-quiz-${{ github.run_id }}
+          path: daily_reels/*.mp4
+          if-no-files-found: ignore
