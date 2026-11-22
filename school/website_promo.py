@@ -14,12 +14,10 @@ import unicodedata
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from brand_assets import font, latin_font, logo
 from font_safety import draw_mixed, mixed_width, check_caption
-from voice_video import download, MODEL_URL, CONFIG_URL
+from voice_video import download, MODEL_URL, CONFIG_URL, speech_ready
 
 BLOG="https://punchinanamaga.blogspot.com/"
-RESOURCES="https://gamingpoddagames.github.io/Grade-1-5-Scholarship/"
 PROMO_LINK=BLOG+"?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
-RESOURCE_PROMO=RESOURCES+"?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TOPICS=[
  ("01", "නොමිලේ ඉගෙනුම", "1 සිට 5 ශ්‍රේණිය දක්වා", "ගණිතය • සිංහල • පරිසරය", "දරුවාට ගැළපෙන සිංහල පුහුණු ලිපි සහ පැහැදිලි කළ පිළිතුරු.", "#SinhalaEducation #Grade1to5"),
@@ -119,8 +117,6 @@ def caption(topic):
       "- නොමිලේ ප්‍රශ්න සහ පිළිතුරු PDF","",
       "අලුත් පාඩම් සහ කියවිය හැකි ලිපි:",
       PROMO_LINK,
-      "PDF සහ Online Quiz:",
-      RESOURCE_PROMO,"",
       "මෙම පුහුණු සම්පත් අපගේ මුල් නිර්මාණයි. නිල විභාග ප්‍රශ්න පත්‍ර ලෙස නොසලකන්න.",
       topic[5]+" #PunchiNenaMaga"
     ]))
@@ -130,7 +126,7 @@ def make_video(topic,folder,with_voice):
     for i in range(3):slide(topic,i).save(folder/f"slide-{i}.png")
     words=["ආයුබෝවන්. පුංචි නැණ මඟ සමඟ, එකේ සිට පහේ ශ්‍රේණිය දක්වා සිංහල ඉගෙනුම නොමිලේ.",
            topic[2]+". "+topic[4],
-           "අපේ වෙබ් අඩවියට පිවිසෙන්න. punchinanamaga.blogspot.com. නොමිලේ පාඩම්, ප්‍රශ්න පත්‍ර සහ ඔන්ලයින් ක්විස්."]
+           "අලුත් පාඩම් සඳහා පුංචි නැණ මඟ බ්ලොග් අඩවියට පිවිසෙන්න. නොමිලේ පාඩම්, ප්‍රශ්න පත්‍ර සහ අන්තර්ජාල ප්‍රශ්නාවලි ඔබට ලබාගත හැකිය."]
     model=folder/"voice"/"si_LK-ashoka-medium.onnx"
     conf=folder/"voice"/"si_LK-ashoka-medium.onnx.json"
     if with_voice:
@@ -140,7 +136,7 @@ def make_video(topic,folder,with_voice):
         raw=folder/f"voice-{i}.wav"
         if with_voice:
             subprocess.run(["piper","--model",str(model),"--config",str(conf),"--output_file",str(raw)],
-                           input=words[i].encode("utf-8"),check=True,timeout=150)
+                           input=speech_ready(words[i]).encode("utf-8"),check=True,timeout=150)
             probe=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration",
                 "-of","default=noprint_wrappers=1:nokey=1",str(raw)],check=True,capture_output=True,text=True)
             seconds=max(float(probe.stdout.strip())+1.0,5.0)
