@@ -99,7 +99,9 @@ class CrosspostingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             file = Path(tmp) / "video.mp4"
             file.write_bytes(b"fake")
-            with patch("facebook_video.upload") as upload:
+            with patch("facebook_video.upload") as upload, \
+                 patch("crosspost.verified_facebook_permalink", return_value=None), \
+                 patch.dict(os.environ, {"FB_PAGE_ID": "123", "FB_PAGE_ACCESS_TOKEN": "private"}, clear=False):
                 blog, fb_id = poster.publish(
                     question=Q, title="Same title", media_kind="video",
                     media_path=file, caption="test")
