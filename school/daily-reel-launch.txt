@@ -1,1 +1,1 @@
-Publish the approved Pacific quiz with the corrected answer and countdown narration.
+Render a quiz preview with the SL NEWS 24/7 voice.

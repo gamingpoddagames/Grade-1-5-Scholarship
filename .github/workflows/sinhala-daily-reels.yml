@@ -38,6 +38,7 @@ jobs:
           CRON: ${{ github.event.schedule }}
           SLOT: ${{ inputs.slot }}
           PUBLISH: ${{ inputs.publish }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           ATTEMPT: ${{ github.run_attempt }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
@@ -48,7 +49,7 @@ jobs:
             '30 12 * * *') slot=2 ;;
           esac
           args=(--slot "$slot")
-          if [[ "$ATTEMPT" == 1 && ( "$TRIGGER" == schedule || "$TRIGGER" == push || "$PUBLISH" == true ) ]]; then
+          if [[ "$ATTEMPT" == 1 && ( "$TRIGGER" == schedule || ( "$TRIGGER" == push && "$COMMIT_MESSAGE" != "Preview SL NEWS voice in quiz" ) || "$PUBLISH" == true ) ]]; then
             args+=(--publish)
           fi
           python school/daily_reel_quiz.py "${args[@]}"
