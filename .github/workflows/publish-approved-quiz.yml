@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: school-photo-crosspost
+  cancel-in-progress: false
 jobs:
   publish:
     runs-on: ubuntu-latest
