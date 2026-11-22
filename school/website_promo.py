@@ -17,7 +17,7 @@ from font_safety import draw_mixed, mixed_width, check_caption
 from voice_video import download, MODEL_URL, CONFIG_URL, speech_ready
 
 BLOG="https://punchinanamaga.blogspot.com/"
-PROMO_LINK=BLOG+"?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
+PROMO_LINK=BLOG+"p/learning-welcome.html?utm_source=facebook&utm_medium=social&utm_campaign=school_learning_invitation"
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TOPICS=[
  ("01", "නොමිලේ ඉගෙනුම", "1 සිට 5 ශ්‍රේණිය දක්වා", "ගණිතය • සිංහල • පරිසරය", "දරුවාට ගැළපෙන සිංහල පුහුණු ලිපි සහ පැහැදිලි කළ පිළිතුරු.", "#SinhalaEducation #Grade1to5"),
@@ -121,7 +121,7 @@ def caption(topic):
         "- 5 ශ්‍රේණිය ශිෂ්‍යත්වයට අදාළ අභ්‍යාස",
         "- නිවසේදී දරුවා සමඟ පුහුණු වීමට අදහස්",
         "",
-        "නොමිලේ පාඩම් සහ අලුත් අධ්‍යාපනික ලිපි:",
+        "නොමිලේ පාඩම් වෙත පිවිසෙන්න. පිවිසුම් පිටුවේ විකල්ප දැන්වීම් ඇත.",
         PROMO_LINK,
         "",
         "මෙම අභ්‍යාස අපගේ මුල් නිර්මාණ වන අතර නිල විභාග ප්‍රශ්න පත්‍ර නොවේ.",
