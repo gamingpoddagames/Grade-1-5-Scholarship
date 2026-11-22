@@ -34,6 +34,45 @@ def seconds(path):
         text=True,capture_output=True,check=True)
     return float(p.stdout.strip())
 
+# Convert written maths and abbreviations into natural Sinhala before TTS.
+# The video artwork retains the original question; only narration is adjusted.
+import re
+
+_DIGITS = ("බිංදුව", "එක", "දෙක", "තුන", "හතර", "පහ", "හය", "හත", "අට", "නවය")
+_TEENS = ("දහය", "එකොළහ", "දොළහ", "දහතුන", "දහහතර", "පහළොව", "දහසය", "දහහත", "දහඅට", "දහනවය")
+_TENS = ("", "", "විස්ස", "තිහ", "හතළිහ", "පනහ", "හැට", "හැත්තෑව", "අසූව", "අනූව")
+
+def spoken_number(value):
+    number = int(value)
+    if number < 0:
+        return "ඍණ " + spoken_number(-number)
+    if number < 10:
+        return _DIGITS[number]
+    if number < 20:
+        return _TEENS[number - 10]
+    if number < 100:
+        tens, ones = divmod(number, 10)
+        return _TENS[tens] if not ones else _TENS[tens] + " " + _DIGITS[ones]
+    # Larger numbers: speak digit-by-digit to avoid the TTS reading English digits.
+    return " ".join(_DIGITS[int(d)] for d in str(number))
+
+def speech_ready(text):
+    """Prepare Sinhala speech text; refuse unknown Latin words/symbols."""
+    text = str(text)
+    text = re.sub(r"රු\\.", "රුපියල් ", text)
+    # Fractions are read as numerator over denominator, not a URL or date.
+    text = re.sub(r"(?<![\\d/])(\\d+)\\s*/\\s*(\\d+)(?![\\d/])",
+                  lambda m: spoken_number(m.group(1)) + " බෙදූ " + spoken_number(m.group(2)), text)
+    text = re.sub(r"\\d+", lambda m: spoken_number(m.group()), text)
+    for old, new in (("×", " ගුණ කිරීම "), ("÷", " බෙදීම "), ("+", " එකතු කිරීම "),
+                     ("=", " සමානයි "), ("-", " අඩු කිරීම "), ("...", " "),
+                     ("?", " ද? ")):
+        text = text.replace(old, new)
+    text = re.sub(r"\\s+", " ", text).strip()
+    if re.search(r"[A-Za-z]|[×÷=+]|\\d", text):
+        raise ValueError("Unsupported token remains in Sinhala narration: " + text)
+    return text
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--video-dir",required=True)
@@ -51,10 +90,10 @@ def main():
     question=qs[day.toordinal()%len(qs)]
     correct=question["choices"][question["answer"]]
     scripts=[
-        "ආයුබෝවන්! පුංචි නැණ මඟ සමඟ, අද ශිෂ්‍යත්ව පුහුණු ප්‍රශ්නය. "
-        +question["q"]+" ටිකක් සිතා බලන්න.",
-        "නිවැරදි පිළිතුර " +str(correct)+". "+question["explanation"]+
-        " තවත් පුහුණු ප්‍රශ්න සඳහා අපගේ වෙබ් අඩවියට පිවිසෙන්න."
+        "ආයුබෝවන්! පුංචි නැණ මඟ සමඟ අද ශිෂ්‍යත්ව පුහුණු ප්‍රශ්නය අසමු. "
+        + speech_ready(question["q"]) + " ටිකක් සිතා බලන්න.",
+        "පිළිතුර " + speech_ready(str(correct)) + ". " + speech_ready(question["explanation"]) +
+        " තවත් අධ්‍යාපනික ලිපි සහ පුහුණු ප්‍රශ්න සඳහා පුංචි නැණ මඟ බ්ලොග් අඩවියට පිවිසෙන්න."
     ]
     clips=[]
     for i,text in enumerate(scripts):
