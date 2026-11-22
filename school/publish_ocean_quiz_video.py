@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from build_resources import video
 from quiz_topics import select
-from facebook_video import upload
+from crosspost import Crossposter
 from blogger_link_safety import FACEBOOK_LANDING_URL
 
 
@@ -20,14 +20,14 @@ def main():
                "\n\nපිළිතුර සිතන්න. නිවැරදි පිළිතුර වීඩියෝවේ අවසානයේ!\n" +
                FACEBOOK_LANDING_URL + "\n#SinhalaQuiz #PunchiNenaMaga")
     (output / "caption.txt").write_text(caption, encoding="utf-8")
-    if not os.getenv("FB_PAGE_ID") or not os.getenv("FB_PAGE_ACCESS_TOKEN"):
-        raise RuntimeError("Video rendered; cannot publish without Facebook Page credentials")
-    upload(
-        movie, os.environ["FB_PAGE_ID"], os.environ["FB_PAGE_ACCESS_TOKEN"],
-        os.getenv("FB_GRAPH_VERSION", "v27.0"),
-        title=f'පුංචි නැණ මඟ | {day.isoformat()} | අලුත් ප්‍රශ්නය',
-        description=caption
-    )
+    blog_url, fb_id = Crossposter().publish(
+        question=question,
+        title=f"පුංචි නැණ මඟ | {day.isoformat()} | අලුත් ප්‍රශ්නය",
+        media_kind="video",
+        media_path=movie,
+        caption=caption,
+        version=os.getenv("FB_GRAPH_VERSION", "v27.0"))
+    print("Crossposted matching daily video:", blog_url, fb_id)
 
 
 if __name__ == "__main__":
