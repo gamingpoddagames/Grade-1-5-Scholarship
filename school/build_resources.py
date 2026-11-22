@@ -164,6 +164,31 @@ def video(outdir, questions, day):
         im=Image.new("RGB",(1080,1920),"#0c2343")
         d=ImageDraw.Draw(im)
         d.rounded_rectangle((60,105,1020,1815),radius=42,fill="#16375c")
+        # Original, topic-aware decorative illustration; no external image licensing.
+        import hashlib
+        seed = int(hashlib.sha256(q["q"].encode("utf-8")).hexdigest()[:8],16)
+        topic = (q.get("topic","") + " " + q["q"]).lower()
+        if any(t in topic for t in ("ග්‍රහලෝක", "අභ්‍යවකාශ", "සූර්ය", "චන්ද්‍ර")):
+            for k in range(28):
+                sx=110+(seed+k*173)%850
+                sy=1050+(seed//3+k*97)%510
+                r=2+k%4
+                d.ellipse((sx-r,sy-r,sx+r,sy+r),fill="#b8d8ff")
+            d.ellipse((650,1120,915,1385),fill="#cc704e",outline="#ffb079",width=9)
+            d.arc((690,1160,870,1340),30,160,fill="#efab86",width=8)
+        elif any(t in topic for t in ("සාගර", "මුහුද", "ජල")):
+            for k in range(5):
+                yy=1170+k*67
+                d.arc((155,yy,930,yy+145),5,170,fill="#45b9e4",width=15)
+        elif any(t in topic for t in ("ගණිත", "කීයද", "මුළු මිල")):
+            for k,symbol in enumerate(("+","−","×","÷")):
+                d.text((180+k*190,1250),symbol,font=f58,fill="#73c8df")
+        else:
+            for k in range(8):
+                x=160+(seed+k*113)%720
+                y=1190+(seed//7+k*67)%260
+                d.ellipse((x,y,x+35,y+35),fill="#2d6686")
+
         # Original question-related illustration, drawn locally (no stock-image mismatch).
         from PIL import ImageFilter
         import hashlib, math
