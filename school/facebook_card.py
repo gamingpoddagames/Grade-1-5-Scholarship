@@ -32,6 +32,9 @@ def line(draw,text,x,y,face,color,max_width,lineheight):
     return y
 
 def create_card(question,target):
+    if question.get("image_title"):
+        from visual_quiz import draw_card
+        return draw_card(question, target)
     canvas=Image.new("RGB",(1080,1350),"#e6f4fc")
     d=ImageDraw.Draw(canvas)
     d.rounded_rectangle((45,42,1035,1308),radius=42,fill="#ffffff")
