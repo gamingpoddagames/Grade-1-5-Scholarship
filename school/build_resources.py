@@ -145,6 +145,9 @@ def draw_text(draw, xy, text, font, fill, width=900, spacing=14):
     return y
 
 def video(outdir, questions, day):
+    from visual_quiz import select, render_video
+    render_video(select(day), outdir)
+    return
     from PIL import Image, ImageDraw, ImageFont, features
     from brand_assets import latin_font
     if not features.check("raqm"):
