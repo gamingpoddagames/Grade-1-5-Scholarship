@@ -67,11 +67,25 @@ def article_content(question, *, media_kind, image_info=None):
         image_name = urllib.parse.quote(str(image_info["image_title"]).replace(" ", "_"), safe="")
         source = "https://commons.wikimedia.org/wiki/Special:FilePath/" + image_name
         credit = html.escape(str(image_info.get("image_credit", "Wikimedia Commons")))
+        source_page = ("https://commons.wikimedia.org/wiki/File:" + image_name)
+        license_name = str(image_info.get("image_license", "")).strip()
+        license_links = {
+            "CC BY-SA 4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
+            "CC BY-SA 3.0": "https://creativecommons.org/licenses/by-sa/3.0/",
+            "CC0": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "Public Domain": "https://creativecommons.org/publicdomain/mark/1.0/",
+        }
+        license_link = license_links.get(license_name)
+        attribution = ('<a href="' + html.escape(source_page, quote=True) +
+                       '" rel="noopener">Wikimedia Commons මුල් රූපය</a> — ' + credit)
+        if license_link:
+            attribution += (' | <a href="' + html.escape(license_link, quote=True) +
+                            '" rel="noopener">' + html.escape(license_name) + '</a>')
         parts.append(
             '<figure><img loading="lazy" alt="' + q + '" '
             'style="max-width:100%;height:auto;" src="' + html.escape(source, quote=True) + '"/>'
-            "<figcaption>ඡායාරූපය: " + credit +
-            " (Wikimedia Commons, මුල් රූපය)</figcaption></figure>")
+            "<figcaption>ඡායාරූපය: " + attribution +
+            " (Facebook quiz card හි රූපය අනුගත කර ඇත)</figcaption></figure>")
     parts.extend([
         "<p>මෙය ළමුන්ගේ අධ්‍යාපනික පුහුණුව සඳහා නිර්මාණය කළ ප්‍රශ්නයකි.</p>",
         "<p>තවත් නොමිලේ ප්‍රශ්න සහ පිළිතුරු: "
