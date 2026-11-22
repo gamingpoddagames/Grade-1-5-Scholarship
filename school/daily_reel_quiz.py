@@ -24,7 +24,7 @@ SHUTTLE = ('STS120LaunchHiRes-edit1.jpg', 'NASA / STS-120')
 GALAXY = ('Hubble2005-01-barred-spiral-galaxy-NGC1300.jpg', 'NGC 1300 | NASA / ESA / Hubble')
 QUESTIONS = [
     (EARTH, 'ලෝකයේ විශාලම සාගරය මොකක් ද?', 'පැසිෆික් සාගරය',
-     'ලෝකයේ ලොකුම සාගරය ඒකයි.'),
+     'ලෝකයේ විශාලම සාගරය පැසිෆික් සාගරයයි.'),
     (MARS, 'රතු ග්‍රහලෝකය කියන්නේ මොන ග්‍රහලෝකයට ද?', 'අඟහරු',
      'එහි මතුපිට යකඩ ඔක්සයිඩ් නිසා රතු පාටින් පේනවා.'),
     (GALAXY, 'අපේ සූර්යයා තියෙන්නේ මොන මන්දාකිණියේ ද?', 'ක්ෂීරපථයේ',
@@ -102,7 +102,7 @@ def narration(question, answer, reason):
     # Keep the exact words from the cards and use punctuation only to cue pauses.
     spoken_question = question.replace('සාගරය මොකක් ද?', 'සාගරය, මොකක් ද?')
     spoken_answer = answer.replace('පැසිෆික් සාගරය', 'පැසිෆික්, සාගරය')
-    return spoken_question, f'{spoken_answer}. {reason}'
+    return f'{spoken_question} පිළිතුර හිතන්න.', f'{spoken_answer}. {reason}'
 
 
 def render(row, output):
