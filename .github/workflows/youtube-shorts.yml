@@ -54,6 +54,7 @@ jobs:
           python -m py_compile school/quiz_reel_renderer.py
           python -m unittest discover -s school -p 'test_youtube_shorts.py' -v
           python -m unittest discover -s school -p 'test_youtube_oauth_setup.py' -v
+          python -m unittest discover -s school -p 'test_youtube_cloud_bootstrap.py' -v
           python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
           python -m unittest discover -s school -p 'test_font_safety.py' -v
       - name: Report GitHub YouTube OAuth readiness without exposing secrets
