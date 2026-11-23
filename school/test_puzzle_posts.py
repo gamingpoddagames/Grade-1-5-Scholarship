@@ -35,7 +35,6 @@ class ScholarshipPuzzleTests(unittest.TestCase):
             self.assertEqual(hidden, "?")
             self.assertEqual(int(q["choices"][q["answer"]]), compute(l, top, r))
             self.assertIn("comment", facebook_caption(q))
-            self.assertNotIn(q["q"], seen) if False else None
             seen.add((q["question_number"], tuple(tuple(w) for w in wheels)))
         self.assertEqual(len(seen), 120)
 
