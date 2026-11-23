@@ -3,3 +3,5 @@ Request an original difficult Grade 5 Sinhala number-wheel infographic puzzle. D
 Final corrected rule-rotation, three-choice Blogger formatting and mathematical tests included. Run requested: 2026-11-23 20:20 Asia/Colombo; publish only after all validations pass.
 
 One-off fresh bonus puzzle request on 2026-11-23: unique question number 30, not old number 29; run with --bonus --publish, full Blogger solution first, Facebook original poster with canonical Blogger link, enforce Sinhala caption quality tests. Request ID: PNM-BONUS-20261123-01.
+
+NEW-FORMAT REQUEST 2026-11-23 21:49 Asia/Colombo: generate --new-style --publish with truly different dot-array illustrated scholarship puzzle #31. Check all six format regression tests before Blogger-first Facebook post. Do not resend old wheels #29/#30.
