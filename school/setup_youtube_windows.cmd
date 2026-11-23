@@ -3,6 +3,10 @@ setlocal EnableExtensions
 chcp 65001 >nul
 title Punchi Nena Maga - Secure YouTube Setup
 cd /d "%~dp0\.."
+if "%~1"=="" (
+  call "%~dp0setup_youtube_cloud_windows.cmd"
+  exit /b %errorlevel%
+)
 
 echo.
 echo ==========================================
