@@ -43,6 +43,8 @@ jobs:
           python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
       - name: Fail-closed Sinhala font and Facebook caption quality gate
         run: python -m unittest discover -s school -p 'test_font_safety.py' -v
+      - name: Verify Facebook web/mobile Sinhala text normalization
+        run: python -m unittest discover -s school -p 'test_social_text.py' -v
       - name: Verify picture quiz bank and same-photo selection
         run: python -m unittest discover -s school -p 'test_visual_quiz.py' -v
       - name: Validate Blogger-to-Facebook crossposting safeguards
