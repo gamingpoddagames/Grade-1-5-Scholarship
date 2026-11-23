@@ -26,7 +26,7 @@ def verify_channel(items, expected_id=OWNER_CHANNEL_ID):
     return items[0]
 
 
-def validate_google_client_file(path):
+def validate_google_client_file(path, expected_project=None):
     """Require Google's Desktop OAuth credentials for the kids-video upload project."""
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -40,6 +40,10 @@ def validate_google_client_file(path):
         raise RuntimeError(
             "Made for Kids uploads require a dedicated Google Upload Project "
             "whose project ID begins with mfk110. No credentials were saved.")
+    if expected_project and project_id != expected_project:
+        raise RuntimeError(
+            "Desktop OAuth JSON belongs to a DIFFERENT Google Cloud project. "
+            "No credentials were saved.")
     for required in ("client_id", "client_secret", "auth_uri", "token_uri"):
         if not info.get(required):
             raise RuntimeError("Incomplete Desktop OAuth credentials: " + required)
@@ -86,6 +90,9 @@ def main():
         help="Google Cloud Desktop OAuth JSON downloaded to your PC")
     parser.add_argument("--repo", default=DEFAULT_REPO)
     parser.add_argument(
+        "--expected-project",
+        help="Require Desktop OAuth JSON to match the gcloud-created project ID")
+    parser.add_argument(
         "--enable-private-test", action="store_true",
         help="Enable private test uploads to verified YouTube channel")
     args = parser.parse_args()
@@ -95,7 +102,7 @@ def main():
     path = args.client_secrets.expanduser()
     if not path.is_file():
         raise RuntimeError("Google OAuth JSON file not found: " + str(path))
-    validate_google_client_file(path)
+    validate_google_client_file(path, expected_project=args.expected_project)
     if not shutil.which("gh"):
         raise RuntimeError(
             "Install GitHub CLI from https://cli.github.com/ then run gh auth login.")
