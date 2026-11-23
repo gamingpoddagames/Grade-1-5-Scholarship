@@ -66,6 +66,7 @@ def make_content(day, output_dir):
     return message
 
 def publish(message, page_id, token, version="v27.0"):
+    message = clean_caption(message)
     check_caption(message)
     validate_blogger_links(message)
     payload = urllib.parse.urlencode({"message":message,"access_token":token}).encode("utf-8")
