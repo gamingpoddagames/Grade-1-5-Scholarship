@@ -29,3 +29,11 @@ To disable publication explicitly, set BLOGGER_ALLOW_PUBLICATION=false.
 
 Keep original educational value and realistic expectations: comments, referrals, organic traffic, AdSense approval and income are not guaranteed.
 These are reasoning exercises, not official government examination questions. Parent or teacher review remains useful.
+
+## Six different poster types, not repetitive number wheels (23 November 2026 upgrade)
+
+Starting 2026-11-24, daily posts rotate through **six genuinely different puzzle types with matching original artwork**: increasing-difference number sequences, 3x3 magic number grids, circle/square equation problems, dot-array picture patterns, analogue clock time patterns, and number pyramids. Every day uses a different category from yesterday; bonus and on-demand posts choose an independent type for the same date. The new-format launch sample on 2026-11-23 is a dot-array picture puzzle, distinct from the archived wheel posts for #29 and #30.
+
+Original content and six specialized layouts: `school/diverse_puzzles.py`. Integration into existing Blogger-first publishing: `school/puzzle_posts.py`. The paired Blogger article now carries a text-readable description of all relevant visual puzzle data, an answer hidden behind a disclosure control, and a worked explanation. This means someone can solve the quiz on the website even if the Facebook image itself has not been embedded.
+
+All numeric answers are calculated by the generator, with 90-day tests verifying every type, each problem's logic, distinct same-day categories and original 1080x1350 poster output. The legacy 2026-11-23 wheel questions remain unchanged to prevent duplicate posting or altering published solutions. Code changes do not prove a successful GitHub Actions run or public Facebook/Blogger post; review run results.
