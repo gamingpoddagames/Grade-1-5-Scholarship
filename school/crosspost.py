@@ -21,6 +21,7 @@ from blogger_publisher import (
 )
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from font_safety import check_caption
+from social_text import clean_caption, clean_title
 
 STATE = re.compile(r"<!-- PNM_FACEBOOK_STATE:(READY|PENDING|PUBLISHED:[A-Za-z0-9_]+) -->")
 EMBED_MARKER = "<!-- PNM_FACEBOOK_EMBED -->"
@@ -234,6 +235,7 @@ class Crossposter:
             raise ValueError("Media kind must be video, photo or text")
         if media_kind != "text" and not Path(media_path).is_file():
             raise RuntimeError("Media is missing; nothing published")
+        title = clean_title(title)
         article, created = self.article(question, title, media_kind, image_info)
         article_url = validate_blog_url(article.get("url"))
         state = STATE.search(article.get("content", ""))
@@ -267,7 +269,7 @@ class Crossposter:
         full_caption = caption.replace(FACEBOOK_LANDING_URL, article_url)
         if article_url not in full_caption:
             full_caption += "\n\n" + article_url
-        full_caption = unicodedata.normalize("NFC", full_caption)
+        full_caption = clean_caption(full_caption)
         check_caption(full_caption)
 
         # Reserve the single remote attempt in durable Blogger state *first*.
