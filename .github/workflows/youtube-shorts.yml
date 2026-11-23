@@ -72,7 +72,10 @@ jobs:
           if [[ "$RUN_EVENT" == "workflow_dispatch" ]]; then
             PRIVACY="${MANUAL_PRIVACY:-private}"
           fi
-          if [[ "$RUN_EVENT" == "workflow_dispatch" && "$MANUAL_UPLOAD" != "true" ]]; then
+          if [[ "$RUN_EVENT" == "push" ]]; then
+            echo "Repository request pushes render a preview only; never silently upload."
+            python school/youtube_shorts.py --render
+          elif [[ "$RUN_EVENT" == "workflow_dispatch" && "$MANUAL_UPLOAD" != "true" ]]; then
             echo "Manual preview requested; upload intentionally disabled."
             python school/youtube_shorts.py --render
           elif [[ "$YOUTUBE_UPLOAD_ENABLED" == "true" ]]; then
