@@ -1,3 +1,27 @@
+## Code-first Windows setup (recommended; 24 November 2026)
+
+The one-click launcher [setup_youtube_cloud_windows.cmd](setup_youtube_cloud_windows.cmd) automates more steps than the older OAuth-only setup:
+
+- installs Google Cloud CLI and GitHub CLI through Windows winget with owner permission if missing;
+- opens the official Google/GitHub browser sign-in flows;
+- creates or reuses a dedicated `mfk110`-prefixed Google Upload Project;
+- enables and verifies `youtube.googleapis.com`;
+- opens Google Auth Platform for creating a Desktop OAuth client;
+- after the owner downloads the JSON, verifies **that very same project** and exact YouTube channel `UCQ2EM8DjUfg3WgzB8r6hYDQ`;
+- writes OAuth credentials to GitHub encrypted Secrets and enables **private** automatic uploads only.
+
+Start with:
+
+```cmd
+git clone https://github.com/gamingpoddagames/Grade-1-5-Scholarship.git
+cd Grade-1-5-Scholarship
+school\setup_youtube_cloud_windows.cmd
+```
+
+If already cloned, use `git pull` rather than cloning again.
+
+**Google account login, OAuth consent and creation of the Google Auth Platform Desktop client still require the owner's interaction; this script does not and cannot skip that authorization.** No OAuth tokens or password should be sent in chat. The local project ID is saved without credentials for safe retry. Tested without real Google Cloud changes in [CI](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/workflows/youtube-cloud-setup-check.yml). The separate full video rendering preview workflow remains privacy-gated.
+
 # Punchi Nena Maga YouTube Channel Setup
 
 ## Verified destination from channel owner
