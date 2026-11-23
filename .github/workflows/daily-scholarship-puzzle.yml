@@ -54,7 +54,11 @@ jobs:
           if [[ "$BLOGGER_ALLOW_PUBLICATION" == "false" ]]; then
             echo "Publication explicitly disabled; only previewing."
             python school/puzzle_posts.py
-          elif [[ "$RUN_EVENT" == "schedule" || "$RUN_EVENT" == "push" || "$MANUAL_PUBLISH" == "true" ]]; then
+          elif [[ "$RUN_EVENT" == "push" ]]; then
+            # This is a one-off post request; never regenerate the already
+            # published standard question for the same Sri Lanka calendar day.
+            python school/puzzle_posts.py --bonus --publish
+          elif [[ "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" ]]; then
             python school/puzzle_posts.py --publish
           else
             python school/puzzle_posts.py
@@ -63,5 +67,7 @@ jobs:
         if: always()
         with:
           name: scholarship-puzzle-poster-and-solution
-          path: school/output/logic-puzzle/
+          path: |
+            school/output/logic-puzzle/
+            school/output/logic-puzzle-bonus/
           retention-days: 30
