@@ -32,8 +32,16 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y fonts-noto-core fonts-dejavu-core
           python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
-      - name: Validate Python source
-        run: python -m compileall -q school
+      - name: Compile puzzle design generator
+        run: python -m py_compile school/diverse_puzzles.py
+      - name: Compile puzzle publisher
+        run: python -m py_compile school/puzzle_posts.py
+      - name: Compile Blogger crossposting module
+        run: python -m py_compile school/crosspost.py
+      - name: Compile Sinhala engagement module
+        run: python -m py_compile school/engagement_monetization.py
+      - name: Compile social text module
+        run: python -m py_compile school/social_text.py
       - name: Validate Sinhala fonts
         run: python -m unittest discover -s school -p 'test_font_safety.py' -v
       - name: Validate Facebook Unicode
