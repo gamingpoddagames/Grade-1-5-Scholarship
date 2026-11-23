@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from brand_assets import font, latin_font
 from font_safety import draw_mixed, mixed_width, check_caption
 from social_text import clean_caption, clean_quiz_lines
+from diverse_puzzles import make_diverse, render_diverse_poster
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from crosspost import Crossposter, article_content, today_in_sri_lanka
 
@@ -63,8 +64,12 @@ def make_puzzle(day, variant=0):
     day_index = (day - START).days
     if day_index < 0:
         raise ValueError("Date predates the original puzzle series")
-    if variant not in (0, 1):
-        raise ValueError("Only the standard and bonus original puzzles are supported")
+    if variant not in (0, 1, 2):
+        raise ValueError("Unsupported puzzle post variant")
+    if variant == 2 or day >= dt.date(2026, 11, 24):
+        return make_diverse(day, variant=variant)
+    # Old posts are kept unchanged; new posts use six genuinely different
+    # mathematical ideas and original layouts, not another number-wheel image.
     # The bonus uses an independent deterministic sequence rather than
     # repeating today's already-published standard number-wheel puzzle.
     serial = day_index if variant == 0 else 1000 + day_index
@@ -202,6 +207,8 @@ def _wheel(d, cx, cy, radius, wheel):
 
 
 def poster(question, destination):
+    if question.get("puzzle_kind"):
+        return render_diverse_poster(question, destination)
     if len(question["puzzle_circles"]) != 4:
         raise ValueError("Need exactly four puzzle wheels")
     im = _gradient()
@@ -245,7 +252,7 @@ def facebook_caption(question):
         f"({label}) {answer}" for label, answer in zip(labels, question["choices"]))
     text = (
         clean_quiz_lines(5, "බුද්ධි පරීක්ෂණ ගැටලුව", question["question_number"]) + "\n\n"
-        "රූපයේ සංඛ්‍යා අතර සැඟවුණු රටාව සොයාගන්න පුළුවන්ද?\n\n" +
+        question["q"] + "\n\n" +
         opts + "\n\n"
         "ඔබ තෝරන අංකය (1), (2) හෝ (3) ලෙස comment කරන්න.\n"
         "නිවැරදි පිළිතුර සහ පියවරෙන් පියවර විසඳුම බලන්න:\n" +
@@ -281,15 +288,24 @@ def main():
                         help="Publish paired Blogger article and Facebook photo")
     parser.add_argument("--bonus", action="store_true",
                         help="New distinct puzzle even when today's daily quiz was posted")
+    parser.add_argument("--new-style", action="store_true",
+                        help="One final new-format sample on 2026-11-23, without wheel images")
     args = parser.parse_args()
     day = dt.date.fromisoformat(args.date) if args.date else today_in_sri_lanka()
-    if args.bonus and args.output == "school/output/logic-puzzle":
-        args.output = "school/output/logic-puzzle-bonus"
-    item, graphic = generate(day, args.output, variant=int(args.bonus))
+    if args.bonus and args.new_style:
+        raise ValueError("Bonus and new-style request cannot be combined")
+    if args.output == "school/output/logic-puzzle":
+        if args.new_style:
+            args.output = "school/output/logic-puzzle-new-style"
+        elif args.bonus:
+            args.output = "school/output/logic-puzzle-bonus"
+    variant = 2 if args.new_style else int(args.bonus)
+    item, graphic = generate(day, args.output, variant=variant)
     if not args.publish:
         print("PREVIEW ONLY: no Blogger or Facebook posts sent")
         return
-    kind = "අමතර බුද්ධි පරීක්ෂණය" if args.bonus else "බුද්ධි පරීක්ෂණ ගැටලුව"
+    kind = ("නව ආකෘතියේ බුද්ධි පරීක්ෂණය" if args.new_style else
+            "අමතර බුද්ධි පරීක්ෂණය" if args.bonus else "බුද්ධි පරීක්ෂණ ගැටලුව")
     title = (f"පුංචි නැණ මඟ | {day.isoformat()} | "
              f"{kind} {item['question_number']}")
     blog, fb_id = Crossposter().publish(
