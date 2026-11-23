@@ -246,8 +246,12 @@ def draw_card(item, target):
     draw_mixed(d, (231, 83), "පුංචි නැණ මඟ", font(56, True), "#ffffff")
     d.text((236, 173), "SINHALA PICTURE QUIZ", font=latin_font(29), fill="#9be7e1")
     canvas.paste(artwork, (74, 264))
+    # Keep the card clean: required attribution is retained in the accompanying
+    # Facebook caption and matching Blogger article, not repeated as tiny text
+    # over the educational photograph. Never erase source-embedded watermarks.
     d.rectangle((74, 730, 1006, 754), fill="#083f70")
-    d.text((88, 732), "Photo: " + item["image_credit"][:90], font=latin_font(16), fill="#ffffff")
+    d.text((88, 732), "PUNCHI NENA MAGA | SINHALA QUIZ",
+           font=latin_font(17, True), fill="#ffffff")
     draw_mixed(d, (101, 782), item["topic"], font(30, True), "#087b74")
     question_face = next((font(s, True) for s in (42, 37, 33, 30)
                           if len(_wrap(d, item["q"], font(s, True), 865)) <= 2), font(29, True))
