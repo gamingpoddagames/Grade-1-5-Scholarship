@@ -10,7 +10,7 @@ Additional original Grade 5 logic puzzle stream for the existing Punchi Nena Mag
 - Daily 18:30 Sri Lanka GitHub Actions scheduled run, with a manual preview mode.
 
 ## Maths validation
-Each number wheel uses the explicitly stated intended rule: bottom = left x right x (top + 1).
+The daily generator rotates four original, deterministic rules for greater question variety: left x right x (top+1); (left+right) x (top+2); left x top + right x right; and (left+top) x right + top. The chosen rule and numerical derivation appear ONLY in the Blogger solution, never the Facebook image.
 Launch question 29: (left,top,right,bottom) = (2,3,5,40), (4,2,3,36), (3,4,2,30), (5,3,4,?). Answer 80, which is option (2).
 Other dates choose different original numeric wheel values and compute all solutions deterministically. The tests check 120 dates and poster output.
 
