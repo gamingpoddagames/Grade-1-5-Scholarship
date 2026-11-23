@@ -49,7 +49,7 @@ def make_diverse(day, variant=0):
     if variant == 2:
         if day != dt.date(2026, 11, 23):
             raise ValueError("Launch of the new visual format is limited to 2026-11-23")
-        index = 0
+        index = 3  # launch with a shape/dot puzzle, not tomorrow's number sequence
         number = 31
     else:
         if day < FIRST:
@@ -369,7 +369,6 @@ def _draw_pyramid(d,v,palette):
             x=left+i*step
             _pane(d,(x,top,x+width,top+148),fill=accent if value=="?" else "#f9f6ff")
             _center_num(d,value,x+width/2,top+72,68)
-    _sinhala(d,"පහළ ගඩොල් දෙක එකතු කර බලන්න.",1090,39,color="white")
 
 
 def render_diverse_poster(question,destination):
