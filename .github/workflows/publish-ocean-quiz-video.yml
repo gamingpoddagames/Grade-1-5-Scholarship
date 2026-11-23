@@ -29,6 +29,7 @@ jobs:
         run: |
           python -m compileall -q school
           python -m unittest discover -s school -p 'test_font_safety.py' -v
+          python -m unittest discover -s school -p 'test_social_text.py' -v
           python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
           python -m unittest discover -s school -p 'test_crosspost.py' -v
       - name: Render and publish new screenshot-style Reel
