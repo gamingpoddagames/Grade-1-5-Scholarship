@@ -252,10 +252,10 @@ def facebook_caption(question):
     opts = "\n".join(
         f"({label}) {answer}" for label, answer in zip(labels, question["choices"]))
     text = (
-        clean_quiz_lines(5, "බුද්ධි පරීක්ෂණ ගැටලුව", question["question_number"]) + "\n\n"
+        clean_quiz_lines(5, "බුද්ධි පරීක්ෂණ ගැටලුව", question["question_number"]) + "\n\n" +
         question["q"] + "\n\n" +
-        opts + "\n\n"
-        comment_invitation(question) + "\n"
+        opts + "\n\n" +
+        comment_invitation(question) + "\n" +
         "නිවැරදි පිළිතුර සහ පියවරෙන් පියවර විසඳුම බලන්න:\n" +
         FACEBOOK_LANDING_URL +
         "\n#Grade5Scholarship #SinhalaMaths #PunchiNenaMaga"
