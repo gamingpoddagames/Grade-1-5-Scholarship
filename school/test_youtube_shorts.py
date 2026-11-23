@@ -43,6 +43,24 @@ class YoutubeShortsTests(unittest.TestCase):
         self.assertEqual(data["snippet"]["categoryId"], "27")
         self.assertEqual(data["snippet"]["defaultAudioLanguage"], "si")
 
+    def test_grade_four_quiz_is_not_labeled_as_grade_five(self):
+        grade4 = {
+            "grade": 4, "q": "මීටර් 3ක් සෙන්ටිමීටර් කීයද?",
+            "choices": ["30", "300", "3000", "33"], "answer": 1,
+        }
+        info = build_metadata(grade4, dt.date(2026, 11, 24))
+        self.assertTrue(info["snippet"]["title"].startswith("4 ශ්‍රේණිය |"))
+        self.assertNotIn("5 ශ්‍රේණිය", info["snippet"]["title"])
+        self.assertIn("#Grade4", info["snippet"]["description"])
+        self.assertNotIn("Grade5Scholarship", info["snippet"]["description"])
+        self.assertIn("4 ශ්‍රේණිය", info["snippet"]["tags"])
+
+    def test_rejects_grade_outside_primary_school(self):
+        for invalid in (0, 6, "5", None):
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(ValueError):
+                    build_metadata({**QUESTION, "grade": invalid}, dt.date(2026, 11, 24))
+
     def test_different_dates_have_distinct_delivery_ids(self):
         first = build_metadata(QUESTION, dt.date(2026, 11, 24))
         second = build_metadata(QUESTION, dt.date(2026, 11, 25))
