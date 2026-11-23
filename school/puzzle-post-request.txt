@@ -9,3 +9,5 @@ NEW-FORMAT REQUEST 2026-11-23 21:49 Asia/Colombo: generate --new-style --publish
 REQUEST: NEW ORIGINAL CONTENT #32 2026-11-23 21:48 Asia/Colombo. Run --fresh-grid --publish on push, create an original 3x3 magic-grid graphic (12,5,10 / 7,?,11 / 8,13,6), options (1)9 (2)11 (3)7, with correct hidden answer 9 and worked Blogger solution; use real canonical Blogger article link in Facebook caption; prevent duplicate or mismatched old quiz uploads. Trigger ID PNM-FRESH-GRID-32.
 
 NEW REQUEST PNM-CLOCK-33-20261123: On push run school/puzzle_posts.py --fresh-clock --publish, create a distinct 4-clock original question #33 with 4:15 > 4:40 > 5:05 > ?, options (1) 5:55 (2) 5:05 (3) 5:30. Publish the worked solution on Blogger first, then the question-only photo to the authorized Facebook Page with the actual Blogger article link; skip duplicates and do not reveal the answer in Facebook caption. Validate regression tests before publication.
+
+CI DIAGNOSTIC RETRY PNM-CLOCK-33 2026-11-23: new clock post #33; run isolated checks; if and only if all checks pass, Blogger-first publish and Facebook poster with direct URL. Do not create duplicates.
