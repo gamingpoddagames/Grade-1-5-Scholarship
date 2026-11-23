@@ -24,6 +24,9 @@ def upload(path, page_id, access_token, version, *, title=None, description=None
                        f"{FACEBOOK_LANDING_URL} "
                        "#Grade5Scholarship #SinhalaEducation")
     }
+    from social_text import clean_title
+    fields["title"] = clean_title(fields["title"])
+    fields["description"] = clean_caption(fields["description"])
     check_caption(fields["title"])
     check_caption(fields["description"])
     validate_blogger_links(fields["description"])
