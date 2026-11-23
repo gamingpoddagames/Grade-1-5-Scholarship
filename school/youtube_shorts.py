@@ -36,11 +36,15 @@ def build_metadata(question, day, *, privacy="private"):
     answer = question.get("answer")
     if not isinstance(answer, int) or answer not in range(4):
         raise ValueError("Invalid correct answer")
+    grade = question.get("grade", 5)
+    if not isinstance(grade, int) or not 1 <= grade <= 5:
+        raise ValueError("Quiz grade must be an integer between 1 and 5")
+    grade_label = f"{grade} ශ්‍රේණිය"
     marker = MARKER_PREFIX + day.strftime("%Y%m%d") + "-01"
-    title = f"5 ශ්‍රේණිය | {question['q']} #Shorts"
+    title = f"{grade_label} | {question['q']} #Shorts"
     # Metadata title may be at most 100 Unicode code points.
     if len(title) > 100:
-        title = "5 ශ්‍රේණිය | අලුත් ශිෂ්‍යත්ව ප්‍රශ්නය #Shorts"
+        title = f"{grade_label} | අලුත් අධ්‍යාපනික ප්‍රශ්නය #Shorts"
     labels = "\n".join(f"{chr(65+i)}) {c}" for i, c in enumerate(question["choices"]))
     desc = (
         "පුංචි නැණ මඟ | Grade 1–5 Sinhala Education\n\n"
@@ -49,7 +53,7 @@ def build_metadata(question, day, *, privacy="private"):
         "තවත් නොමිලේ ප්‍රශ්න සහ පැහැදිලි කිරීම්:\n"
         + BLOG
         + "\n\nස්වාධීන අධ්‍යාපනික අභ්‍යාසයකි; නිල විභාග ප්‍රශ්නයක් නොවේ.\n"
-        + "#SinhalaQuiz #Grade5Scholarship #Shorts\n"
+        + f"#SinhalaQuiz #Grade{grade} #Shorts\n"
         + "\n" + marker
     )
     return {
@@ -59,8 +63,8 @@ def build_metadata(question, day, *, privacy="private"):
             "categoryId": "27",  # Education
             "defaultLanguage": "si",
             "defaultAudioLanguage": "si",
-            "tags": ["පුංචි නැණ මඟ", "5 ශ්‍රේණිය", "ශිෂ්‍යත්වය",
-                     "Sinhala Quiz", "Grade 5 Scholarship", "Sri Lanka Education"],
+            "tags": ["පුංචි නැණ මඟ", grade_label,
+                     "Sinhala Quiz", f"Grade {grade}", "Sri Lanka Education"],
         },
         "status": {
             "privacyStatus": privacy,
