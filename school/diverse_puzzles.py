@@ -42,21 +42,22 @@ def choices_for(answer, serial, spread=5):
 def make_diverse(day, variant=0):
     if isinstance(day, str):
         day = dt.date.fromisoformat(day)
-    if not isinstance(day, dt.date) or variant not in (0, 1, 2, 3):
+    if not isinstance(day, dt.date) or variant not in (0, 1, 2, 3, 4):
         raise ValueError("Unsupported date or puzzle variant")
     if day < dt.date(2026, 11, 23):
         raise ValueError("Dates before the new puzzle series are not supported")
-    if day == dt.date(2026, 11, 23) and variant in (2, 3):
-        # A genuinely new one-off after the existing posts #29-#31.
-        index = 3 if variant == 2 else 1
-        number = 31 if variant == 2 else 32
+    if day == dt.date(2026, 11, 23) and variant in (2, 3, 4):
+        # Three distinctly illustrated one-off releases after #29 and #30:
+        # dots #31, grid #32 and a new clock reasoning puzzle #33.
+        index = {2: 3, 3: 1, 4: 4}[variant]
+        number = {2: 31, 3: 32, 4: 33}[variant]
     else:
         if day < FIRST:
             raise ValueError("Future diverse puzzle dates start on 2026-11-24")
         days = (day - FIRST).days
         index = (days + variant) % len(KINDS)
         # Four separate titles/day; all future IDs remain globally unique.
-        number = 33 + days * 4 + variant
+        number = 34 + days * 4 + variant
 
     serial = (day - dt.date(2026, 11, 23)).days * 37 + variant * 17 + 9
     rng = random.Random(41127 + serial * 301)
@@ -65,7 +66,7 @@ def make_diverse(day, variant=0):
         "grade": 5, "topic": "ශිෂ්‍යත්ව බුද්ධි පරීක්ෂණය",
         "puzzle_kind": kind, "date": day.isoformat(),
         "question_number": number,
-        "variant": {0: "daily", 1: "bonus", 2: "new-style", 3: "fresh-grid"}[variant],
+        "variant": {0: "daily", 1: "bonus", 2: "new-style", 3: "fresh-grid", 4: "fresh-clock"}[variant],
         "option_labels": ["1", "2", "3"],
         "learning_notes": [
             "පළමුව රූපය හොඳින් නිරීක්ෂණය කර රටාව හඳුනාගන්න.",
