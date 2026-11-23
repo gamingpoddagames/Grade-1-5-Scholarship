@@ -41,17 +41,22 @@ def validate_blog_url(raw):
 
 
 def article_content(question, *, media_kind, image_info=None):
-    if not question.get("q") or len(question.get("choices", [])) != 4:
+    choices = question.get("choices", [])
+    if not question.get("q") or len(choices) not in (3, 4):
         raise ValueError("Cannot create an incomplete Blogger quiz post")
     answer = question.get("answer")
-    if not isinstance(answer, int) or not 0 <= answer < 4:
+    if not isinstance(answer, int) or not 0 <= answer < len(choices):
         raise ValueError("Invalid answer index")
+    labels = question.get("option_labels") or [chr(65 + i) for i in range(len(choices))]
+    if len(labels) != len(choices) or len(set(labels)) != len(labels):
+        raise ValueError("Option labels are invalid")
     q = html.escape(str(question["q"]))
     options = "".join(
-        "<li>" + chr(65 + i) + ") " + html.escape(str(choice)) + "</li>"
-        for i, choice in enumerate(question["choices"]))
-    correct = html.escape(str(question["choices"][answer]))
-    explanation = html.escape(str(question.get("explanation", "") or ""))
+        "<li>(" + html.escape(str(labels[i])) + ") " + html.escape(str(choice)) + "</li>"
+        for i, choice in enumerate(choices))
+    correct = html.escape(str(choices[answer]))
+    answer_label = html.escape(str(labels[answer]))
+    explanation = html.escape(str(question.get("explanation", "") or "")).replace("\\n", "<br>")
     parts = [
         '<section lang="si" class="punchi-quiz">',
         "<h2>" + q + "</h2>",
@@ -59,9 +64,27 @@ def article_content(question, *, media_kind, image_info=None):
         '<ol style="list-style:none;padding-left:0;line-height:2.2;">' + options + "</ol>",
         "<p>පිළිතුර සිතා බලන්න.</p>",
         "<details><summary>නිවැරදි පිළිතුර බලන්න</summary>",
-        "<p><strong>" + chr(65 + answer) + ") " + correct + "</strong></p>",
+        "<p><strong>(" + answer_label + ") " + correct + "</strong></p>",
         "<p>" + explanation + "</p></details>",
     ]
+    if question.get("puzzle_circles"):
+        # Show the identical four-circle data on Blogger without revealing
+        # the missing number before the user opens the solution.
+        table_rows = []
+        for index, wheel in enumerate(question["puzzle_circles"], 1):
+            if len(wheel) != 4:
+                raise ValueError("Invalid puzzle circle")
+            left, top, right, bottom = wheel
+            safe_values = [html.escape(str(v)) for v in (left, top, right, bottom)]
+            table_rows.append(
+                "<tr><td>" + str(index) + "</td>" +
+                "".join("<td>" + v + "</td>" for v in safe_values) +
+                "</tr>")
+        parts.insert(4, (
+            "<h3>රූපයේ සංඛ්‍යා</h3>"
+            '<table style="border-collapse:collapse;width:100%;text-align:center;" border="1">'
+            "<thead><tr><th>වටය</th><th>වම</th><th>ඉහළ</th><th>දකුණ</th><th>පහළ</th></tr></thead>"
+            "<tbody>" + "".join(table_rows) + "</tbody></table>"))
     if image_info and image_info.get("image_title"):
         # Keep exact rights-cleared photograph and mandatory attribution visible.
         image_name = urllib.parse.quote(str(image_info["image_title"]).replace(" ", "_"), safe="")
