@@ -1,0 +1,66 @@
+name: Daily Colourful Scholarship Logic Puzzle
+on:
+  schedule:
+    # 13:00 UTC = 18:30 Asia/Colombo, a separate evening educational post.
+    - cron: '0 13 * * *'
+  push:
+    paths:
+      - 'school/puzzle-post-request.txt'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish puzzle to the authorized Blogger and Facebook Page?'
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: school-photo-crosspost
+  cancel-in-progress: false
+jobs:
+  puzzle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Sinhala fonts and original poster renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
+      - name: Check Sinhala glyphs, puzzle maths and Blogger matching
+        run: |
+          python -m compileall -q school
+          python -m unittest discover -s school -p 'test_font_safety.py' -v
+          python -m unittest discover -s school -p 'test_puzzle_posts.py' -v
+          python -m unittest discover -s school -p 'test_crosspost.py' -v
+      - name: Create infographic and publish paired Blogger plus Facebook post
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          RUN_EVENT: ${{ github.event_name }}
+          MANUAL_PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [[ "$BLOGGER_ALLOW_PUBLICATION" == "false" ]]; then
+            echo "Publication explicitly disabled; only previewing."
+            python school/puzzle_posts.py
+          elif [[ "$RUN_EVENT" == "schedule" || "$RUN_EVENT" == "push" || "$MANUAL_PUBLISH" == "true" ]]; then
+            python school/puzzle_posts.py --publish
+          else
+            python school/puzzle_posts.py
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scholarship-puzzle-poster-and-solution
+          path: school/output/logic-puzzle/
+          retention-days: 30
