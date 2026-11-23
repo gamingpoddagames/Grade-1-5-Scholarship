@@ -1,3 +1,55 @@
+## අලුත් CODE-FIRST Setup — දැන් මේකෙන් පටන්ගන්න
+
+ඔයාට Google Cloud Project එක අතින් හදන්න අවශ්‍ය නැහැ. අපි සකස් කළ
+Windows CMD launcher එක ඒක **code මඟින්** කරනවා. YouTube channel:
+`UCQ2EM8DjUfg3WgzB8r6hYDQ`.
+
+**PC එකේ මුලින්ම CMD එක විවෘත කර පහත commands යොදන්න:**
+
+```cmd
+git clone https://github.com/gamingpoddagames/Grade-1-5-Scholarship.git
+cd Grade-1-5-Scholarship
+school\setup_youtube_cloud_windows.cmd
+```
+
+Repository එක කලින්ම download කරලා තිබේ නම් අලුත් clone කිරීම
+වෙනුවට එහි folder එකේ `git pull` කර අවසන් command එක පමණක් දාන්න.
+
+Script එකෙන් සිදු වන්නේ:
+
+- Google Cloud CLI නැත්නම් Windows `winget` හරහා install කිරීමට
+  මුලින් ඔයාගේ අනුමැතිය ඉල්ලනවා.
+- Google Cloud CLI login එක browser එකෙන් ලබාගන්නවා.
+- `mfk110` prefix සහිත වෙනම YouTube Upload Project ID එකක්
+  සකස් කරනවා; ඒ ID එක local file එකක සුරකිමින් නැවත run කළත්
+  project එක අලුතින් නිර්මාණය නොකර පරණ project එක යොදාගන්නවා.
+- `youtube.googleapis.com` API එක enable කරලා තහවුරු කරනවා.
+- Google Auth Platform / OAuth Clients පිටුව එම project එක සමඟම
+  browser එකේ විවෘත කරනවා.
+- **Google OAuth Desktop Client එක නිර්මාණය කර JSON download කිරීම**
+  Google ගිණුම් හිමිකරු විසින් Google Auth Platform UI එකේ කළ යුතුයි.
+  එය automate කළ බව නොකියයි.
+- JSON file එකේ **path** එක CMD තුළ දුන් පසු, script එක ඒක නිවැරදි
+  project එකට අදාළදැයි බලලා browser OAuth consent හරහා නිවැරදි
+  YouTube channel එක තහවුරු කරනවා.
+- GitHub CLI (`gh auth login`) සම්බන්ධ කර තිබේ නම්
+  අවසර ලත් OAuth data GitHub encrypted Actions Secrets වලට
+  කෙළින්ම save කරනවා. දිනපතා **Private** upload පමණක් සක්‍රීය කරනවා.
+
+සුරක්ෂිතතාව: Google password, OTP, downloaded JSON, client secret,
+refresh token **ChatGPT / Telegram / Facebook වෙත එවන්න එපා**.
+JSON එක පෞද්ගලික PC එකේම තබන්න.
+
+අනිවාර්යයෙන් browser එකෙන් කරන්න ඉතිරිවෙන්නේ **Google login හා
+OAuth Desktop Client එකට consent ලබාදීම**යි.
+Public Shorts ස්වයංක්‍රීයව upload කිරීම වෙනම QA අනුමැතියක් තෙක් off.
+
+[Google Cloud setup Python script](youtube_cloud_bootstrap.py) ·
+[Windows launcher](setup_youtube_cloud_windows.cmd) ·
+[GitHub YouTube workflow](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/workflows/youtube-shorts.yml)
+
+---
+
 # පුංචි නැණ මඟ – YouTube ස්වයංක්‍රීය Upload Setup (සිංහල)
 
 **ඔයාගේ YouTube Channel:** https://www.youtube.com/channel/UCQ2EM8DjUfg3WgzB8r6hYDQ
