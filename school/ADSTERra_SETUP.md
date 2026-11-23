@@ -15,7 +15,7 @@ Checked 2026-11-22 in the owner's signed-in Adsterra dashboard and Blogger edito
 
 ## Behavior
 
-`blogger_optional_adsterra_widget.html` preserves the existing vendor URL and loads it only after a visitor explicitly selects the optional ads button. Educational content remains available without this choice. It requests no ad on initial page load, prevents duplicate loaders, and displays readable Sinhala status and failure messages. It adds no redirect, timer that navigates, click interception, or ad-gated download.
+`blogger_optional_adsterra_widget.html` preserves the existing vendor URL. A first-time visitor must explicitly select the optional ads button; **there is no automatic ad request on a new browser session**. After that choice, the widget remembers permission only in that browser **tab session**, and automatically loads the same Social Bar once on later Blogger pages in that tab. It prevents duplicate loaders, resets permission if script loading fails, and displays readable Sinhala status and failure messages. Educational content remains available without ads. It adds no forced external-page opening, popunder, navigational redirect, click interception, or ad-gated download.
 
 Social Bar is a vendor-controlled display format, not a fixed banner. The wrapper cannot certify every future creative, enforce all vendor behavior, or replace a consent-management platform. The optional choice applies to this Adsterra loader; Blogger/Google and embedded resources have their own behavior. Adult ads OFF does not prove that every creative suits children. For broader automatic ad serving, ask Adsterra to confirm appropriate category exclusions and whether a contextual banner unit can meet this site's audience requirements. Do not enable the existing Popunder.
 
@@ -43,3 +43,7 @@ Photo, text and video publishers call `blogger_link_safety.validate_blogger_link
 5. Run `python -m unittest discover -s school -p 'test_*.py' -v` and `node school/test_ad_widget.js` after relevant changes. The dedicated offline GitHub workflow requests no ads and needs no account credentials.
 
 The older `blogger_sponsored_entry.html` is a template only and is not used as a required entry page. `adsterra_user_provided_snippet.html` archives the raw vendor tag: do not paste it alongside the optional gadget, which would defeat opt-in behavior.
+
+## 23 Nov 2026 consent-session auto-display enhancement
+
+The existing hosted gadget still requires updating the **live Blogger Layout HTML1 gadget** to the latest checked-in snippet. A GitHub commit alone does not update Blogger Layout. The connected tools used for this repository cannot edit the Blogger theme or HTML1 gadget directly, so live rollout has **not** been verified. Automated off-site tab opening and Popunder remain intentionally disabled to avoid intruding on visitors and risking AdSense policy compliance. See `node school/test_ad_widget.js` for the mock-browser QA.
