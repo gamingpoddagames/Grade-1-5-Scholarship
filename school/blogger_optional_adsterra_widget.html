@@ -6,7 +6,7 @@
  style="box-sizing:border-box;margin:20px auto;max-width:700px;padding:18px;border:1px solid #d8e4ea;border-radius:12px;line-height:1.85;font-family:'Noto Sans Sinhala','Nirmala UI',sans-serif;background:#fff;color:#16324d;text-align:left">
   <p style="margin:0 0 8px;font-weight:700">දැන්වීම / Advertisement — දෙමාපියන් සහ ගුරුවරුන් සඳහා</p>
   <p style="margin:0 0 12px">පාඩම්, ප්‍රශ්න පත්‍ර සහ පිළිතුරු නොමිලේ භාවිත කළ හැකිය. දැන්වීම් පෙන්වීම හෝ ඒවා මත ක්ලික් කිරීම අවශ්‍ය නැත.</p>
-  <p style="margin:0 0 12px;font-size:14px">පහත බොත්තම තේරුවොත් Adsterra තෙවන පාර්ශ්ව දැන්වීම් පූරණය වේ. එම සේවාව cookies සහ තාක්ෂණික දත්ත භාවිත කළ හැකිය. මෙය කැමති වැඩිහිටියන් සඳහා විකල්පයකි.</p>
+  <p style="margin:0 0 12px;font-size:14px">පහත බොත්තම තේරුවොත් Adsterra තෙවන පාර්ශ්ව දැන්වීම් පූරණය වේ. අවසර ලබා දුන් පසු මෙම browser tab එකේ ඊළඟ පිටු විවෘත කරන විට ඒවා ස්වයංක්‍රීයව පූරණය කළ හැකිය. නව tab/session එකකදී අවසර නැවත අවශ්‍යයි. එම සේවාව cookies සහ තාක්ෂණික දත්ත භාවිත කළ හැකිය. මෙය කැමති වැඩිහිටියන් සඳහා විකල්පයකි.</p>
   <button type="button" id="punchi-show-ad" style="max-width:100%;white-space:normal;padding:12px 16px;border:0;border-radius:8px;background:#176e75;color:white;cursor:pointer;font:inherit">විකල්ප දැන්වීම් පෙන්වන්න</button>
   <p id="punchi-ad-status" role="status" aria-live="polite" style="margin:10px 0 0;font-size:14px"></p>
 </section>
@@ -17,7 +17,20 @@
   var status = document.getElementById('punchi-ad-status');
   if (!button || !status || button.getAttribute('data-bound')) return;
   button.setAttribute('data-bound', 'true');
-  button.addEventListener('click', function () {
+  var consentKey = 'punchi-socialbar-session-consent';
+  function isApprovedSession() {
+    try { return window.sessionStorage.getItem(consentKey) === 'yes'; }
+    catch (_) { return false; }
+  }
+  function saveApproval() {
+    try { window.sessionStorage.setItem(consentKey, 'yes'); }
+    catch (_) {}
+  }
+  function removeApproval() {
+    try { window.sessionStorage.removeItem(consentKey); }
+    catch (_) {}
+  }
+  function loadAd() {
     if (document.getElementById('punchi-adsterra-loader')) return;
     button.disabled = true;
     status.textContent = '\u0daf\u0dd0\u0db1\u0dca\u0dc0\u0dd3\u0db8\u0dca \u0db4\u0dd6\u0dbb\u0dab\u0dba \u0dc0\u0dd9\u0db8\u0dd2\u0db1\u0dca \u0db4\u0dc0\u0dad\u0dd3. \u0db4\u0dcf\u0da9\u0db8\u0dca \u0daf\u0dd2\u0d9c\u0da7\u0db8 \u0db7\u0dcf\u0dc0\u0dd2\u0dad \u0d9a\u0dc5 \u0dc4\u0dd0\u0d9a\u0dd2\u0dba.';
@@ -37,9 +50,17 @@
       clearTimeout(timer);
       status.textContent = '\u0daf\u0dd0\u0db1\u0dca\u0dc0\u0dd3\u0db8\u0dca \u0daf\u0dd0\u0db1\u0dca \u0dbd\u0db6\u0dcf\u0d9c\u0dad \u0db1\u0ddc\u0dc4\u0dd0\u0d9a. \u0db4\u0dcf\u0da9\u0db8\u0dca \u0daf\u0dd2\u0d9c\u0da7\u0db8 \u0db7\u0dcf\u0dc0\u0dd2\u0dad \u0d9a\u0dc5 \u0dc4\u0dd0\u0d9a\u0dd2\u0dba.';
       ad.remove();
+      removeApproval();
       button.disabled = false;
     };
     document.body.appendChild(ad);
+  }
+  button.addEventListener('click', function () {
+    saveApproval();
+    loadAd();
   });
+  // Auto-display only after the same visitor approved ads in this tab.
+  // This must not open a new window, intercept a click or redirect lessons.
+  if (isApprovedSession()) loadAd();
 })();
 </script>
