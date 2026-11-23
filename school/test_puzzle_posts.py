@@ -111,6 +111,29 @@ class ScholarshipPuzzleTests(unittest.TestCase):
         self.assertEqual(next_day["puzzle_kind"],"sequence")
         self.assert_correct_math(launch)
 
+    def test_new_grid_post_32_is_not_old_dot_or_number_wheel(self):
+        q = make_puzzle("2026-11-23", variant=3)
+        self.assertEqual(q["question_number"], 32)
+        self.assertEqual(q["puzzle_kind"], "magic_grid")
+        self.assertEqual(q["variant"], "fresh-grid")
+        self.assert_correct_math(q)
+        self.assertEqual(q["visual"]["target"], 27)
+        self.assertEqual(q["choices"][q["answer"]], "9")
+        self.assertEqual(q["visual"]["grid"], [
+            ["12", "5", "10"],
+            ["7", "?", "11"],
+            ["8", "13", "6"]])
+        self.assertNotIn("puzzle_circles", q)
+        self.assertNotEqual(q["puzzle_kind"], make_puzzle("2026-11-23", variant=2)["puzzle_kind"])
+        page = article_content(q, media_kind="photo")
+        self.assertIn("<details>", page)
+        self.assertIn("27", page)
+        with tempfile.TemporaryDirectory() as root:
+            _, image_path = generate("2026-11-23", root, variant=3)
+            self.assertTrue(image_path.exists())
+            with Image.open(image_path) as image:
+                self.assertEqual(image.size, (1080, 1350))
+
     def test_blogger_copies_puzzle_datasets_and_full_solution(self):
         for i in range(6):
             q=make_puzzle(dt.date(2026,11,24)+dt.timedelta(days=i))
