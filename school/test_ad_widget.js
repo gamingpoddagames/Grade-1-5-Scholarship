@@ -31,4 +31,51 @@ nodes['punchi-adsterra-loader'].onerror();
 assert.equal(button.disabled,false);
 handlers.click();
 assert.equal(loads,2,'Allow deliberate retry after an error');
-console.log('PASS: opt-in only, one loader, readable Sinhala, failure recovery; no network calls.');
+// Browser-session consent: one explicit first click, then automatic loader on
+// subsequent Blogger pages opened in the same tab; no automatic first-visit ads.
+function simulateSession(approved) {
+  const localNodes = {};
+  const localHandlers = {};
+  let requests = 0;
+  const consentData = approved ? {'punchi-socialbar-session-consent': 'yes'} : {};
+  const sessionStorage = {
+    getItem(key) {return consentData[key] || null;},
+    setItem(key,value) {consentData[key]=value;},
+    removeItem(key) {delete consentData[key];}
+  };
+  const localButton = {
+    disabled:false,attrs:{},
+    getAttribute(key){return this.attrs[key];},
+    setAttribute(key,value){this.attrs[key]=value;},
+    addEventListener(key,handler){localHandlers[key]=handler;}
+  };
+  const localStatus = {textContent:''};
+  const localDocument = {
+    getElementById(id) {
+      return id==='punchi-show-ad'?localButton:
+             id==='punchi-ad-status'?localStatus:localNodes[id];
+    },
+    createElement(tag) {
+      assert.equal(tag,'script');
+      return {setAttribute(){},remove(){delete localNodes[this.id];}};
+    },
+    body:{appendChild(script){requests++;localNodes[script.id]=script;}}
+  };
+  const ctx = vm.createContext({document:localDocument,window:{sessionStorage},setTimeout(){return 1;},clearTimeout(){}});
+  vm.runInContext(source,ctx);
+  return {requests:()=>requests, click:()=>localHandlers.click(),
+          current:()=>localNodes['punchi-adsterra-loader'],
+          saved:()=>sessionStorage.getItem('punchi-socialbar-session-consent')};
+}
+const fresh = simulateSession(false);
+assert.equal(fresh.requests(),0,'Do not auto-load ads before a visitor opts in');
+fresh.click();
+assert.equal(fresh.requests(),1);
+assert.equal(fresh.saved(),'yes');
+const returning = simulateSession(true);
+assert.equal(returning.requests(),1,'Auto-load once on a later page in the same consented tab');
+returning.click();
+assert.equal(returning.requests(),1,'Never create two Adsterra scripts');
+returning.current().onerror();
+assert.equal(returning.saved(),null,'Remove session permission if the vendor loader fails');
+console.log('PASS: explicit first opt-in, session-level auto-display on next page, single loader, failure recovery; no real ads requested.');
