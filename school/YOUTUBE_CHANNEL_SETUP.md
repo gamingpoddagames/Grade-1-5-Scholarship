@@ -6,7 +6,7 @@
 - Permanent ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
 - Intended brand name: පුංචි නැණ මඟ
 - English name: Punchi Nena Maga – Grade 1–5 & Scholarship
-- Recommended handle: @PunchiNenaMaga (only if YouTube says available; not verified)
+- Connected channel handle (vidIQ verified): @පංචනැණමඟ
 - Website: https://punchinanamaga.blogspot.com/
 - Video category: Education (27)
 - Spoken language: Sinhala (si)
