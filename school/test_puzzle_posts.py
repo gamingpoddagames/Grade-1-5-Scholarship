@@ -30,10 +30,10 @@ class ScholarshipPuzzleTests(unittest.TestCase):
             self.assertTrue(all(int(value) > 0 for value in q["choices"]))
             self.assertEqual(len(set(tuple(v[:3]) for v in wheels)), 4)
             for l, top, r, bottom in wheels[:3]:
-                self.assertEqual(int(bottom), compute(l, top, r))
+                self.assertEqual(int(bottom), compute(l, top, r, rule=q["rule_index"]))
             l, top, r, hidden = wheels[-1]
             self.assertEqual(hidden, "?")
-            self.assertEqual(int(q["choices"][q["answer"]]), compute(l, top, r))
+            self.assertEqual(int(q["choices"][q["answer"]]), compute(l, top, r, rule=q["rule_index"]))
             self.assertIn("comment", facebook_caption(q))
             seen.add((q["question_number"], tuple(tuple(w) for w in wheels)))
         self.assertEqual(len(seen), 120)
