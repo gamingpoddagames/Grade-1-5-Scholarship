@@ -7,6 +7,7 @@ from build_resources import video
 from quiz_topics import select
 from crosspost import Crossposter
 from blogger_link_safety import FACEBOOK_LANDING_URL
+from social_text import clean_caption
 
 
 def main():
@@ -19,6 +20,7 @@ def main():
                "\n".join(f'{chr(65+i)}) {c}' for i, c in enumerate(question["choices"])) +
                "\n\nපිළිතුර සිතන්න. නිවැරදි පිළිතුර වීඩියෝවේ අවසානයේ!\n" +
                FACEBOOK_LANDING_URL + "\n#SinhalaQuiz #PunchiNenaMaga")
+    caption = clean_caption(caption)
     (output / "caption.txt").write_text(caption, encoding="utf-8")
     blog_url, fb_id = Crossposter().publish(
         question=question,
