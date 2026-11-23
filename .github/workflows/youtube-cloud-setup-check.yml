@@ -1,0 +1,27 @@
+name: Verify YouTube Google Cloud Setup
+on:
+  push:
+    paths:
+      - school/youtube-cloud-setup-request.txt
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-cloud-setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check gcloud project automation and exact OAuth project validation
+        run: |
+          python -m py_compile school/youtube_cloud_bootstrap.py
+          python -m py_compile school/youtube_oauth_setup.py
+          python -m unittest discover -s school -p 'test_youtube_cloud_bootstrap.py' -v
+          python -m unittest discover -s school -p 'test_youtube_oauth_setup.py' -v
+      - name: Summarize pass or fail
+        if: always()
+        run: |
+          echo "Code-first YouTube setup checked without Google OAuth tokens, API writes, or video uploads." >> "$GITHUB_STEP_SUMMARY"
