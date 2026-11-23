@@ -22,6 +22,7 @@ from blogger_publisher import (
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from font_safety import check_caption
 from social_text import clean_caption, clean_title
+from engagement_monetization import improve_facebook_caption, optional_sponsored_block
 
 STATE = re.compile(r"<!-- PNM_FACEBOOK_STATE:(READY|PENDING|PUBLISHED:[A-Za-z0-9_]+) -->")
 EMBED_MARKER = "<!-- PNM_FACEBOOK_EMBED -->"
@@ -128,6 +129,11 @@ def article_content(question, *, media_kind, image_info=None):
             'style="max-width:100%;height:auto;" src="' + html.escape(source, quote=True) + '"/>'
             "<figcaption>ඡායාරූපය: " + attribution +
             " (Facebook quiz card හි රූපය අනුගත කර ඇත)</figcaption></figure>")
+    # Only an explicitly approved, clearly labeled sponsor link may appear
+    # after the educational content, separate from the free answer.
+    sponsor_html = optional_sponsored_block()
+    if sponsor_html:
+        parts.append(sponsor_html)
     parts.extend([
         "<p>මෙය ළමුන්ගේ අධ්‍යාපනික පුහුණුව සඳහා නිර්මාණය කළ ප්‍රශ්නයකි.</p>",
         "<p>තවත් නොමිලේ ප්‍රශ්න සහ පිළිතුරු: "
@@ -285,7 +291,7 @@ class Crossposter:
         full_caption = caption.replace(FACEBOOK_LANDING_URL, article_url)
         if article_url not in full_caption:
             full_caption += "\n\n" + article_url
-        full_caption = clean_caption(full_caption)
+        full_caption = improve_facebook_caption(full_caption, question)
         check_caption(full_caption)
 
         # Reserve the single remote attempt in durable Blogger state *first*.
