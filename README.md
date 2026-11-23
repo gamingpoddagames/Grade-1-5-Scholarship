@@ -66,3 +66,7 @@ Required Actions secrets: BLOGGER_CLIENT_ID, BLOGGER_CLIENT_SECRET, BLOGGER_REFR
 Offline regression tests: `python -m unittest discover -s school -p test_crosspost.py -v`.
 
 The older picture-first image workflow remains separate from the new screenshot-style narrated Reel bank. A code commit or Actions trigger does not confirm a Facebook or Blogger post; examine actual run logs and the destination pages.
+
+## Colourful Grade 5 scholarship logic puzzle photo posts (23 November 2026)
+
+A separate daily **18:30 Asia/Colombo** GitHub Actions workflow now generates an original vivid Sinhala number-wheel infographic, three computed answer choices, and a friendly guess-in-comments caption. The photo deliberately hides the answer; the matching Blogger article offers a collapsible solution, the arithmetic steps, and extra teaching notes. Facebook links directly to that exact Blogger article via the existing duplicate-aware Blogger-first publisher. The generator and its tests are in `school/puzzle_posts.py` and `school/test_puzzle_posts.py`; workflow: `.github/workflows/daily-scholarship-puzzle.yml`. See [Puzzle posts guide](school/PUZZLE_POSTS_GUIDE.md). A workflow commit is not evidence of successful public posting; inspect GitHub Actions logs and the two destination sites.
