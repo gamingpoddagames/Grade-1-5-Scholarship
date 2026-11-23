@@ -1,0 +1,91 @@
+name: Punchi Nena Maga YouTube Shorts
+
+on:
+  schedule:
+    # 07:15 UTC = 12:45 Asia/Colombo; after the usual Facebook/Blogger Reels.
+    - cron: '15 7 * * *'
+  push:
+    paths:
+      - 'school/youtube-shorts-request.txt'
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Authorize private test upload to the verified owner channel?'
+        required: true
+        type: boolean
+        default: false
+      privacy:
+        description: 'Video visibility (public also requires explicit reviewed setting)'
+        required: true
+        type: choice
+        default: private
+        options:
+          - private
+          - unlisted
+          - public
+
+permissions:
+  contents: read
+
+concurrency:
+  group: punchi-nena-maga-youtube-shorts
+  cancel-in-progress: false
+
+jobs:
+  youtube-shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install free Sinhala voice and YouTube upload dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core ffmpeg
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' gTTS \
+            'google-api-python-client>=2.150,<3' \
+            'google-auth>=2.32,<3' \
+            'google-auth-oauthlib>=1.2,<2'
+      - name: Verify original quiz, Unicode and YouTube channel metadata
+        run: |
+          python -m py_compile school/youtube_shorts.py
+          python -m py_compile school/quiz_reel_renderer.py
+          python -m unittest discover -s school -p 'test_youtube_shorts.py' -v
+          python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
+          python -m unittest discover -s school -p 'test_font_safety.py' -v
+      - name: Render or authorize upload to exact YouTube channel
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+          YOUTUBE_PUBLICATION_REVIEWED: ${{ vars.YOUTUBE_PUBLICATION_REVIEWED }}
+          YOUTUBE_PRIVACY: ${{ vars.YOUTUBE_PRIVACY }}
+          RUN_EVENT: ${{ github.event_name }}
+          MANUAL_UPLOAD: ${{ inputs.upload }}
+          MANUAL_PRIVACY: ${{ inputs.privacy }}
+        run: |
+          PRIVACY="${YOUTUBE_PRIVACY:-private}"
+          if [[ "$RUN_EVENT" == "workflow_dispatch" ]]; then
+            PRIVACY="${MANUAL_PRIVACY:-private}"
+          fi
+          if [[ "$RUN_EVENT" == "workflow_dispatch" && "$MANUAL_UPLOAD" != "true" ]]; then
+            echo "Manual preview requested; upload intentionally disabled."
+            python school/youtube_shorts.py --render
+          elif [[ "$YOUTUBE_UPLOAD_ENABLED" == "true" ]]; then
+            echo "Authorized upload requested; verifying OAuth channel before upload."
+            python school/youtube_shorts.py --upload --privacy "$PRIVACY"
+          else
+            echo "YouTube OAuth not yet enabled; rendering MP4 preview only."
+            python school/youtube_shorts.py --render
+          fi
+      - name: Save rendered MP4, Sinhala metadata and receipt if available
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-nena-maga-youtube-short
+          path: school/output/youtube-shorts/
+          retention-days: 14
