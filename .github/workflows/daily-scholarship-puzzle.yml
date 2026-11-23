@@ -39,6 +39,7 @@ jobs:
           python -m unittest discover -s school -p 'test_social_text.py' -v
           python -m unittest discover -s school -p 'test_puzzle_posts.py' -v
           python -m unittest discover -s school -p 'test_crosspost.py' -v
+          python -m unittest discover -s school -p 'test_engagement_monetization.py' -v
       - name: Create infographic and publish paired Blogger plus Facebook post
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -48,6 +49,9 @@ jobs:
           BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
           BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
           BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          ADSTERRA_SPONSORED_LINK_ENABLED: ${{ vars.ADSTERRA_SPONSORED_LINK_ENABLED }}
+          ADSTERRA_AGE_APPROPRIATE_REVIEWED: ${{ vars.ADSTERRA_AGE_APPROPRIATE_REVIEWED }}
+          ADSTERRA_DIRECT_LINK: ${{ secrets.ADSTERRA_DIRECT_LINK }}
           RUN_EVENT: ${{ github.event_name }}
           MANUAL_PUBLISH: ${{ inputs.publish }}
         run: |
