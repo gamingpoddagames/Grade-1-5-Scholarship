@@ -67,6 +67,13 @@ def article_content(question, *, media_kind, image_info=None):
         "<p><strong>(" + answer_label + ") " + correct + "</strong></p>",
         "<p>" + explanation + "</p></details>",
     ]
+    if question.get("learning_notes"):
+        notes = question["learning_notes"]
+        if not isinstance(notes, list) or not all(isinstance(n, str) for n in notes):
+            raise ValueError("Invalid educational learning notes")
+        parts.append("<h3>මෙම ගැටලුවෙන් ඉගෙනගන්න දේ</h3>")
+        for paragraph in notes:
+            parts.append("<p>" + html.escape(paragraph) + "</p>")
     if question.get("puzzle_circles"):
         # Show the identical four-circle data on Blogger without revealing
         # the missing number before the user opens the solution.
