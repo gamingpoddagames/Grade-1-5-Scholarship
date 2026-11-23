@@ -227,7 +227,7 @@ def poster(question, destination):
                fill="#ffffff", font=latin_font(59, True), anchor="mm")
     d.rounded_rectangle((54, 1168, 1026, 1264), radius=28,
                         fill="#070d44", outline="#f0ca41", width=4)
-    _center_si(d, "ඔබේ පිළිතුර comment කරන්න!", 1183, 56,
+    _center_si(d, "ඔබේ පිළිතුර කමෙන්ට් කරන්න!", 1183, 56,
                "#ffffff", max_width=920)
     _center_si(d, "පුංචි නැණ මඟ", 1282, 33,
                "#ffd848", max_width=600, outline=False)
