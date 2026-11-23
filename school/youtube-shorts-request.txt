@@ -7,3 +7,5 @@ SECURE SETUP TEST 2026-11-24: validate new Windows OAuth wizard, strict mfk110 G
 AUTHORIZATION READINESS CHECK 2026-11-24: GitHub Actions should render preview only; display whether YouTube OAuth client ID, secret, refresh token, and upload-enabled variable are configured without revealing secret values. Do not upload a duplicate of the existing private vidIQ Short.
 
 2026-11-24 fast auth check: confirm whether three OAuth secrets and upload flag have been configured; never upload. Verification target UCQ2EM8DjUfg3WgzB8r6hYDQ.
+
+CODE FIRST CLOUD SETUP QA (2026-11-24): run local-mocked tests for school/youtube_cloud_bootstrap.py, exact project OAuth validation, and Windows launcher. This is a PREVIEW-ONLY workflow trigger; do NOT upload a duplicate video. Verified channel UCQ2EM8DjUfg3WgzB8r6hYDQ.
