@@ -56,7 +56,7 @@ def article_content(question, *, media_kind, image_info=None):
         for i, choice in enumerate(choices))
     correct = html.escape(str(choices[answer]))
     answer_label = html.escape(str(labels[answer]))
-    explanation = html.escape(str(question.get("explanation", "") or "")).replace("\\n", "<br>")
+    explanation = html.escape(str(question.get("explanation", "") or "")).replace("\n", "<br>")
     parts = [
         '<section lang="si" class="punchi-quiz">',
         "<h2>" + q + "</h2>",
