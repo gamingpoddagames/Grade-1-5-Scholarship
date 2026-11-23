@@ -57,7 +57,7 @@ jobs:
           elif [[ "$RUN_EVENT" == "push" ]]; then
             # One-off uploads use the third distinct category of the day:
             # never recycle the already-published daily or bonus creative.
-            python school/puzzle_posts.py --new-style --publish
+            python school/puzzle_posts.py --fresh-grid --publish
           elif [[ "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" ]]; then
             python school/puzzle_posts.py --publish
           else
@@ -71,4 +71,5 @@ jobs:
             school/output/logic-puzzle/
             school/output/logic-puzzle-bonus/
             school/output/logic-puzzle-new-style/
+            school/output/logic-puzzle-fresh-grid/
           retention-days: 30
