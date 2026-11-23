@@ -95,3 +95,15 @@ Python files: `school/diverse_puzzles.py`, `school/puzzle_posts.py`, and `school
 - Controlled settings for future *new* Blogger-first posts: GitHub Actions variable `ADSTERRA_SPONSORED_LINK_ENABLED=true`, GitHub Actions variable `ADSTERRA_AGE_APPROPRIATE_REVIEWED=true`, and secret `ADSTERRA_DIRECT_LINK` containing the actual verified direct link (not the ad script). The second toggle must not be set before carefully checking advertiser categories, privacy consent and age suitability.
 - **No automatic redirects, hidden intermediary ads, ad-gated answers, pop-unders, or mislabeled sponsored links**. In particular the Facebook post's educational Blogger link always opens Blogger. The separate optional link is clearly labeled sponsored, does not stand between visitors and the solution, and never appears in the Facebook caption.
 - The five publishing workflows now run `school/test_engagement_monetization.py` along with prior Unicode and duplicate-safety checks. Existing published Blogger posts are not rewritten. No Facebook or Blogger publish is confirmed merely by these commits.
+
+
+## YouTube channel integration — owner-supplied ID (24 November 2026)
+
+- **Official target:** https://www.youtube.com/channel/UCQ2EM8DjUfg3WgzB8r6hYDQ
+- Owner-provided permanent ID: `UCQ2EM8DjUfg3WgzB8r6hYDQ`. The uploader blocks OAuth sessions aimed at any other channel ID.
+- New original **Sinhala YouTube Short** uploader: `school/youtube_shorts.py`. It reuses the reviewed A–D question, voice, answer reveal and 1080×1920 MP4 from the existing school project, plus Education category metadata and the owned Blogger link.
+- New GitHub Actions workflow: `.github/workflows/youtube-shorts.yml`. Scheduled at **12:45 Asia/Colombo** with MP4 preview artifacts; no upload unless Google OAuth and an explicit authorization flag are configured.
+- Safety: Videos directed at primary-school children are marked `selfDeclaredMadeForKids=true`. Default is **private**. Google account owner must authorize upload and channel read scopes; no token or personal login is stored in source files. Duplicates and wrong-channel uploads are blocked.
+- End-user instructions and Google Cloud OAuth security steps: [YouTube channel setup](school/YOUTUBE_CHANNEL_SETUP.md).
+- Offline tests: `python -m unittest discover -s school -p test_youtube_shorts.py -v`.
+- Project commits and GitHub Actions previews are not proof that a YouTube video was uploaded or that the owner installed the profile/banner images; verify a confirmed video receipt and the exact destination in YouTube Studio before claiming this is live.
