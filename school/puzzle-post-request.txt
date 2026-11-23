@@ -13,3 +13,5 @@ NEW REQUEST PNM-CLOCK-33-20261123: On push run school/puzzle_posts.py --fresh-cl
 CI DIAGNOSTIC RETRY PNM-CLOCK-33 2026-11-23: new clock post #33; run isolated checks; if and only if all checks pass, Blogger-first publish and Facebook poster with direct URL. Do not create duplicates.
 
 DIAGNOSTIC RETRY 2 PNM-CLOCK-33: Recheck each school Python module separately, then publish the same unique clock post #33 only if all tests pass; no duplicate posts.
+
+FIXED SYNTAX RETRY PNM-CLOCK-33: Sinhala caption Python concatenation fixed; repeat new clock puzzle #33 only through duplicate-safe Blogger-first publisher and validate all tests before Meta API post.
