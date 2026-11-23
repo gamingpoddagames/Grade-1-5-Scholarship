@@ -13,7 +13,10 @@ from pathlib import Path
 
 BLOG = "https://punchinanamaga.blogspot.com/"
 MARKER_PREFIX = "PNM-SHORT-"
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube.readonly",
+]
 DEFAULT_PRIVACY = "private"
 
 
@@ -109,8 +112,8 @@ def assert_not_duplicate(service, channel, marker, title):
     if not playlist:
         raise RuntimeError("Cannot verify prior uploads; refusing duplicate risk")
     token = None
-    # 2 pages of 50 covers 100 most recent uploads.
-    for _ in range(2):
+    # Scan up to 1,000 recent uploads for a repeat marker.
+    for _ in range(20):
         response = service.playlistItems().list(
             part="snippet", playlistId=playlist, maxResults=50,
             **({"pageToken": token} if token else {})).execute()
@@ -122,7 +125,7 @@ def assert_not_duplicate(service, channel, marker, title):
         if not token:
             break
     if token:
-        raise RuntimeError("Too many recent uploads to guarantee uniqueness; stop before uploading")
+        raise RuntimeError("Recent upload listing exceeded 1,000; stop before possible duplicate upload")
 
 
 def upload(mp4, metadata, folder):
