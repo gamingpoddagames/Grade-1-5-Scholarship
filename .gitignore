@@ -1,0 +1,14 @@
+# Local Google OAuth files must never be committed to the public school repository.
+client_secret*.json
+client_secrets.json
+youtube_oauth_client*.json
+youtube_refresh_token*.json
+*youtube-token*.json
+oauth_credentials*.json
+
+# Locally generated YouTube MP4s, thumbnails and upload receipts.
+school/output/youtube-shorts/
+
+# Python local caches.
+__pycache__/
+*.py[cod]
