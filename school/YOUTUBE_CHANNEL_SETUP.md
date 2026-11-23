@@ -37,6 +37,66 @@ https://punchinanamaga.blogspot.com/
 - Default visibility is **private**. Changing it to public/unlisted requires a separate deliberate variable `YOUTUBE_PUBLICATION_REVIEWED=true`.
 - Duplicate checking looks for a matching title or unique date marker in the channel uploads list. Do not delete or rerun an already-uploaded Short to bypass those safeguards.
 
+## One-time secure Windows setup (new)
+
+The owner has connected the exact channel through vidIQ. That connection is usable
+inside ChatGPT, but does **not** transfer the Google OAuth refresh token to GitHub
+Actions. This owner-only setup handles Google authorization in the local browser
+without pasting secrets into any chat or committing them to Git.
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/projectcreate)
+   with the Google account that owns the channel. Create a **dedicated Upload
+   Project** whose project ID **begins with mfk110** (for example,
+   `mfk110-punchi-uploads`, subject to ID availability). YouTube's Made for Kids
+   Developer Policies require this prefix for uploading the owner's own
+   child-directed videos through a non-child-directed API client.
+2. Enable [YouTube Data API v3](https://console.cloud.google.com/apis/library/youtube.googleapis.com).
+3. In Google Auth Platform, configure the owner OAuth audience/consent, then
+   create a **Desktop app** OAuth Client. Download the JSON file onto the PC.
+   Do not upload this JSON to GitHub or ChatGPT.
+4. On Windows, install [GitHub CLI](https://cli.github.com/) if needed, then
+   use the official browser sign-in once with `gh auth login`.
+5. In Windows Command Prompt, run:
+   ```cmd
+   git clone https://github.com/gamingpoddagames/Grade-1-5-Scholarship.git
+   cd Grade-1-5-Scholarship
+   school\setup_youtube_windows.cmd
+   ```
+   If the repository was cloned already, run `git pull` inside it and launch
+   `school\setup_youtube_windows.cmd`. Enter the path to the downloaded
+   Google OAuth JSON file when prompted.
+6. The wizard verifies that the account authorized **exactly**
+   `UCQ2EM8DjUfg3WgzB8r6hYDQ`, then saves **three encrypted GitHub Actions
+   Secrets** through `gh secret set` using stdin. It sets workflow
+   `YOUTUBE_UPLOAD_ENABLED=true`, `YOUTUBE_PRIVACY=private`, and
+   `YOUTUBE_PUBLICATION_REVIEWED=false`. No credentials are printed,
+   stored as plain-text files, or committed to the repository.
+7. Open the [YouTube Shorts GitHub Actions workflow](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/workflows/youtube-shorts.yml),
+   choose **Run workflow**, set **upload=true**, and leave **privacy=private**.
+   Check the generated `youtube-upload-receipt.json` and inspect the video in
+   YouTube Studio before approving any wider publication.
+
+The scheduled workflow runs at **12:45 Sri Lanka time**. After this
+setup it uploads **private** Shorts; daily public posts are **not** enabled.
+To enable public scheduling later, the owner must deliberately set
+`YOUTUBE_PRIVACY=public` and
+`YOUTUBE_PUBLICATION_REVIEWED=true` under GitHub Actions Variables after
+checking videos and applicable platform policies.
+
+**Important:** Google Cloud Personal mode may be useful for a project that
+only authorizes its owner's Google Account. If using a Google OAuth Testing
+audience, refresh tokens may expire and require reauthorization; follow the
+current Google Auth Platform guidance for the chosen audience. The site and
+channel do not receive direct third-party ad redirects.
+
+## vidIQ test upload draft
+
+The connected account was verified as the exact channel ID above. The first
+Grade 4 Sinhala quiz MP4 was prepared as a **private vidIQ draft**. The
+GitHub Actions OAuth uploader is an independent pipeline and will not inherit
+vidIQ's connection. Do not publish the same video twice through the two
+methods; check the channel before completing the first test.
+
 ## Required Google login / YouTube API authorization
 
 **Important:** A public Channel ID is not authorization. Neither GitHub access nor a channel link can grant YouTube upload rights.
