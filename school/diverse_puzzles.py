@@ -392,7 +392,7 @@ def render_diverse_poster(question,destination):
         _pane(d,(x,1112,x+298,1180),fill="#0c1b49",outline=accent,radius=18,width=3)
         _center_num(d,f"({i+1}) {val}",x+149,1146,48,"#ffffff")
     _pane(d,(53,1210,1027,1280),fill="#0b1444",outline=accent,radius=18,width=3)
-    _sinhala(d,"ඔබේ පිළිතුර කමෙන්ට් කරන්න!",1221,42,920)
+    _sinhala(d,"පිළිතුරත් හේතුවත් කමෙන්ට් කරන්න!",1221,42,920)
     _sinhala(d,"පුංචි නැණ මඟ",1301,29,700,color="#fff1b8")
     destination=Path(destination)
     destination.parent.mkdir(parents=True,exist_ok=True)
