@@ -22,9 +22,37 @@ W, H = 1080, 1350
 START = dt.date(2026, 11, 22)
 
 
-def compute(left, top, right):
-    """The published, mechanically checked rule for this series."""
-    return left * right * (top + 1)
+def compute(left, top, right, rule=0):
+    """Four deterministic puzzle families; every answer is verified by code."""
+    if rule == 0:
+        return left * right * (top + 1)
+    if rule == 1:
+        return (left + right) * (top + 2)
+    if rule == 2:
+        return left * top + right * right
+    if rule == 3:
+        return (left + top) * right + top
+    raise ValueError("Unknown puzzle rule")
+
+
+RULE_TEXTS = [
+    "වම × දකුණ × (ඉහළ + 1)",
+    "(වම + දකුණ) × (ඉහළ + 2)",
+    "වම × ඉහළ + දකුණ × දකුණ",
+    "(වම + ඉහළ) × දකුණ + ඉහළ",
+]
+
+
+def worked_step(left, top, right, rule):
+    if rule == 0:
+        return f"{left} × {right} × ({top} + 1)"
+    if rule == 1:
+        return f"({left} + {right}) × ({top} + 2)"
+    if rule == 2:
+        return f"{left} × {top} + {right} × {right}"
+    if rule == 3:
+        return f"({left} + {top}) × {right} + {top}"
+    raise ValueError("Unknown puzzle rule")
 
 
 def make_puzzle(day):
@@ -33,6 +61,8 @@ def make_puzzle(day):
     serial = (day - START).days
     if serial < 0:
         raise ValueError("Date predates the original puzzle series")
+
+    rule = 0 if serial == 1 else serial % len(RULE_TEXTS)
 
     if serial == 1:  # Launch puzzle: 40, 36, 30, ? with answer 80.
         triples = [(2, 3, 5), (4, 2, 3), (3, 4, 2), (5, 3, 4)]
@@ -44,14 +74,14 @@ def make_puzzle(day):
         while len(triples) < 4 and attempts < 800:
             attempts += 1
             triple = (rng.randint(2, 6), rng.randint(2, 5), rng.randint(2, 6))
-            value = compute(*triple)
+            value = compute(*triple, rule=rule)
             if triple in triples or value in seen_answers or value > 210:
                 continue
             triples.append(triple)
             seen_answers.add(value)
         if len(triples) != 4:
             raise RuntimeError("Could not generate four different valid number wheels")
-    wheels = [(left, top, right, compute(left, top, right))
+    wheels = [(left, top, right, compute(left, top, right, rule=rule))
               for left, top, right in triples]
     correct = wheels[3][3]
     delta = max(6, correct // 4)
@@ -63,9 +93,10 @@ def make_puzzle(day):
     shown_wheels = [[l, t, r, str(b) if i != 3 else "?"]
                     for i, (l, t, r, b) in enumerate(wheels)]
     explanation = (
-        "රටාව: වමේ අංකය × දකුණේ අංකය × (ඉහළ අංකය + 1) = පහළ අංකය.\n" +
+        "අද ප්‍රශ්නයේ අදහස් කළ රටාව: " + RULE_TEXTS[rule] +
+        " = පහළ අංකය.\n" +
         "\n".join(
-            f"{i}. {l} × {r} × ({t} + 1) = {value}"
+            f"{i}. {worked_step(l, t, r, rule)} = {value}"
             for i, (l, t, r, value) in enumerate(wheels, 1)) +
         f"\nඒ නිසා නිවැරදි පිළිතුර {correct} යි."
     )
@@ -81,9 +112,10 @@ def make_puzzle(day):
         "learning_notes": [
             "මෙය 5 ශ්‍රේණිය ශිෂ්‍යත්ව බුද්ධි පරීක්ෂණයට සූදානම් වන දරුවන්ට රටාව හඳුනාගැනීම, ගුණ කිරීම සහ ගැටලුවක් පියවරෙන් පියවර විසඳීම පුහුණු කරන මුල් නිර්මාණ අභ්‍යාසයකි.",
             "මුලින්ම පිළිතුර නොබලා පළමු වට තුනේ ඉහළ, වම් සහ දකුණු අංක අතර සමාන සම්බන්ධය සොයන්න. ඔබ සොයාගත් නියමය වට තුනටම ගැළපෙනවාදැයි තහවුරු කරන්න.",
-            "ඉහළ අංකයට එකක් එකතු කළ අගය, වම් සහ දකුණු අංකවල ගුණිතයෙන් ගුණ කළ විට පහළ අංකය ලැබේ. අවසන් වටයටත් එම නියමයම යොදන්න. නිවැරදි පිළිතුර ලැබුණු ආකාරය දරුවාට වචනවලින් පැහැදිලි කරන්න කියන්න."
+            "මෙවර විසඳුමේ අදහස් කළ රටාව: " + RULE_TEXTS[rule] + ". අවසන් වටයටත් එම නියමයම යොදන්න. පිළිතුර සොයාගත් ක්‍රමය දරුවාට වචනවලින් පැහැදිලි කරන්න කියන්න."
         ],
         "question_number": serial + 28,
+        "rule_index": rule,
         "date": day.isoformat(),
         "format": "illustrated_math_puzzle",
     }
