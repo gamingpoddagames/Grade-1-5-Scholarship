@@ -1,16 +1,40 @@
 #!/usr/bin/env python3
 """Unit checks for safe local Google OAuth/GitHub secret bootstrap."""
+import json
 import subprocess
+import tempfile
 import unittest
 from unittest.mock import patch, Mock
+from pathlib import Path
 
 from youtube_oauth_setup import (
-    DEFAULT_REPO, verify_channel, run_gh, set_secret, set_variable
+    DEFAULT_REPO, verify_channel, validate_google_client_file,
+    run_gh, set_secret, set_variable
 )
 from youtube_shorts import OWNER_CHANNEL_ID
 
 
 class YoutubeOauthBootstrapTests(unittest.TestCase):
+    def test_google_cloud_project_is_child_content_upload_project(self):
+        required = {
+            "client_id": "example.apps.googleusercontent.com",
+            "client_secret": "test-secret",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "oauth.json"
+            compliant = {"installed": {**required, "project_id": "mfk110-punchi-nana"}}
+            path.write_text(json.dumps(compliant), encoding="utf-8")
+            self.assertEqual(validate_google_client_file(path), "mfk110-punchi-nana")
+            noncompliant = {"installed": {**required, "project_id": "other-project"}}
+            path.write_text(json.dumps(noncompliant), encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "mfk110"):
+                validate_google_client_file(path)
+            path.write_text(json.dumps({"web": compliant["installed"]}), encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "Desktop"):
+                validate_google_client_file(path)
+
     def test_only_exact_owner_channel_may_authorize(self):
         expected = {"id": OWNER_CHANNEL_ID, "snippet": {"title": "පුංචි නැණ මඟ"}}
         self.assertEqual(verify_channel([expected]), expected)
