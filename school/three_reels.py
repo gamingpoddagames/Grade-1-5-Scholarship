@@ -10,6 +10,7 @@ from quiz_topics import select
 from crosspost import Crossposter
 from facebook_video import upload
 from blogger_link_safety import FACEBOOK_LANDING_URL
+from social_text import clean_caption
 
 def run(day, output, publish=False):
     # Three different reviewed questions from the same curated daily bank.
@@ -42,6 +43,7 @@ def run(day, output, publish=False):
             "\n".join(f'{chr(65+j)}) {choice}' for j, choice in enumerate(q["choices"])) +
             "\n\nපිළිතුර සිතන්න. වීඩියෝව අවසානයේ නිවැරදි පිළිතුර!\n" +
             FACEBOOK_LANDING_URL)
+        caption = clean_caption(caption)
         blog_url, fb_id = crossposter.publish(
             question=q, title=title, media_kind="video",
             media_path=movie, caption=caption,
