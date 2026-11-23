@@ -23,6 +23,8 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y fonts-noto-core
           python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
+      - name: Test Sinhala desktop caption normalization
+        run: python -m unittest discover -s school -p 'test_social_text.py' -v
       - name: Test crosspost idempotency and Blogger link security
         run: python -m unittest discover -s school -p 'test_crosspost.py' -v
       - name: Publish approved quiz image with verified Facebook ID
