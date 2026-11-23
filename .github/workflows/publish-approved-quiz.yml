@@ -27,6 +27,7 @@ jobs:
         run: python -m unittest discover -s school -p 'test_social_text.py' -v
       - name: Test crosspost idempotency and Blogger link security
         run: python -m unittest discover -s school -p 'test_crosspost.py' -v
+          python -m unittest discover -s school -p 'test_engagement_monetization.py' -v
       - name: Publish approved quiz image with verified Facebook ID
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -36,6 +37,9 @@ jobs:
           BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
           BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
           BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          ADSTERRA_SPONSORED_LINK_ENABLED: ${{ vars.ADSTERRA_SPONSORED_LINK_ENABLED }}
+          ADSTERRA_AGE_APPROPRIATE_REVIEWED: ${{ vars.ADSTERRA_AGE_APPROPRIATE_REVIEWED }}
+          ADSTERRA_DIRECT_LINK: ${{ secrets.ADSTERRA_DIRECT_LINK }}
         run: python school/publish_approved_quiz.py
       - uses: actions/upload-artifact@v4
         if: always()
