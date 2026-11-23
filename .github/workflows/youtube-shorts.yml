@@ -53,6 +53,7 @@ jobs:
           python -m py_compile school/youtube_shorts.py
           python -m py_compile school/quiz_reel_renderer.py
           python -m unittest discover -s school -p 'test_youtube_shorts.py' -v
+          python -m unittest discover -s school -p 'test_youtube_oauth_setup.py' -v
           python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
           python -m unittest discover -s school -p 'test_font_safety.py' -v
       - name: Render or authorize upload to exact YouTube channel
@@ -84,6 +85,23 @@ jobs:
           else
             echo "YouTube OAuth not yet enabled; rendering MP4 preview only."
             python school/youtube_shorts.py --render
+          fi
+      - name: Summarize YouTube preview or private upload
+        if: always()
+        run: |
+          if [[ -f school/output/youtube-shorts/youtube-upload-receipt.json ]]; then
+            echo "## YouTube upload receipt" >> "$GITHUB_STEP_SUMMARY"
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          data=json.loads(Path("school/output/youtube-shorts/youtube-upload-receipt.json").read_text(encoding="utf-8"))
+          print("Channel: " + data["channel_id"])
+          print("Privacy: " + data["privacy"])
+          print("YouTube: " + data["video_url"])
+          PY
+          else
+            echo "## YouTube preview" >> "$GITHUB_STEP_SUMMARY"
+            echo "No YouTube upload was confirmed. Only the generated MP4 and metadata are available in the artifact." >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Save rendered MP4, Sinhala metadata and receipt if available
         uses: actions/upload-artifact@v4
