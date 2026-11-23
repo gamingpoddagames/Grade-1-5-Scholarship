@@ -107,3 +107,18 @@ Python files: `school/diverse_puzzles.py`, `school/puzzle_posts.py`, and `school
 - End-user instructions and Google Cloud OAuth security steps: [YouTube channel setup](school/YOUTUBE_CHANNEL_SETUP.md).
 - Offline tests: `python -m unittest discover -s school -p test_youtube_shorts.py -v`.
 - Project commits and GitHub Actions previews are not proof that a YouTube video was uploaded or that the owner installed the profile/banner images; verify a confirmed video receipt and the exact destination in YouTube Studio before claiming this is live.
+
+
+### One-time secure YouTube OAuth activation (24 November 2026)
+
+The official channel `UCQ2EM8DjUfg3WgzB8r6hYDQ` is now independently verified as connected and publish-capable through vidIQ. vidIQ authorization is **not** a GitHub Actions OAuth credential. For unattended GitHub uploads the owner must approve OAuth once on their own PC.
+
+- Use a Google Cloud **Desktop app OAuth Client** from a dedicated Made-for-Kids YouTube Upload Project with project ID prefixed `mfk110`.
+- Run `school/setup_youtube_windows.cmd` from a local clone after installing GitHub CLI and signing in with `gh auth login`. The wizard uses `school/youtube_oauth_setup.py` to open Google sign-in, verify the **exact** authorized channel and submit the token directly to GitHub encrypted Actions secrets through `gh secret set` on stdin.
+- No OAuth JSON, Google token or password is committed to Git, copied into ChatGPT or printed.
+- `--enable-private-test` sets daily and manual uploads to **private**. Public release is still blocked until `YOUTUBE_PUBLICATION_REVIEWED=true` and an explicit privacy choice.
+- All source-change push events are **preview-only**; the scheduled workflow uploads after private authorization, and manual `upload=true` performs a private test.
+- Unit tests cover token secrecy, channel ownership, `mfk110` project enforcement, grades and YouTube duplicate protection. See `school/test_youtube_oauth_setup.py`.
+- The first Grade 4 quiz video has also been imported into vidIQ as a **saved private draft**, not published. Do not post it a second time via GitHub if it has already been published via vidIQ. Check actual YouTube Studio before saying a video is live.
+
+Full details: [YouTube Channel Setup](school/YOUTUBE_CHANNEL_SETUP.md).
