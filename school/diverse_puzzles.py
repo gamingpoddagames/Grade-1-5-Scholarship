@@ -46,9 +46,7 @@ def make_diverse(day, variant=0):
         raise ValueError("Unsupported date or puzzle variant")
     if day < dt.date(2026, 11, 23):
         raise ValueError("Dates before the new puzzle series are not supported")
-    if variant == 2:
-        if day != dt.date(2026, 11, 23):
-            raise ValueError("Launch of the new visual format is limited to 2026-11-23")
+    if variant == 2 and day == dt.date(2026, 11, 23):
         index = 3  # launch with a shape/dot puzzle, not tomorrow's number sequence
         number = 31
     else:
@@ -56,7 +54,9 @@ def make_diverse(day, variant=0):
             raise ValueError("Previous number-wheel posts are already archived")
         days = (day - FIRST).days
         index = (days + variant) % len(KINDS)
-        number = 32 + days * 2 + variant
+        # Three separate post IDs/day; no future collision between normal,
+        # bonus and special requests for the next date.
+        number = 32 + days * 3 + variant
 
     serial = (day - dt.date(2026, 11, 23)).days * 37 + variant * 17 + 9
     rng = random.Random(41127 + serial * 301)
