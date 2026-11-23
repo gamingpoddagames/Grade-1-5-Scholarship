@@ -1,5 +1,6 @@
 @echo off
 setlocal EnableExtensions
+chcp 65001 >nul
 title Punchi Nena Maga - Secure YouTube Setup
 cd /d "%~dp0\.."
 
