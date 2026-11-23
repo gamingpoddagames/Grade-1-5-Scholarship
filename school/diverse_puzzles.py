@@ -42,21 +42,21 @@ def choices_for(answer, serial, spread=5):
 def make_diverse(day, variant=0):
     if isinstance(day, str):
         day = dt.date.fromisoformat(day)
-    if not isinstance(day, dt.date) or variant not in (0, 1, 2):
+    if not isinstance(day, dt.date) or variant not in (0, 1, 2, 3):
         raise ValueError("Unsupported date or puzzle variant")
     if day < dt.date(2026, 11, 23):
         raise ValueError("Dates before the new puzzle series are not supported")
-    if variant == 2 and day == dt.date(2026, 11, 23):
-        index = 3  # launch with a shape/dot puzzle, not tomorrow's number sequence
-        number = 31
+    if day == dt.date(2026, 11, 23) and variant in (2, 3):
+        # A genuinely new one-off after the existing posts #29-#31.
+        index = 3 if variant == 2 else 1
+        number = 31 if variant == 2 else 32
     else:
-        if day < FIRST:
-            raise ValueError("Previous number-wheel posts are already archived")
+        if day < FIRST or variant == 3:
+            raise ValueError("This one-off puzzle is available only for 2026-11-23")
         days = (day - FIRST).days
         index = (days + variant) % len(KINDS)
-        # Three separate post IDs/day; no future collision between normal,
-        # bonus and special requests for the next date.
-        number = 32 + days * 3 + variant
+        # Future numbering starts at 33 so new content #32 remains unique.
+        number = 33 + days * 3 + variant
 
     serial = (day - dt.date(2026, 11, 23)).days * 37 + variant * 17 + 9
     rng = random.Random(41127 + serial * 301)
@@ -65,7 +65,7 @@ def make_diverse(day, variant=0):
         "grade": 5, "topic": "ශිෂ්‍යත්ව බුද්ධි පරීක්ෂණය",
         "puzzle_kind": kind, "date": day.isoformat(),
         "question_number": number,
-        "variant": {0: "daily", 1: "bonus", 2: "new-style"}[variant],
+        "variant": {0: "daily", 1: "bonus", 2: "new-style", 3: "fresh-grid"}[variant],
         "option_labels": ["1", "2", "3"],
         "learning_notes": [
             "පළමුව රූපය හොඳින් නිරීක්ෂණය කර රටාව හඳුනාගන්න.",
@@ -93,7 +93,7 @@ def make_diverse(day, variant=0):
         options, at = choices_for(answer, serial, 3)
     elif kind == "magic_grid":
         # Lo Shu 3×3 magic square: each row, column and diagonal totals 15.
-        shift = rng.randint(2, 12)
+        shift = 4 if variant == 3 else rng.randint(2, 12)
         grid = [[8+shift, 1+shift, 6+shift],
                 [3+shift, 5+shift, 7+shift],
                 [4+shift, 9+shift, 2+shift]]
