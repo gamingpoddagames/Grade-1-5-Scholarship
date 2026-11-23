@@ -15,6 +15,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 from brand_assets import font, latin_font
 from font_safety import draw_mixed, mixed_width, check_caption
+from social_text import clean_caption, clean_quiz_lines
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from crosspost import Crossposter, article_content, today_in_sri_lanka
 
@@ -237,8 +238,7 @@ def facebook_caption(question):
     opts = "\n".join(
         f"({label}) {answer}" for label, answer in zip(labels, question["choices"]))
     text = (
-        "5 ශ්‍රේණිය | බුද්ධි පරීක්ෂණ ගැටලුව\n"
-        f"ප්‍රශ්න අංක {question['question_number']}\n\n"
+        clean_quiz_lines(5, "බුද්ධි පරීක්ෂණ ගැටලුව", question["question_number"]) + "\n\n"
         "රූපයේ සංඛ්‍යා අතර සැඟවුණු රටාව සොයාගන්න පුළුවන්ද?\n\n" +
         opts + "\n\n"
         "ඔබ තෝරන අංකය (1), (2) හෝ (3) ලෙස comment කරන්න.\n"
@@ -247,7 +247,7 @@ def facebook_caption(question):
         "\n#Grade5Scholarship #SinhalaMaths #PunchiNenaMaga"
     )
     import unicodedata
-    text = unicodedata.normalize("NFC", text)
+    text = clean_caption(text)
     check_caption(text)
     return text
 
