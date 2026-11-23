@@ -134,6 +134,28 @@ class ScholarshipPuzzleTests(unittest.TestCase):
             with Image.open(image_path) as image:
                 self.assertEqual(image.size, (1080, 1350))
 
+    def test_fresh_clock_33_uses_a_new_question_and_real_time_calculations(self):
+        q = make_puzzle("2026-11-23", variant=4)
+        self.assertEqual(q["question_number"], 33)
+        self.assertEqual(q["puzzle_kind"], "clocks")
+        self.assertEqual(q["variant"], "fresh-clock")
+        self.assert_correct_math(q)
+        self.assertEqual(q["visual"]["minutes"], [255, 280, 305, None])
+        self.assertEqual(q["visual"]["interval"], 25)
+        self.assertEqual(q["choices"], ["5:55", "5:05", "5:30"])
+        self.assertEqual(q["answer"], 2)
+        self.assertNotIn("puzzle_circles", q)
+        self.assertNotEqual(q["puzzle_kind"], make_puzzle("2026-11-23", variant=3)["puzzle_kind"])
+        page = article_content(q, media_kind="photo")
+        self.assertIn("5:30", page)
+        self.assertIn("විනාඩි 25", page)
+        with tempfile.TemporaryDirectory() as root:
+            item, image_path = generate("2026-11-23", root, variant=4)
+            self.assertEqual(item["puzzle_kind"], "clocks")
+            self.assertTrue(image_path.exists())
+            with Image.open(image_path) as img:
+                self.assertEqual(img.size, (1080, 1350))
+
     def test_blogger_copies_puzzle_datasets_and_full_solution(self):
         for i in range(6):
             q=make_puzzle(dt.date(2026,11,24)+dt.timedelta(days=i))
