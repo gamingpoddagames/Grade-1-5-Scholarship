@@ -51,12 +51,12 @@ def make_diverse(day, variant=0):
         index = 3 if variant == 2 else 1
         number = 31 if variant == 2 else 32
     else:
-        if day < FIRST or variant == 3:
-            raise ValueError("This one-off puzzle is available only for 2026-11-23")
+        if day < FIRST:
+            raise ValueError("Future diverse puzzle dates start on 2026-11-24")
         days = (day - FIRST).days
         index = (days + variant) % len(KINDS)
-        # Future numbering starts at 33 so new content #32 remains unique.
-        number = 33 + days * 3 + variant
+        # Four separate titles/day; all future IDs remain globally unique.
+        number = 33 + days * 4 + variant
 
     serial = (day - dt.date(2026, 11, 23)).days * 37 + variant * 17 + 9
     rng = random.Random(41127 + serial * 301)
