@@ -18,6 +18,9 @@ SCOPES = [
     "https://www.googleapis.com/auth/youtube.readonly",
 ]
 DEFAULT_PRIVACY = "private"
+# Channel supplied by the owner. It is a public permanent YouTube ID.
+OWNER_CHANNEL_ID = "UCQ2EM8DjUfg3WgzB8r6hYDQ"
+OWNER_CHANNEL_URL = "https://www.youtube.com/channel/" + OWNER_CHANNEL_ID
 
 
 def today_sri_lanka():
@@ -78,7 +81,9 @@ def youtube_service_from_env():
     client_id = os.environ.get("YOUTUBE_CLIENT_ID", "").strip()
     client_secret = os.environ.get("YOUTUBE_CLIENT_SECRET", "").strip()
     refresh_token = os.environ.get("YOUTUBE_REFRESH_TOKEN", "").strip()
-    expected_id = os.environ.get("YOUTUBE_CHANNEL_ID", "").strip()
+    expected_id = os.environ.get("YOUTUBE_CHANNEL_ID", OWNER_CHANNEL_ID).strip()
+    if expected_id != OWNER_CHANNEL_ID:
+        raise RuntimeError("Configured channel ID differs from the owner's supplied channel; upload blocked")
     if not all((client_id, client_secret, refresh_token, expected_id)):
         raise RuntimeError(
             "Missing YOUTUBE_CLIENT_ID / YOUTUBE_CLIENT_SECRET / "
