@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from brand_assets import font, latin_font
 from font_safety import draw_mixed, mixed_width, check_caption
 from social_text import clean_caption, clean_quiz_lines
+from engagement_monetization import comment_invitation
 from diverse_puzzles import make_diverse, render_diverse_poster
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from crosspost import Crossposter, article_content, today_in_sri_lanka
@@ -234,7 +235,7 @@ def poster(question, destination):
                fill="#ffffff", font=latin_font(59, True), anchor="mm")
     d.rounded_rectangle((54, 1168, 1026, 1264), radius=28,
                         fill="#070d44", outline="#f0ca41", width=4)
-    _center_si(d, "ඔබේ පිළිතුර කමෙන්ට් කරන්න!", 1183, 56,
+    _center_si(d, "පිළිතුරත් හේතුවත් කමෙන්ට් කරන්න!", 1183, 56,
                "#ffffff", max_width=920)
     _center_si(d, "පුංචි නැණ මඟ", 1282, 33,
                "#ffd848", max_width=600, outline=False)
@@ -254,7 +255,7 @@ def facebook_caption(question):
         clean_quiz_lines(5, "බුද්ධි පරීක්ෂණ ගැටලුව", question["question_number"]) + "\n\n"
         question["q"] + "\n\n" +
         opts + "\n\n"
-        "ඔබ තෝරන අංකය (1), (2) හෝ (3) ලෙස comment කරන්න.\n"
+        comment_invitation(question) + "\n"
         "නිවැරදි පිළිතුර සහ පියවරෙන් පියවර විසඳුම බලන්න:\n" +
         FACEBOOK_LANDING_URL +
         "\n#Grade5Scholarship #SinhalaMaths #PunchiNenaMaga"
