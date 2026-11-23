@@ -26,7 +26,8 @@ jobs:
       - name: Test Sinhala desktop caption normalization
         run: python -m unittest discover -s school -p 'test_social_text.py' -v
       - name: Test crosspost idempotency and Blogger link security
-        run: python -m unittest discover -s school -p 'test_crosspost.py' -v
+        run: |
+          python -m unittest discover -s school -p 'test_crosspost.py' -v
           python -m unittest discover -s school -p 'test_engagement_monetization.py' -v
       - name: Publish approved quiz image with verified Facebook ID
         env:
