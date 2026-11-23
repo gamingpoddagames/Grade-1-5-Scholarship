@@ -38,6 +38,23 @@ class ScholarshipPuzzleTests(unittest.TestCase):
             seen.add((q["question_number"], tuple(tuple(w) for w in wheels)))
         self.assertEqual(len(seen), 120)
 
+    def test_bonus_is_new_and_distinct_from_daily_post(self):
+        day = dt.date(2026, 11, 23)
+        standard = make_puzzle(day)
+        bonus = make_puzzle(day, variant=1)
+        self.assertEqual(bonus["date"], day.isoformat())
+        self.assertEqual(bonus["question_number"], 30)
+        self.assertEqual(bonus["variant"], "bonus")
+        self.assertNotEqual(bonus["puzzle_circles"], standard["puzzle_circles"])
+        self.assertEqual(len(bonus["choices"]), 3)
+        self.assertEqual(len(set(bonus["choices"])), 3)
+        for left, top, right, bottom in bonus["puzzle_circles"][:3]:
+            self.assertEqual(int(bottom), compute(left, top, right, rule=bonus["rule_index"]))
+        left, top, right, unknown = bonus["puzzle_circles"][-1]
+        self.assertEqual(unknown, "?")
+        correct = compute(left, top, right, rule=bonus["rule_index"])
+        self.assertEqual(int(bonus["choices"][bonus["answer"]]), correct)
+
     def test_blog_contains_hidden_worked_solution(self):
         q = make_puzzle("2026-11-23")
         html = article_content(q, media_kind="photo")
