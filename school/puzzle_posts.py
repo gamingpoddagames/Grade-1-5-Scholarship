@@ -56,13 +56,18 @@ def worked_step(left, top, right, rule):
     raise ValueError("Unknown puzzle rule")
 
 
-def make_puzzle(day):
+def make_puzzle(day, variant=0):
+    """Variant zero is the daily post; variant one is a distinct one-off bonus."""
     if isinstance(day, str):
         day = dt.date.fromisoformat(day)
-    serial = (day - START).days
-    if serial < 0:
+    day_index = (day - START).days
+    if day_index < 0:
         raise ValueError("Date predates the original puzzle series")
-
+    if variant not in (0, 1):
+        raise ValueError("Only the standard and bonus original puzzles are supported")
+    # The bonus uses an independent deterministic sequence rather than
+    # repeating today's already-published standard number-wheel puzzle.
+    serial = day_index if variant == 0 else 1000 + day_index
     rule = 0 if serial == 1 else serial % len(RULE_TEXTS)
 
     if serial == 1:  # Launch puzzle: 40, 36, 30, ? with answer 80.
@@ -115,7 +120,8 @@ def make_puzzle(day):
             "මුලින්ම පිළිතුර නොබලා පළමු වට තුනේ ඉහළ, වම් සහ දකුණු අංක අතර සමාන සම්බන්ධය සොයන්න. ඔබ සොයාගත් නියමය වට තුනටම ගැළපෙනවාදැයි තහවුරු කරන්න.",
             "මෙවර විසඳුමේ අදහස් කළ රටාව: " + RULE_TEXTS[rule] + ". අවසන් වටයටත් එම නියමයම යොදන්න. පිළිතුර සොයාගත් ක්‍රමය දරුවාට වචනවලින් පැහැදිලි කරන්න කියන්න."
         ],
-        "question_number": serial + 28,
+        "question_number": day_index + 28 + variant,
+        "variant": "bonus" if variant else "daily",
         "rule_index": rule,
         "date": day.isoformat(),
         "format": "illustrated_math_puzzle",
@@ -252,8 +258,8 @@ def facebook_caption(question):
     return text
 
 
-def generate(day, outdir):
-    item = make_puzzle(day)
+def generate(day, outdir, variant=0):
+    item = make_puzzle(day, variant=variant)
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     graphic = poster(item, outdir/"puzzle-poster.png")
@@ -273,14 +279,19 @@ def main():
     parser.add_argument("--output", default="school/output/logic-puzzle")
     parser.add_argument("--publish", action="store_true",
                         help="Publish paired Blogger article and Facebook photo")
+    parser.add_argument("--bonus", action="store_true",
+                        help="New distinct puzzle even when today's daily quiz was posted")
     args = parser.parse_args()
     day = dt.date.fromisoformat(args.date) if args.date else today_in_sri_lanka()
-    item, graphic = generate(day, args.output)
+    if args.bonus and args.output == "school/output/logic-puzzle":
+        args.output = "school/output/logic-puzzle-bonus"
+    item, graphic = generate(day, args.output, variant=int(args.bonus))
     if not args.publish:
         print("PREVIEW ONLY: no Blogger or Facebook posts sent")
         return
+    kind = "අමතර බුද්ධි පරීක්ෂණය" if args.bonus else "බුද්ධි පරීක්ෂණ ගැටලුව"
     title = (f"පුංචි නැණ මඟ | {day.isoformat()} | "
-             f"බුද්ධි පරීක්ෂණ ගැටලුව {item['question_number']}")
+             f"{kind} {item['question_number']}")
     blog, fb_id = Crossposter().publish(
         question=item, title=title, media_kind="photo",
         media_path=graphic, caption=facebook_caption(item),
