@@ -1,3 +1,5 @@
 Prepare Punchi Nena Maga YouTube Shorts preview for owner channel UCQ2EM8DjUfg3WgzB8r6hYDQ. Generate original Sinhala 1080x1920 MP4 and metadata. This push is preview/render-only; do not upload until the owner completes Google OAuth and enables authorized uploading. Request date: 2026-11-24 Asia/Colombo.
 
 Channel connected to vidIQ and verified on 2026-11-24. Regenerate preview with corrected Grade 4 YouTube title and metadata, and run offline tests before any upload.
+
+SECURE SETUP TEST 2026-11-24: validate new Windows OAuth wizard, strict mfk110 Google Upload Project checking, GitHub Secrets safety, matched channel ID and corrected grade metadata. Event push MUST render preview only; no YouTube upload. Review workflow results before enabling OAuth.
