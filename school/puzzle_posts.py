@@ -64,9 +64,9 @@ def make_puzzle(day, variant=0):
     day_index = (day - START).days
     if day_index < 0:
         raise ValueError("Date predates the original puzzle series")
-    if variant not in (0, 1, 2):
+    if variant not in (0, 1, 2, 3):
         raise ValueError("Unsupported puzzle post variant")
-    if variant == 2 or day >= dt.date(2026, 11, 24):
+    if variant in (2, 3) or day >= dt.date(2026, 11, 24):
         return make_diverse(day, variant=variant)
     # Old posts are kept unchanged; new posts use six genuinely different
     # mathematical ideas and original layouts, not another number-wheel image.
@@ -289,22 +289,27 @@ def main():
     parser.add_argument("--bonus", action="store_true",
                         help="New distinct puzzle even when today's daily quiz was posted")
     parser.add_argument("--new-style", action="store_true",
-                        help="One final new-format sample on 2026-11-23, without wheel images")
+                        help="First new-format example (#31)")
+    parser.add_argument("--fresh-grid", action="store_true",
+                        help="A different original 3x3 grid puzzle (#32), not another wheel or dot post")
     args = parser.parse_args()
     day = dt.date.fromisoformat(args.date) if args.date else today_in_sri_lanka()
-    if args.bonus and args.new_style:
-        raise ValueError("Bonus and new-style request cannot be combined")
+    if sum([args.bonus, args.new_style, args.fresh_grid]) > 1:
+        raise ValueError("Select only one extra puzzle variant")
     if args.output == "school/output/logic-puzzle":
-        if args.new_style:
+        if args.fresh_grid:
+            args.output = "school/output/logic-puzzle-fresh-grid"
+        elif args.new_style:
             args.output = "school/output/logic-puzzle-new-style"
         elif args.bonus:
             args.output = "school/output/logic-puzzle-bonus"
-    variant = 2 if args.new_style else int(args.bonus)
+    variant = 3 if args.fresh_grid else 2 if args.new_style else int(args.bonus)
     item, graphic = generate(day, args.output, variant=variant)
     if not args.publish:
         print("PREVIEW ONLY: no Blogger or Facebook posts sent")
         return
-    kind = ("නව ආකෘතියේ බුද්ධි පරීක්ෂණය" if args.new_style else
+    kind = ("නව 3x3 සංඛ්‍යා ගැටලුව" if args.fresh_grid else
+            "නව ආකෘතියේ බුද්ධි පරීක්ෂණය" if args.new_style else
             "අමතර බුද්ධි පරීක්ෂණය" if args.bonus else "බුද්ධි පරීක්ෂණ ගැටලුව")
     title = (f"පුංචි නැණ මඟ | {day.isoformat()} | "
              f"{kind} {item['question_number']}")
