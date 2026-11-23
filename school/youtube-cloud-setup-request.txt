@@ -1,0 +1,1 @@
+Run isolated stdlib-only tests for code-first mfk110 Google Cloud YouTube project creation, API enablement, matching Desktop OAuth JSON, and safe GitHub Secret transfer. No actual account access, project creation, tokens or video uploads. 2026-11-24.
