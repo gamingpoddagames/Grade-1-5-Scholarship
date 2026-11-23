@@ -7,6 +7,7 @@ GitHub Actions secrets using the official gh CLI. No passwords/tokens are
 pasted into ChatGPT, uploaded to git, or written to a local secrets file.
 """
 import argparse
+import json
 from pathlib import Path
 import shutil
 import subprocess
@@ -23,6 +24,26 @@ def verify_channel(items, expected_id=OWNER_CHANNEL_ID):
             "The Google account did not authorize the requested channel "
             + OWNER_CHANNEL_URL + ". No GitHub secrets were changed.")
     return items[0]
+
+
+def validate_google_client_file(path):
+    """Require Google's Desktop OAuth credentials for the kids-video upload project."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, UnicodeError) as exc:
+        raise RuntimeError("OAuth client JSON file is invalid") from exc
+    info = data.get("installed")
+    if not isinstance(info, dict):
+        raise RuntimeError("Google OAuth client must be a Desktop application")
+    project_id = str(info.get("project_id", ""))
+    if not project_id.startswith("mfk110"):
+        raise RuntimeError(
+            "Made for Kids uploads require a dedicated Google Upload Project "
+            "whose project ID begins with mfk110. No credentials were saved.")
+    for required in ("client_id", "client_secret", "auth_uri", "token_uri"):
+        if not info.get(required):
+            raise RuntimeError("Incomplete Desktop OAuth credentials: " + required)
+    return project_id
 
 
 def run_gh(args, *, secret_value=None):
@@ -74,6 +95,7 @@ def main():
     path = args.client_secrets.expanduser()
     if not path.is_file():
         raise RuntimeError("Google OAuth JSON file not found: " + str(path))
+    validate_google_client_file(path)
     if not shutil.which("gh"):
         raise RuntimeError(
             "Install GitHub CLI from https://cli.github.com/ then run gh auth login.")
