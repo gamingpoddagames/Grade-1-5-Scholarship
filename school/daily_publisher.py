@@ -14,6 +14,7 @@ import unicodedata
 from build_resources import all_questions
 from visual_quiz import select, image_credit
 from font_safety import check_caption
+from social_text import clean_caption, clean_quiz_lines
 
 BASE = pathlib.Path(__file__).resolve().parent
 BANK = BASE / "questions.json"
@@ -28,8 +29,9 @@ def make_content(day, output_dir):
     correct = item["choices"][item["answer"]]
     # Plain Sinhala Facebook copy: avoid emoji/font fallback at the start of a line.
     title = f"පුංචි නැණ මඟ - {item['grade']} ශ්‍රේණිය - {item['topic']}"
+    facebook_title = clean_quiz_lines(item["grade"], item["topic"])
     message = "\n".join([
-        title,
+        facebook_title,
         "",
         "අද පුහුණු ප්‍රශ්නය",
         item["q"],
@@ -46,7 +48,7 @@ def make_content(day, output_dir):
         "",
         "#Grade5Scholarship #SinhalaPictureQuiz"
     ])
-    message = unicodedata.normalize("NFC", message)
+    message = clean_caption(message)
     check_caption(message)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "facebook_post.txt").write_text(message, encoding="utf-8")
