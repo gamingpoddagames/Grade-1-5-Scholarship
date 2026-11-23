@@ -55,9 +55,9 @@ jobs:
             echo "Publication explicitly disabled; only previewing."
             python school/puzzle_posts.py
           elif [[ "$RUN_EVENT" == "push" ]]; then
-            # This is a one-off post request; never regenerate the already
-            # published standard question for the same Sri Lanka calendar day.
-            python school/puzzle_posts.py --bonus --publish
+            # One-off uploads use the third distinct category of the day:
+            # never recycle the already-published daily or bonus creative.
+            python school/puzzle_posts.py --new-style --publish
           elif [[ "$RUN_EVENT" == "schedule" || "$MANUAL_PUBLISH" == "true" ]]; then
             python school/puzzle_posts.py --publish
           else
@@ -70,4 +70,5 @@ jobs:
           path: |
             school/output/logic-puzzle/
             school/output/logic-puzzle-bonus/
+            school/output/logic-puzzle-new-style/
           retention-days: 30
