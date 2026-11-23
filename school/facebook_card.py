@@ -9,6 +9,7 @@ from PIL import Image,ImageDraw,ImageFont
 
 from brand_assets import font,latin_font,logo
 from font_safety import draw_mixed, mixed_width, check_caption
+from social_text import clean_caption
 from page_branding_upload import multipart
 
 def wrap(draw,text,face,max_width):
@@ -99,6 +100,7 @@ def validate_card(image):
 
 
 def publish(image,caption):
+    caption = clean_caption(caption)
     check_caption(caption)
     validate_blogger_links(caption)
     validate_card(image)
