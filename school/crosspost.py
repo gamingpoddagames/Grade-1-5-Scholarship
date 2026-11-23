@@ -51,11 +51,14 @@ def article_content(question, *, media_kind, image_info=None):
     if len(labels) != len(choices) or len(set(labels)) != len(labels):
         raise ValueError("Option labels are invalid")
     q = html.escape(str(question["q"]))
+    def display_label(value):
+        label = html.escape(str(value))
+        return "(" + label + ")" if str(value).isdigit() else label + ")"
     options = "".join(
-        "<li>(" + html.escape(str(labels[i])) + ") " + html.escape(str(choice)) + "</li>"
+        "<li>" + display_label(labels[i]) + " " + html.escape(str(choice)) + "</li>"
         for i, choice in enumerate(choices))
     correct = html.escape(str(choices[answer]))
-    answer_label = html.escape(str(labels[answer]))
+    answer_label = display_label(labels[answer])
     explanation = html.escape(str(question.get("explanation", "") or "")).replace("\n", "<br>")
     parts = [
         '<section lang="si" class="punchi-quiz">',
@@ -64,7 +67,7 @@ def article_content(question, *, media_kind, image_info=None):
         '<ol style="list-style:none;padding-left:0;line-height:2.2;">' + options + "</ol>",
         "<p>පිළිතුර සිතා බලන්න.</p>",
         "<details><summary>නිවැරදි පිළිතුර බලන්න</summary>",
-        "<p><strong>(" + answer_label + ") " + correct + "</strong></p>",
+        "<p><strong>" + answer_label + " " + correct + "</strong></p>",
         "<p>" + explanation + "</p></details>",
     ]
     if question.get("learning_notes"):
