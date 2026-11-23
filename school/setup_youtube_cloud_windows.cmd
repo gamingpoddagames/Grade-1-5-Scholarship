@@ -62,9 +62,42 @@ if not defined GCLOUD_BIN (
 
 where gh >nul 2>nul
 if errorlevel 1 (
-  echo GitHub CLI is missing.
-  echo The Google Cloud stage can still run; GitHub secret setup will need gh later.
-  echo Install from https://cli.github.com/ before the Desktop OAuth stage.
+  echo GitHub CLI is missing; it is needed to store OAuth secrets securely.
+  where winget >nul 2>nul
+  if errorlevel 1 (
+    echo Install GitHub CLI from https://cli.github.com/ and reopen this file.
+    pause
+    exit /b 1
+  )
+  choice /C YN /M "Install official GitHub CLI via winget now"
+  if errorlevel 2 (
+    echo Installation declined. No GitHub secrets were changed.
+    pause
+    exit /b 1
+  )
+  winget install --id GitHub.cli -e --accept-package-agreements --accept-source-agreements
+  if errorlevel 1 (
+    echo GitHub CLI installation failed. No credentials were saved.
+    pause
+    exit /b 1
+  )
+  if exist "%ProgramFiles%\GitHub CLI\gh.exe" set "PATH=%ProgramFiles%\GitHub CLI;%PATH%"
+  where gh >nul 2>nul
+  if errorlevel 1 (
+    echo Reopen Command Prompt and run this script again after installation.
+    pause
+    exit /b 1
+  )
+)
+gh auth status >nul 2>nul
+if errorlevel 1 (
+  echo Opening GitHub CLI authentication (browser approval may be required)...
+  gh auth login
+  if errorlevel 1 (
+    echo GitHub login did not complete. No OAuth secrets were written.
+    pause
+    exit /b 1
+  )
 )
 
 echo Verifying free Python Google API libraries...
