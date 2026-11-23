@@ -78,6 +78,14 @@ def article_content(question, *, media_kind, image_info=None):
         parts.append("<h3>මෙම ගැටලුවෙන් ඉගෙනගන්න දේ</h3>")
         for paragraph in notes:
             parts.append("<p>" + html.escape(paragraph) + "</p>")
+    if question.get("puzzle_kind") and question.get("puzzle_display"):
+        # Text-accessible diagram data: Blogger contains the *same* puzzle
+        # values even where Facebook artwork itself cannot be hosted on Blogger.
+        details = question["puzzle_display"]
+        if not isinstance(details, list) or not all(isinstance(s, str) for s in details):
+            raise ValueError("Invalid puzzle diagram description")
+        summary = "".join("<li>" + html.escape(x) + "</li>" for x in details)
+        parts.insert(4, "<h3>රූපයේ ගැටලුව</h3><ul>" + summary + "</ul>")
     if question.get("puzzle_circles"):
         # Show the identical four-circle data on Blogger without revealing
         # the missing number before the user opens the solution.
