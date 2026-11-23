@@ -56,6 +56,25 @@ jobs:
           python -m unittest discover -s school -p 'test_youtube_oauth_setup.py' -v
           python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
           python -m unittest discover -s school -p 'test_font_safety.py' -v
+      - name: Report GitHub YouTube OAuth readiness without exposing secrets
+        env:
+          CLIENT_ID_PRESENT: ${{ secrets.YOUTUBE_CLIENT_ID != '' }}
+          CLIENT_SECRET_PRESENT: ${{ secrets.YOUTUBE_CLIENT_SECRET != '' }}
+          REFRESH_TOKEN_PRESENT: ${{ secrets.YOUTUBE_REFRESH_TOKEN != '' }}
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+        run: |
+          echo "## Daily YouTube Shorts authorization" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$CLIENT_ID_PRESENT" == "true" && "$CLIENT_SECRET_PRESENT" == "true" && "$REFRESH_TOKEN_PRESENT" == "true" ]]; then
+            echo "Google OAuth secrets: configured (values are never shown)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Google OAuth secrets: not fully configured." >> "$GITHUB_STEP_SUMMARY"
+            echo "Run school/setup_youtube_windows.cmd with your own Google account." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [[ "$YOUTUBE_UPLOAD_ENABLED" == "true" ]]; then
+            echo "Automatic upload setting: enabled. Destination and privacy are verified again before upload." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Automatic upload setting: disabled; previews only." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Render or authorize upload to exact YouTube channel
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
