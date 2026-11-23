@@ -9,6 +9,7 @@ import urllib.error
 import urllib.request
 import uuid
 from font_safety import check_caption
+from social_text import clean_caption
 
 def upload(path, page_id, access_token, version, *, title=None, description=None):
     path=Path(path)
