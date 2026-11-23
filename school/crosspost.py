@@ -235,7 +235,15 @@ class Crossposter:
             raise ValueError("Media kind must be video, photo or text")
         if media_kind != "text" and not Path(media_path).is_file():
             raise RuntimeError("Media is missing; nothing published")
-        title = clean_title(title)
+        # Preserve the exact title of an existing post created before the
+        # desktop-caption update. Renaming the title key would accidentally
+        # create a second Blogger article and a duplicate Facebook post.
+        old_title = title
+        normalized_title = clean_title(title)
+        if old_title in self.existing:
+            title = old_title
+        else:
+            title = normalized_title
         article, created = self.article(question, title, media_kind, image_info)
         article_url = validate_blog_url(article.get("url"))
         state = STATE.search(article.get("content", ""))
