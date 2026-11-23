@@ -11,3 +11,5 @@ REQUEST: NEW ORIGINAL CONTENT #32 2026-11-23 21:48 Asia/Colombo. Run --fresh-gri
 NEW REQUEST PNM-CLOCK-33-20261123: On push run school/puzzle_posts.py --fresh-clock --publish, create a distinct 4-clock original question #33 with 4:15 > 4:40 > 5:05 > ?, options (1) 5:55 (2) 5:05 (3) 5:30. Publish the worked solution on Blogger first, then the question-only photo to the authorized Facebook Page with the actual Blogger article link; skip duplicates and do not reveal the answer in Facebook caption. Validate regression tests before publication.
 
 CI DIAGNOSTIC RETRY PNM-CLOCK-33 2026-11-23: new clock post #33; run isolated checks; if and only if all checks pass, Blogger-first publish and Facebook poster with direct URL. Do not create duplicates.
+
+DIAGNOSTIC RETRY 2 PNM-CLOCK-33: Recheck each school Python module separately, then publish the same unique clock post #33 only if all tests pass; no duplicate posts.
