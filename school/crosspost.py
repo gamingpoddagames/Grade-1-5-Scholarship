@@ -240,7 +240,7 @@ class Crossposter:
         # create a second Blogger article and a duplicate Facebook post.
         old_title = title
         normalized_title = clean_title(title)
-        if old_title in self.existing:
+        if old_title in getattr(self, "existing", {}):
             title = old_title
         else:
             title = normalized_title
