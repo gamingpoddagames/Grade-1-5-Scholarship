@@ -212,7 +212,9 @@ def main():
         print("PREVIEW ONLY: no video rendered or uploaded")
         return
     from build_resources import video
-    path = video(outdir, [question], day)
+    from video_cta import append_outro
+    original = video(outdir, [question], day)
+    path = append_outro(original, "youtube", "school")
     if args.upload:
         upload(path, metadata, outdir)
     else:
