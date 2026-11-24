@@ -122,3 +122,19 @@ The official channel `UCQ2EM8DjUfg3WgzB8r6hYDQ` is now independently verified as
 - The first Grade 4 quiz video has also been imported into vidIQ as a **saved private draft**, not published. Do not post it a second time via GitHub if it has already been published via vidIQ. Check actual YouTube Studio before saying a video is live.
 
 Full details: [YouTube Channel Setup](school/YOUTUBE_CHANNEL_SETUP.md).
+
+
+### 24 Nov 2026 — Facebook/Blogger/YouTube content synchronisation (additive)
+
+The existing Facebook Sinhala Reel generator, its voice, the Page and Blogger publishing scripts are **unchanged**. New independent, thoroughly guarded GitHub Actions workflows share their exact reviewed question source and image/video renderers:
+
+- `.github/workflows/youtube-social-mirror.yml` — mirrors 3 existing Facebook/Blogger Sinhala Reels to the verified YouTube channel at **16:15 Asia/Colombo**, private by default.
+- `.github/workflows/social-poll-pack.yml` — alternating original 1080×1350 text and licensed-image quiz/poll cards for Facebook + Blogger at **19:45 Asia/Colombo**; paired YouTube Community drafts.
+- `.github/workflows/youtube-poll-shorts.yml` — produces the same poll artwork with an answer-reveal 1080×1920 narrated YouTube Short at **22:00 Asia/Colombo**, private by default.
+- Existing `youtube-shorts.yml` continues one morning Short at **12:45 Asia/Colombo**.
+
+Daily post types are **educational comment-choice or self-check questions**, *not* a claim of platform-native voting. Native YouTube Community polls/quiz posts need separate account/API eligibility; a preview draft does not publish. Other standalone Blogger long-form articles remain on Blogger unless independently adapted. YouTube's owner credentials do not grant Instagram or TikTok publishing.
+
+**Adsterra:** The existing approved opt-in ad gadget remains on the owned Blogger site. Facebook and YouTube descriptions link straight to free educational Blogger content; never paste the Adsterra JavaScript loader into social posts or force children through ad redirects. No visitor, ad impression or earnings guarantee.
+
+Full implementation and verified preview links: [Social multi-platform upgrade](school/SOCIAL_MULTIPLATFORM_UPGRADE.md).
