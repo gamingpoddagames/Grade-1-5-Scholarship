@@ -66,6 +66,18 @@ class YoutubeShortsTests(unittest.TestCase):
         second = build_metadata(QUESTION, dt.date(2026, 11, 25))
         self.assertNotEqual(first["_marker"], second["_marker"])
 
+    def test_same_day_second_quiz_uses_distinct_marker(self):
+        day = dt.date(2026, 11, 24)
+        original = build_metadata(QUESTION, day, offset=0)
+        alternate = {**QUESTION, "q": "12 + 8 = කීයද?",
+                     "choices": ["15", "18", "20", "22"], "answer": 2}
+        second = build_metadata(alternate, day, offset=1)
+        self.assertEqual(original["_marker"], "PNM-SHORT-20261124-01")
+        self.assertEqual(second["_marker"], "PNM-SHORT-20261124-02")
+        self.assertNotEqual(original["snippet"]["title"], second["snippet"]["title"])
+        with self.assertRaises(ValueError):
+            build_metadata(QUESTION, day, offset=4)
+
     def test_bad_metadata_and_privacy_are_rejected(self):
         with self.assertRaises(ValueError):
             build_metadata(QUESTION, dt.date(2026, 11, 24), privacy="unknown")
