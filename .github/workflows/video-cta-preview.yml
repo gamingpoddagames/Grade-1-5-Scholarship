@@ -56,7 +56,6 @@ jobs:
           ffprobe -v error -show_entries format=duration \
             -of default=noprint_wrappers=1:nokey=1 \
             school/output/video-cta-check/dummy-720-original-facebook-cta.mp4
-          PY
       - name: Export preview artwork and videos (no publication)
         uses: actions/upload-artifact@v4
         if: always()
