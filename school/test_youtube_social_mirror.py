@@ -24,6 +24,7 @@ class MirrorTests(unittest.TestCase):
         day=dt.date(2026,11,25)
         with tempfile.TemporaryDirectory() as root, \
              patch("youtube_social_mirror.video") as vid, \
+             patch("youtube_social_mirror.append_outro",side_effect=lambda path,*_: path) as outro, \
              patch("youtube_social_mirror.upload") as upload:
             def build(folder, questions, selected_day):
                 target=Path(folder)/"grade5-quiz.mp4"
@@ -32,6 +33,7 @@ class MirrorTests(unittest.TestCase):
             vid.side_effect=build
             result=mirror.mirror(day,Path(root))
             self.assertEqual(vid.call_count,3)
+            self.assertEqual(outro.call_count,3)
             upload.assert_not_called()
             self.assertEqual([r["status"] for r in result],["preview"]*3)
             self.assertEqual(
@@ -68,6 +70,7 @@ class MirrorTests(unittest.TestCase):
             self.assertEqual(upload.call_count,3)
         with tempfile.TemporaryDirectory() as root, \
              patch("youtube_social_mirror.video") as vid, \
+             patch("youtube_social_mirror.append_outro",side_effect=lambda path,*_: path), \
              patch("youtube_social_mirror.upload",side_effect=RuntimeError("quota exceeded")), \
              patch.dict(os.environ,{"YOUTUBE_UPLOAD_ENABLED":"true"},clear=True):
             def build(folder,questions,day):
