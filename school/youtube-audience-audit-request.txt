@@ -1,3 +1,5 @@
 2026-11-24 READ-ONLY. Check actual YouTube channel-level and video-level audience declarations. Do not change any YouTube settings. Do not print secrets. Diagnose whether mixed adult and genuine primary-school educational uploads can be classified per-video.
 
 Second READ-ONLY audit after first 2026-11-24 genuine adult/general video private upload zh_dzcbQlqY; verify channel remains general audience, historic Grade 1-5 videos remain correctly labeled, new adult video selfDeclaredMadeForKids=false reported by Google; never modify status.
+
+Third READ-ONLY verification of four previous school video audience flags after differing snapshots true then false. Do not edit YouTube video status; report actual current flags and owner channel only.
