@@ -1,0 +1,74 @@
+name: Punchi Nena Maga — General Audience Practical Learning
+on:
+  schedule:
+    # 15:15 UTC = 20:45 Asia/Colombo, Tue/Thu/Sat (adult series)
+    - cron: '15 15 * * 2,4,6'
+  push:
+    paths:
+      - 'school/adult-general-request.txt'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish adult-learning video to authorized Blogger/Facebook and upload PRIVATE to YouTube?'
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: punchi-general-audience-learning
+  cancel-in-progress: false
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install unchanged Sinhala narrator and graphics libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core ffmpeg
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' gTTS \
+            'google-api-python-client>=2.150,<3' 'google-auth>=2.32,<3'
+      - name: Test general versus child-directed audience labeling and arithmetic
+        run: |
+          python -m unittest discover -s school -p 'test_adult_general_quiz.py' -v
+          python -m unittest discover -s school -p 'test_youtube_shorts.py' -v
+          python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
+          python -m unittest discover -s school -p 'test_font_safety.py' -v
+      - name: Render adult-oriented short and optionally distribute after owner approval
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+          YOUTUBE_PRIVACY: ${{ vars.YOUTUBE_PRIVACY }}
+          YOUTUBE_PUBLICATION_REVIEWED: ${{ vars.YOUTUBE_PUBLICATION_REVIEWED }}
+          EVENT: ${{ github.event_name }}
+          APPROVED: ${{ inputs.publish }}
+        run: |
+          if [[ "$EVENT" == push || ( "$EVENT" == workflow_dispatch && "$APPROVED" != true ) ]]; then
+            echo "PREVIEW ONLY. No Facebook/Blogger or YouTube publishing"
+            python school/adult_general_quiz.py
+          elif [[ "$BLOGGER_ALLOW_PUBLICATION" != "false" && "$YOUTUBE_UPLOAD_ENABLED" == true && "${YOUTUBE_PRIVACY:-private}" == private ]]; then
+            python school/adult_general_quiz.py --publish-social --upload-youtube
+          else
+            echo "Owner authorization or PRIVATE YouTube safety gate missing. Preview only."
+            python school/adult_general_quiz.py
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-general-audience-practical-learning
+          path: school/output/adult-general-learning/
+          retention-days: 14
