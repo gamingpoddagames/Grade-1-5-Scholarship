@@ -46,7 +46,7 @@ jobs:
         run: |
           if ! test -f /usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf; then sudo apt-get update && sudo apt-get install -y fonts-noto-core; fi
           if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get install -y ffmpeg; fi
-          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4'
           if [[ "${{ github.event.schedule }}" == "45 9 * * 2,6" || ( "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.kind }}" == "video" ) || ( "${{ github.event_name }}" == "push" && "${{ github.event.head_commit.message }}" == "Publish approved Punchi Nena Maga narrated Blogger video now" ) ]]; then
             python -m pip install 'piper-tts>=1.3,<2'
           fi
