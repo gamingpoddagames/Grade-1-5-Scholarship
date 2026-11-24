@@ -165,9 +165,9 @@ def run(day,outdir,*,publish_social=False,upload_youtube=False):
     if upload_youtube:
         if os.getenv("YOUTUBE_UPLOAD_ENABLED","").lower()!="true":
             raise RuntimeError("YouTube uploads not authorized")
-        privacy=os.getenv("YOUTUBE_PRIVACY","private")
-        if privacy!="private" and os.getenv("YOUTUBE_PUBLICATION_REVIEWED","").lower()!="true":
-            raise RuntimeError("Public adult content requires owner review/approval")
+        privacy=os.getenv("YOUTUBE_GENERAL_PRIVACY", "private").strip() or "private"
+        if privacy!="private" and os.getenv("YOUTUBE_GENERAL_PUBLIC_REVIEWED","").lower()!="true":
+            raise RuntimeError("Public adult content requires YOUTUBE_GENERAL_PUBLIC_REVIEWED=true after owner review")
         metadata=metadata_for(q,day,privacy=privacy)
         try:
             receipt=upload(movie,metadata,Path(outdir))
