@@ -52,15 +52,18 @@ jobs:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           YOUTUBE_CHANNEL_ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
           YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
-          YOUTUBE_PRIVACY: ${{ vars.YOUTUBE_PRIVACY }}
-          YOUTUBE_PUBLICATION_REVIEWED: ${{ vars.YOUTUBE_PUBLICATION_REVIEWED }}
+          YOUTUBE_GENERAL_PRIVACY: ${{ vars.YOUTUBE_GENERAL_PRIVACY }}
+          YOUTUBE_GENERAL_PUBLIC_REVIEWED: ${{ vars.YOUTUBE_GENERAL_PUBLIC_REVIEWED }}
+          # This value is scoped to this adult-specific job; children's upload
+          # workflows continue to use their own independent global review gate.
+          YOUTUBE_PUBLICATION_REVIEWED: ${{ vars.YOUTUBE_GENERAL_PUBLIC_REVIEWED }}
           EVENT: ${{ github.event_name }}
           APPROVED: ${{ inputs.publish }}
         run: |
           if [[ "$EVENT" == push || ( "$EVENT" == workflow_dispatch && "$APPROVED" != true ) ]]; then
             echo "PREVIEW ONLY. No Facebook/Blogger or YouTube publishing"
             python school/adult_general_quiz.py
-          elif [[ "$BLOGGER_ALLOW_PUBLICATION" != "false" && "$YOUTUBE_UPLOAD_ENABLED" == true && "${YOUTUBE_PRIVACY:-private}" == private ]]; then
+          elif [[ "$BLOGGER_ALLOW_PUBLICATION" != "false" && "$YOUTUBE_UPLOAD_ENABLED" == true && ( "${YOUTUBE_GENERAL_PRIVACY:-private}" == private || ( "${YOUTUBE_GENERAL_PRIVACY}" == public && "$YOUTUBE_GENERAL_PUBLIC_REVIEWED" == true ) ) ]]; then
             python school/adult_general_quiz.py --publish-social --upload-youtube
           else
             echo "Owner authorization or PRIVATE YouTube safety gate missing. Preview only."
