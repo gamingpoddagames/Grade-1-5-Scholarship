@@ -1,3 +1,5 @@
 2026-11-24 OWNER REQUEST: Preview Sinhala-spoken Punchi Nena Maga end card with FACEBOOK Follow/Like/Comment/Share, YOUTUBE Subscribe/Like/Share (and Comment for general-audience only). Preserve original video frames/voice, append only a branded final segment. QA only; NEVER PUBLISH on this request.
 
 Second QA re-run after isolated video-mirror mocks were fixed. Generate actual preview MP4s, no social uploads.
+
+Final preview QA: shorter spoken Sinhala outro, circular logo without white square, actual 720x1280 FB Reel encode, no posts on this trigger.
