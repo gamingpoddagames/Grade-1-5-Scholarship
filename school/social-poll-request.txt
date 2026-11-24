@@ -1,0 +1,1 @@
+PREVIEW-ONLY QA 2026-11-24: render aesthetically checked Sinhala text poll and original photo/text quiz pack, validate children-friendly captions, no live Facebook/Blogger/YouTube publishing.
