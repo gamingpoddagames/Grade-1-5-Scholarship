@@ -1,3 +1,24 @@
+## Verified LIVE private GitHub upload — 24 November 2026
+
+- The owner completed Google OAuth authorization locally. GitHub readiness
+  check [run 45408888680](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45408888680)
+  confirmed all three YouTube OAuth secrets and `YOUTUBE_UPLOAD_ENABLED=true`.
+- A separate private-only workflow used the second quiz on the same date to
+  avoid duplicating the Short previously uploaded via vidIQ.
+  [Integration run 45409155504](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45409155504)
+  succeeded, verified the exact owner channel, and confirmed a **private** YouTube video:
+  [3m3lRvYFS9A](https://www.youtube.com/watch?v=3m3lRvYFS9A).
+- Standard daily schedule is `15 7 * * *` UTC = **12:45 Asia/Colombo**.
+  Default privacy remains PRIVATE; publishing to the public has **not** been enabled.
+- **Important ongoing OAuth requirement:** the Google app is currently External/Testing.
+  Google generally expires its OAuth refresh token after **7 days** for scopes
+  including `youtube.upload`. The owner must transition to an eligible
+  Google Auth Platform publishing mode and meet any verification requirements
+  for reliable unattended daily uploads. Do not assume the first successful
+  upload guarantees future token longevity.
+- If a scheduled workflow fails, inspect the run's upload step before
+  retrying. Do not force duplicate uploads or publish a sample publicly.
+
 ## Code-first Windows setup (recommended; 24 November 2026)
 
 The one-click launcher [setup_youtube_cloud_windows.cmd](setup_youtube_cloud_windows.cmd) automates more steps than the older OAuth-only setup:
