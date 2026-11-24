@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'school/youtube-shorts-request.txt'
+      - 'school/youtube-auth-check-request.txt'
   workflow_dispatch:
 permissions:
   contents: read
