@@ -1,0 +1,73 @@
+name: Original Sinhala Image/Text Quiz Polls — Facebook Blogger and YouTube Draft
+on:
+  schedule:
+    # Alternate text and licensed-image educational quiz posts 19:45 Sri Lanka.
+    - cron: '15 14 * * *'
+  push:
+    paths:
+      - school/social-poll-request.txt
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish reviewed original poll-style quiz to Facebook and Blogger?'
+        type: boolean
+        required: true
+        default: false
+      kind:
+        description: 'Poll-like educational post type'
+        type: choice
+        options: ['rotate','text','image']
+        default: 'rotate'
+permissions:
+  contents: read
+concurrency:
+  group: school-photo-crosspost
+  cancel-in-progress: false
+jobs:
+  social-poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install safe Sinhala font shaping and image dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5'
+      - name: Check Sinhala Unicode, source rights, poll answers and publication safety
+        run: |
+          python -m unittest discover -s school -p 'test_social_poll_pack.py' -v
+          python -m unittest discover -s school -p 'test_font_safety.py' -v
+          python -m unittest discover -s school -p 'test_crosspost.py' -v
+          python -m unittest discover -s school -p 'test_engagement_monetization.py' -v
+      - name: Generate new poll content without editing original Facebook video
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          ADSTERRA_SPONSORED_LINK_ENABLED: ${{ vars.ADSTERRA_SPONSORED_LINK_ENABLED }}
+          ADSTERRA_AGE_APPROPRIATE_REVIEWED: ${{ vars.ADSTERRA_AGE_APPROPRIATE_REVIEWED }}
+          ADSTERRA_DIRECT_LINK: ${{ secrets.ADSTERRA_DIRECT_LINK }}
+          RUN_EVENT: ${{ github.event_name }}
+          MANUAL_PUBLISH: ${{ inputs.publish }}
+          KIND: ${{ inputs.kind }}
+        run: |
+          args=(--kind "${KIND:-rotate}")
+          if [[ "$BLOGGER_ALLOW_PUBLICATION" != "false" && ( "$RUN_EVENT" == "schedule" || ( "$RUN_EVENT" == "workflow_dispatch" && "$MANUAL_PUBLISH" == "true" ) ) ]]; then
+            args+=(--publish)
+          else
+            echo "Preview only: pushes never publish; manual publish=false or owner disabled Blogger"
+          fi
+          python school/social_poll_pack.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-facebook-blogger-polls-and-youtube-community-drafts
+          path: school/output/social-poll-pack/
+          retention-days: 14
