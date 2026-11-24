@@ -78,3 +78,27 @@ Official references:
 - https://support.google.com/adsense/answer/1269077
 
 No earnings, guaranteed reach or guaranteed YouTube approval are claimed.
+
+
+## Verified first adults/parents launch (24 Nov 2026)
+
+This is now a **real** source-controlled workflow and API result, not a plan:
+[GitHub run 45417269822](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45417269822)
+successfully published the adult household-budget lesson to
+[Blogger](https://punchinanamaga.blogspot.com/2026/11/2026-11-24_0595451818.html),
+confirmed Facebook Page delivery (object ID `1630196825024363`, actual
+permalink not independently confirmed), and uploaded the verified-channel
+[YouTube PRIVATE Short zh_dzcbQlqY](https://www.youtube.com/watch?v=zh_dzcbQlqY).
+The YouTube metadata for this separate adult-focused lesson has
+`selfDeclaredMadeForKids=false`; it does not relabel prior school videos.
+
+**Separate general-audience public release controls:** In GitHub Actions
+Variables, `YOUTUBE_GENERAL_PRIVACY=public` plus
+`YOUTUBE_GENERAL_PUBLIC_REVIEWED=true` can be used *after the owner reviews
+the finished general-audience video and decides it is accurately classified*.
+These variables are read only by `adult-general-learning.yml`. The old
+school video workflows keep their original `YOUTUBE_PRIVACY=private` and
+`YOUTUBE_PUBLICATION_REVIEWED=false`. Do not set an adult-video audience
+flag on Grade 1–5 child-directed videos. New general-audience videos that
+remain private cannot collect qualified public Shorts views toward YPP.
+
