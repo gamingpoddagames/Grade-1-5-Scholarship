@@ -1,0 +1,1 @@
+PREVIEW-ONLY QA 2026-11-24: test Facebook/Blogger three-Reel YouTube mirroring with identical Sinhala content, distinct YouTube markers, no duplicate live upload. This commit MUST NOT publish.
