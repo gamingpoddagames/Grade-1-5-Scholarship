@@ -1,0 +1,1 @@
+2026-11-24 READ-ONLY. Check actual YouTube channel-level and video-level audience declarations. Do not change any YouTube settings. Do not print secrets. Diagnose whether mixed adult and genuine primary-school educational uploads can be classified per-video.
