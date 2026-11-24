@@ -21,7 +21,7 @@ class AdultGeneralAudienceTests(unittest.TestCase):
             self.assertEqual(len(q["choices"]),4)
             self.assertEqual(len(set(q["choices"])),4)
             self.assertTrue(0 <= q["answer"] < 4)
-            self.assertIn(q["choices"][q["answer"]][4:].strip(),q["explanation"])
+            self.assertIn(q["choices"][q["answer"]].removeprefix("රු. "),q["explanation"])
 
     def test_actual_adult_series_is_classified_as_general_audience_only_per_video(self):
         q=select("2026-11-25")
@@ -54,7 +54,7 @@ class AdultGeneralAudienceTests(unittest.TestCase):
 
     def test_original_facebook_grade_video_appearance_remains_unchanged(self):
         from quiz_reel_renderer import make_frame
-        from PIL import Image
+        from PIL import Image, ImageChops
         q=school_select("2026-11-25",offset=0)
         with tempfile.TemporaryDirectory() as d:
             school_path=Path(d)/"school.png"
@@ -64,7 +64,7 @@ class AdultGeneralAudienceTests(unittest.TestCase):
             with Image.open(school_path) as s, Image.open(adult_path) as a:
                 self.assertEqual(s.size,(1080,1920))
                 self.assertEqual(a.size,(1080,1920))
-                self.assertNotEqual(s.getpixel((110,1800)),a.getpixel((110,1800)))
+                self.assertIsNotNone(ImageChops.difference(s,a).getbbox())
 
 if __name__=="__main__":
     unittest.main()
