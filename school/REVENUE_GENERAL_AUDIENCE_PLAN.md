@@ -102,3 +102,23 @@ school video workflows keep their original `YOUTUBE_PRIVACY=private` and
 flag on Grade 1–5 child-directed videos. New general-audience videos that
 remain private cannot collect qualified public Shorts views toward YPP.
 
+
+
+### Audience status discrepancy detected; manually verify Grade 1–5 videos
+
+The initial read-only [run 45416963142](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45416963142)
+reported all four early school videos as `selfDeclaredMadeForKids=true` and
+`madeForKids=true`. A subsequent **also read-only**
+[run 45418081810](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45418081810)
+reported `false` for those same four existing video IDs, **and** `false`
+for the separate adult lesson. The channel was `false` in both audits.
+
+These reports do not establish **who or what** changed the existing video flags,
+or whether backend state was transient. Neither audit wrote to YouTube.
+For content actually directed at Grade 1–5 children, review the **current**
+individual video Audience field in YouTube Studio before any public release;
+adult viewers alone do not make child-directed content "general audience".
+For original adult budgeting/working-life lessons, the false flag is appropriate
+when the actual creative is truly aimed at adults/general viewers. Never
+blanket-clear all existing videos to increase advertising reach.
+
