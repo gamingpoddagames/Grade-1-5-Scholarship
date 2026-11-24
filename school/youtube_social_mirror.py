@@ -17,6 +17,7 @@ from pathlib import Path
 from build_resources import video
 from quiz_topics import select
 from youtube_shorts import build_metadata, upload, today_sri_lanka, redact_metadata
+from video_cta import append_outro
 
 
 def checked_reels(day):
@@ -49,7 +50,8 @@ def mirror(day, output, *, publish=False, privacy="private"):
         folder = output / ("fb-blogger-reel-" + str(index))
         folder.mkdir(parents=True, exist_ok=True)
         # Exact source used by Facebook/Blogger three_reels.py, unmodified.
-        movie=video(folder,[q],day)
+        original=video(folder,[q],day)
+        movie=append_outro(original, "youtube", "school")
         metadata=build_metadata(q,day,privacy=privacy,offset=index)
         (folder / "youtube-metadata.json").write_text(
             json.dumps(redact_metadata(metadata), ensure_ascii=False, indent=2),
