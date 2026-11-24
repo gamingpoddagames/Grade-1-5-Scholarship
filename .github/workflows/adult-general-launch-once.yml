@@ -1,0 +1,59 @@
+name: Publish First Reviewed Adults and Parents General-Audience Lesson
+on:
+  push:
+    paths: [school/adult-general-launch-now.txt]
+permissions:
+  contents: read
+concurrency:
+  group: punchi-adult-learning-first-launch
+  cancel-in-progress: false
+jobs:
+  publish-reviewed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install approved Sinhala video source
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core ffmpeg
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' gTTS \
+            'google-api-python-client>=2.150,<3' 'google-auth>=2.32,<3'
+      - name: Review arithmetic and legitimate target audience
+        run: |
+          python -m unittest discover -s school -p 'test_adult_general_quiz.py' -v
+          python -m unittest discover -s school -p 'test_youtube_shorts.py' -v
+          python -m unittest discover -s school -p 'test_crosspost.py' -v
+      - name: Publish adult learning to Blogger and Facebook and upload YouTube PRIVATE
+        env:
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+          YOUTUBE_PRIVACY: 'private'
+          YOUTUBE_PUBLICATION_REVIEWED: 'false'
+          ADSTERRA_SPONSORED_LINK_ENABLED: ${{ vars.ADSTERRA_SPONSORED_LINK_ENABLED }}
+          ADSTERRA_AGE_APPROPRIATE_REVIEWED: ${{ vars.ADSTERra_AGE_APPROPRIATE_REVIEWED }}
+          ADSTERRA_DIRECT_LINK: ${{ secrets.ADSTERRA_DIRECT_LINK }}
+        run: |
+          if [[ "$BLOGGER_ALLOW_PUBLICATION" == false || "$YOUTUBE_UPLOAD_ENABLED" != true ]]; then
+            echo "Owner's publishing authorization missing. No upload."
+            exit 1
+          fi
+          python school/adult_general_quiz.py --date 2026-11-24 --publish-social --upload-youtube
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: first-general-audience-adult-lesson
+          path: school/output/adult-general-learning/
+          retention-days: 14
