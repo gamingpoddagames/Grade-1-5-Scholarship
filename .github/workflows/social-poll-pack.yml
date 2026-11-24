@@ -58,6 +58,12 @@ jobs:
           MANUAL_PUBLISH: ${{ inputs.publish }}
           KIND: ${{ inputs.kind }}
         run: |
+          if [[ "$RUN_EVENT" == "push" ]]; then
+            echo "Push QA previews BOTH artwork formats. No social publication."
+            python school/social_poll_pack.py --kind text
+            python school/social_poll_pack.py --kind image
+            exit 0
+          fi
           args=(--kind "${KIND:-rotate}")
           if [[ "$BLOGGER_ALLOW_PUBLICATION" != "false" && ( "$RUN_EVENT" == "schedule" || ( "$RUN_EVENT" == "workflow_dispatch" && "$MANUAL_PUBLISH" == "true" ) ) ]]; then
             args+=(--publish)
