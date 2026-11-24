@@ -122,3 +122,12 @@ For original adult budgeting/working-life lessons, the false flag is appropriate
 when the actual creative is truly aimed at adults/general viewers. Never
 blanket-clear all existing videos to increase advertising reach.
 
+
+
+A third independent read-only [run 45418362394](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45418362394)
+repeated the second result: channel false; all four existing school videos false;
+new original adult lesson false. This verifies the **current API-reported state**
+twice, but not the cause of change since the first snapshot. Owner should inspect
+the current studio content audience settings and accurately classify any truly
+child-directed original quiz. No diagnostic script can override policy.
+
