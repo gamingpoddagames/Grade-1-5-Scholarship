@@ -8,6 +8,7 @@ from quiz_topics import select
 from crosspost import Crossposter
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from social_text import clean_caption
+from video_cta import append_outro
 
 
 def main():
@@ -15,7 +16,8 @@ def main():
            dt.timedelta(hours=5, minutes=30)).date()
     question = select(day, offset=0)
     output = Path("school/output/daily-quiz-video")
-    movie = video(output, [question], day)
+    original = video(output, [question], day)
+    movie = append_outro(original,"facebook","school")
     caption = ("අලුත් ප්‍රශ්නය: " + question["q"] + "\n\n" +
                "\n".join(f'{chr(65+i)}) {c}' for i, c in enumerate(question["choices"])) +
                "\n\nපිළිතුර සිතන්න. නිවැරදි පිළිතුර වීඩියෝවේ අවසානයේ!\n" +
