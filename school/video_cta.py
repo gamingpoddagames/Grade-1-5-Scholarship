@@ -27,26 +27,26 @@ PROFILES={
         "platform":"YOUTUBE",
         "primary":"SUBSCRIBE",
         "secondary":("LIKE","COMMENT","SHARE"),
-        "voice":"පුංචි නැණ මඟ. අපේ යූ ටියුබ් නාලිකාවට දායක වන්න. කැමැත්ත දක්වන්න. අදහසක් ලියා, මිතුරන්ට බෙදාහරින්න.",
+        "voice":"පුංචි නැණ මඟ. අපේ නාලිකාවට එක්වන්න. ලයික් කරලා අදහසක් ලියා මිතුරන්ට බෙදාහරින්න.",
     },
     ("youtube", "school"): {
         "platform":"YOUTUBE",
         "primary":"SUBSCRIBE",
         "secondary":("LIKE","SHARE"),
         # Child-directed videos may have commenting turned off by YouTube.
-        "voice":"පුංචි නැණ මඟ. තවත් සිංහල පාඩම් සඳහා අපේ යූ ටියුබ් නාලිකාවට දායක වන්න. කැමැත්ත දක්වා, මිතුරන්ට බෙදාහරින්න.",
+        "voice":"පුංචි නැණ මඟ. අපේ නාලිකාවට එක්වන්න. ලයික් කරලා මිතුරන්ට බෙදාහරින්න.",
     },
     ("facebook", "general"): {
         "platform":"FACEBOOK",
         "primary":"FOLLOW",
         "secondary":("LIKE","COMMENT","SHARE"),
-        "voice":"පුංචි නැණ මඟ. අපේ ෆේස්බුක් පිටුව අනුගමනය කරන්න. කැමැත්ත දක්වන්න. අදහසක් ලියා, මිතුරන්ට බෙදාහරින්න.",
+        "voice":"පුංචි නැණ මඟ. අපේ පිටුව ෆොලෝ කරන්න. ලයික් කරලා අදහසක් ලියා මිතුරන්ට බෙදාහරින්න.",
     },
     ("facebook", "school"): {
         "platform":"FACEBOOK",
         "primary":"FOLLOW",
         "secondary":("LIKE","COMMENT","SHARE"),
-        "voice":"පුංචි නැණ මඟ. අපේ ෆේස්බුක් පිටුව අනුගමනය කරන්න. කැමැත්ත දක්වන්න. ඔබේ අදහස ලියා, මිතුරන්ට බෙදාහරින්න.",
+        "voice":"පුංචි නැණ මඟ. පිටුව අනුගමනය කරන්න. ලයික් කරලා අදහසක් ලියා මිතුරන්ට බෙදාහරින්න.",
     },
 }
 
@@ -113,8 +113,11 @@ def image_card(destination,platform="youtube",audience="school",size=(1080,1920)
     im=Image.alpha_composite(im.convert("RGBA"),glow).convert("RGB")
     d=ImageDraw.Draw(im)
 
-    icon=logo(sx(250))
-    im.paste(icon,((w-icon.width)//2,sx(130)))
+    icon=logo(sx(250)).convert("RGBA")
+    mask=Image.new("L",icon.size,0)
+    ImageDraw.Draw(mask).ellipse((sx(4),sx(4),icon.width-sx(4),icon.height-sx(4)),fill=255)
+    icon.putalpha(mask)
+    im.paste(icon,((w-icon.width)//2,sx(130)),icon)
     d=ImageDraw.Draw(im)
     center(d,sx(425),CHANNEL,font(sx(75),True),"#ffffff",w)
     center(d,sx(550),"තවත් දැනුමට අප හා එක්වන්න",font(sx(42),True),"#b5eff1",w)
