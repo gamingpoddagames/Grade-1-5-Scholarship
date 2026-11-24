@@ -1,7 +1,8 @@
 name: Original Sinhala Image/Text Quiz Polls — Facebook Blogger and YouTube Draft
 on:
   schedule:
-    # Alternate text and licensed-image educational quiz posts 19:45 Sri Lanka.
+    # 09:45 and 19:45 Asia/Colombo. Evening alternates text and licensed images.
+    - cron: '15 4 * * *'
     - cron: '15 14 * * *'
   push:
     paths:
@@ -57,6 +58,7 @@ jobs:
           RUN_EVENT: ${{ github.event_name }}
           MANUAL_PUBLISH: ${{ inputs.publish }}
           KIND: ${{ inputs.kind }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
           if [[ "$RUN_EVENT" == "push" ]]; then
             echo "Push QA previews BOTH artwork formats. No social publication."
@@ -65,6 +67,9 @@ jobs:
             exit 0
           fi
           args=(--kind "${KIND:-rotate}")
+          if [[ "$RUN_EVENT" == "schedule" && "$SCHEDULE" == "15 4 * * *" ]]; then
+            args+=(--morning)
+          fi
           if [[ "$BLOGGER_ALLOW_PUBLICATION" != "false" && ( "$RUN_EVENT" == "schedule" || ( "$RUN_EVENT" == "workflow_dispatch" && "$MANUAL_PUBLISH" == "true" ) ) ]]; then
             args+=(--publish)
           else
