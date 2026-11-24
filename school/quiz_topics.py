@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Reviewed Sinhala general-knowledge quizzes for screenshot-style reels."""
 import datetime as dt
+import random
 
 QUIZZES = [
     ("රතු ග්‍රහලෝකය ලෙස හඳුන්වන්නේ කුමන ග්‍රහලෝකයද?",
@@ -62,17 +63,34 @@ def select(day, offset=0):
     if remaining < len(bank):
         return dict(bank[remaining])
 
-    # Unlimited date-derived questions: numbers grow with the day's absolute index.
+    # Keep each date/offset reproducible across platforms and retries.
     serial = remaining - len(bank)
-    left = 45 + serial * 3
-    right = 3 + serial % 9
-    result = left + right
+    rng = random.Random(serial)
+    number = 45 + serial
+    step = rng.randint(3, 12)
+    kind = rng.randrange(5)
+
+    if kind == 0:
+        question = f"{number} + {step} = කීයද?"
+        result = number + step
+    elif kind == 1:
+        question = f"{number} − {step} = කීයද?"
+        result = number - step
+    elif kind == 2:
+        question = f"{number} × {step} = කීයද?"
+        result = number * step
+    elif kind == 3:
+        question = f"{number} බැගින් ඇති කණ්ඩායම් {step}ක එකතුව කීයද?"
+        result = number * step
+    else:
+        question = f"{number}, {number + step}, {number + 2 * step}, ... ඊළඟ සංඛ්‍යාව කුමක්ද?"
+        result = number + 3 * step
+
     options = [result, result + 2, result + 5, result - 3]
-    shift = serial % 4
-    options = options[shift:] + options[:shift]
+    rng.shuffle(options)
     return {
         "grade": 5, "topic": "ශිෂ්‍යත්ව ගණිතය",
-        "q": f"{left} + {right} = කීයද?",
+        "q": question,
         "choices": [str(n) for n in options],
         "answer": options.index(result),
         "explanation": f"නිවැරදි පිළිතුර {result}යි."
