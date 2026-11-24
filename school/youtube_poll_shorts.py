@@ -140,8 +140,10 @@ def main():
         json.dumps({"snippet":meta["snippet"],"status":meta["status"],
                     "unique_marker":meta["_marker"]},ensure_ascii=False,indent=2),
         encoding="utf-8")
-    movie=render(q,art,output)
-    print("YouTube poll companion Short rendered:",movie,meta["_marker"])
+    original_movie=render(q,art,output)
+    from video_cta import append_outro
+    movie=append_outro(original_movie,"youtube","school")
+    print("YouTube poll companion Short with branded CTA:",movie,meta["_marker"])
     if args.upload:
         try:
             report=upload(movie,meta,output)
