@@ -52,6 +52,7 @@ class MirrorTests(unittest.TestCase):
     def test_duplicate_marker_skips_but_other_errors_stop(self):
         with tempfile.TemporaryDirectory() as root, \
              patch("youtube_social_mirror.video") as vid, \
+             patch("youtube_social_mirror.append_outro",side_effect=lambda path,*_: path), \
              patch("youtube_social_mirror.upload") as upload, \
              patch.dict(os.environ,{"YOUTUBE_UPLOAD_ENABLED":"true"},clear=True):
             def build(folder,questions,day):
