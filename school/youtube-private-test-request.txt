@@ -1,0 +1,1 @@
+Owner-authorized PRIVATE-only Google OAuth integration test on 2026-11-24. Upload the distinct offset=1 Sinhala quiz to YouTube channel UCQ2EM8DjUfg3WgzB8r6hYDQ, NOT the already uploaded vidIQ offset=0 Short. Never public. Verify actual channel ID, duplicates, and exact privacy after API response. This marker is one-time.
