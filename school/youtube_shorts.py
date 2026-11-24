@@ -28,9 +28,11 @@ def today_sri_lanka():
             dt.timedelta(hours=5, minutes=30)).date()
 
 
-def build_metadata(question, day, *, privacy="private"):
+def build_metadata(question, day, *, privacy="private", offset=0):
     if privacy not in {"private", "unlisted", "public"}:
         raise ValueError("Privacy must be private, unlisted or public")
+    if not isinstance(offset, int) or offset not in range(4):
+        raise ValueError("YouTube quiz offset must be from 0 through 3")
     if not question.get("q") or len(question.get("choices", [])) != 4:
         raise ValueError("YouTube Short needs a genuine complete quiz")
     answer = question.get("answer")
@@ -40,7 +42,7 @@ def build_metadata(question, day, *, privacy="private"):
     if not isinstance(grade, int) or not 1 <= grade <= 5:
         raise ValueError("Quiz grade must be an integer between 1 and 5")
     grade_label = f"{grade} ශ්‍රේණිය"
-    marker = MARKER_PREFIX + day.strftime("%Y%m%d") + "-01"
+    marker = MARKER_PREFIX + day.strftime("%Y%m%d") + f"-{offset+1:02d}"
     title = f"{grade_label} | {question['q']} #Shorts"
     # Metadata title may be at most 100 Unicode code points.
     if len(title) > 100:
@@ -182,6 +184,8 @@ def upload(mp4, metadata, folder):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", help="Asia/Colombo date YYYY-MM-DD")
+    parser.add_argument("--offset", type=int, choices=range(4), default=0,
+                        help="Quiz selection 0..3, used for distinct private test uploads")
     parser.add_argument("--output", default="school/output/youtube-shorts")
     parser.add_argument("--render", action="store_true", help="Render new original MP4")
     parser.add_argument("--upload", action="store_true",
@@ -195,8 +199,8 @@ def main():
                 "Non-private uploads require YOUTUBE_PUBLICATION_REVIEWED=true")
     day = dt.date.fromisoformat(args.date) if args.date else today_sri_lanka()
     from quiz_topics import select
-    question = select(day, offset=0)
-    metadata = build_metadata(question, day, privacy=args.privacy)
+    question = select(day, offset=args.offset)
+    metadata = build_metadata(question, day, privacy=args.privacy, offset=args.offset)
     outdir = Path(args.output)
     outdir.mkdir(parents=True, exist_ok=True)
     (outdir / "youtube-metadata.json").write_text(
