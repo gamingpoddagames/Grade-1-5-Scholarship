@@ -1,0 +1,90 @@
+name: Mirror Facebook and Blogger Sinhala Reels to YouTube
+
+on:
+  schedule:
+    # After Facebook+Blogger three-reels workflow (05:00 UTC); at 16:15 Sri Lanka.
+    - cron: '45 10 * * *'
+  push:
+    paths:
+      - 'school/youtube-mirror-request.txt'
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Upload verified mirror Shorts privately?'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: punchi-nena-maga-youtube-shorts
+  cancel-in-progress: false
+
+jobs:
+  youtube-reel-mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install unchanged Facebook renderer and Google API libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core ffmpeg
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' gTTS \
+            'google-api-python-client>=2.150,<3' 'google-auth>=2.32,<3'
+      - name: Validate mirrored Sinhala quiz data and duplicate safeguards
+        run: |
+          python -m unittest discover -s school -p 'test_youtube_social_mirror.py' -v
+          python -m unittest discover -s school -p 'test_youtube_shorts.py' -v
+          python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
+      - name: Render exactly the same three Facebook/Blogger videos; upload only if authorized
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+          YOUTUBE_PRIVACY: ${{ vars.YOUTUBE_PRIVACY }}
+          YOUTUBE_PUBLICATION_REVIEWED: ${{ vars.YOUTUBE_PUBLICATION_REVIEWED }}
+          RUN_EVENT: ${{ github.event_name }}
+          MANUAL_UPLOAD: ${{ inputs.upload }}
+        run: |
+          # New source pushes are NEVER a publication signal.
+          if [[ "$RUN_EVENT" == "push" || ( "$RUN_EVENT" == "workflow_dispatch" && "$MANUAL_UPLOAD" != "true" ) ]]; then
+            python school/youtube_social_mirror.py
+          elif [[ "$YOUTUBE_UPLOAD_ENABLED" == "true" ]]; then
+            # Private until the parent/owner reviews child-directed content.
+            if [[ "${YOUTUBE_PRIVACY:-private}" != "private" && "$YOUTUBE_PUBLICATION_REVIEWED" != "true" ]]; then
+              echo "::error::Non-private YouTube mirroring has not been reviewed"
+              exit 1
+            fi
+            python school/youtube_social_mirror.py --upload --privacy "${YOUTUBE_PRIVACY:-private}"
+          else
+            python school/youtube_social_mirror.py
+          fi
+      - name: Report actual mirror results
+        if: always()
+        run: |
+          if [[ -f school/output/youtube-facebook-mirror/mirror-report.json ]]; then
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          rows=json.loads(Path("school/output/youtube-facebook-mirror/mirror-report.json").read_text(encoding="utf-8"))
+          print("### Facebook/Blogger → YouTube mirrors")
+          for row in rows:
+              print("- Slot %s: %s (%s) %s" % (row["slot"],row["status"],row["privacy"],row["video_url"] or ""))
+          PY
+          else
+            echo "Mirror did not complete. Inspect errors; do not rerun blindly." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-youtube-fb-blogger-reels
+          path: school/output/youtube-facebook-mirror/
+          retention-days: 7
