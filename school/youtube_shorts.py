@@ -117,7 +117,7 @@ def youtube_service_from_env():
     return service, found[0]
 
 
-def assert_not_duplicate(service, channel, marker, title):
+def assert_not_duplicate(service, channel, marker, title, *, reuse_existing=False):
     # Read the recent uploads playlist of the verified authorized channel.
     playlist = channel.get("contentDetails", {}).get("relatedPlaylists", {}).get("uploads")
     if not playlist:
@@ -130,7 +130,12 @@ def assert_not_duplicate(service, channel, marker, title):
             **({"pageToken": token} if token else {})).execute()
         for item in response.get("items", []):
             snippet = item.get("snippet", {})
-            if marker in snippet.get("description", "") or snippet.get("title") == title:
+            marker_found = marker in snippet.get("description", "")
+            if reuse_existing and marker_found:
+                video_id = snippet.get("resourceId", {}).get("videoId")
+                if video_id:
+                    return video_id
+            if marker_found or snippet.get("title") == title:
                 raise RuntimeError("This daily YouTube Short is already uploaded: " + marker)
         token = response.get("nextPageToken")
         if not token:
@@ -146,27 +151,35 @@ def upload(mp4, metadata, folder):
     if os.getenv("YOUTUBE_UPLOAD_ENABLED", "").lower() != "true":
         raise RuntimeError("Explicit YOUTUBE_UPLOAD_ENABLED=true required for upload")
     service, channel = youtube_service_from_env()
-    assert_not_duplicate(service, channel, metadata["_marker"], metadata["snippet"]["title"])
-    from googleapiclient.http import MediaFileUpload
-    request = service.videos().insert(
-        part="snippet,status",
-        body={"snippet": metadata["snippet"], "status": metadata["status"]},
-        media_body=MediaFileUpload(str(mp4), mimetype="video/mp4",
-                                   chunksize=8*1024*1024, resumable=True)
+    video_id = assert_not_duplicate(
+        service, channel, metadata["_marker"], metadata["snippet"]["title"],
+        reuse_existing=True,
     )
-    result = None
-    # Google handles the resumable upload; do not accidentally re-send video.
-    while result is None:
-        _, result = request.next_chunk()
-    video_id = result.get("id")
-    if not video_id:
-        raise RuntimeError("YouTube API upload response contained no video ID")
+    if video_id:
+        print("Found existing upload for", metadata["_marker"])
+    else:
+        from googleapiclient.http import MediaFileUpload
+        request = service.videos().insert(
+            part="snippet,status",
+            body={"snippet": metadata["snippet"], "status": metadata["status"]},
+            media_body=MediaFileUpload(str(mp4), mimetype="video/mp4",
+                                       chunksize=8*1024*1024, resumable=True)
+        )
+        result = None
+        # Google handles the resumable upload; do not accidentally re-send video.
+        while result is None:
+            _, result = request.next_chunk()
+        video_id = result.get("id")
+        if not video_id:
+            raise RuntimeError("YouTube API upload response contained no video ID")
     # Confirm the created resource belongs to the exact authorized channel.
     check = service.videos().list(part="snippet,status", id=video_id).execute()
     items = check.get("items", [])
     if len(items) != 1 or items[0].get("snippet", {}).get("channelId") != channel["id"]:
         raise RuntimeError("Video returned but ownership verification failed; review before retrying")
     actual_privacy = items[0].get("status", {}).get("privacyStatus", "unknown")
+    if actual_privacy != metadata["status"]["privacyStatus"]:
+        raise RuntimeError("YouTube video visibility differs from the requested visibility")
     report = {
         "youtube_id": video_id,
         "video_url": "https://www.youtube.com/watch?v=" + video_id,
