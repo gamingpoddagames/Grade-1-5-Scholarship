@@ -157,10 +157,12 @@ def run(day,outdir,*,publish_social=False,upload_youtube=False):
         from crosspost import Crossposter
         if os.getenv("BLOGGER_ALLOW_PUBLICATION","").lower()=="false":
             raise RuntimeError("Blogger publishing explicitly disabled")
+        from video_cta import append_outro
+        fb_movie=append_outro(movie,"facebook","general")
         article,fbid=Crossposter().publish(
             question=q,
             title=f"පුංචි නැණ මඟ | {day.isoformat()} | වැඩිහිටි දැනුම: {q['topic']}",
-            media_kind="video",media_path=movie,caption=facebook_caption(q))
+            media_kind="video",media_path=fb_movie,caption=facebook_caption(q))
         print("Adult/general Blogger article:",article,"Facebook:",fbid)
     if upload_youtube:
         if os.getenv("YOUTUBE_UPLOAD_ENABLED","").lower()!="true":
@@ -169,8 +171,10 @@ def run(day,outdir,*,publish_social=False,upload_youtube=False):
         if privacy!="private" and os.getenv("YOUTUBE_GENERAL_PUBLIC_REVIEWED","").lower()!="true":
             raise RuntimeError("Public adult content requires YOUTUBE_GENERAL_PUBLIC_REVIEWED=true after owner review")
         metadata=metadata_for(q,day,privacy=privacy)
+        from video_cta import append_outro
+        yt_movie=append_outro(movie,"youtube","general")
         try:
-            receipt=upload(movie,metadata,Path(outdir))
+            receipt=upload(yt_movie,metadata,Path(outdir))
         except RuntimeError as exc:
             if "already uploaded" not in str(exc):
                 raise
