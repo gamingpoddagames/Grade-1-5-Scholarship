@@ -147,6 +147,9 @@ def main():
     output = Path('daily_reels') / f'sinhala-quiz-{today}-{args.slot+1}.mp4'
     output.parent.mkdir(exist_ok=True)
     render(row, output)
+    # Original Facebook video remains intact; only an outro is appended to a copy.
+    from video_cta import append_outro
+    publish_movie = append_outro(output, "facebook", "school")
     if args.publish:
         page_id = os.getenv('FB_PAGE_ID', '').strip()
         token = os.getenv('FB_PAGE_ACCESS_TOKEN', '').strip()
@@ -165,7 +168,7 @@ def main():
         if 'පුංචි නැණ මඟ' not in page.get('name', ''):
             raise RuntimeError('Facebook Page does not match Punchi Nena Maga')
         print('Verified Facebook Page:', page['name'])
-        upload(output, page_id, token, version,
+        upload(publish_movie, page_id, token, version,
                title='පුංචි නැණ මඟ – සාමාන්‍ය දැනුම',
                description=f'{row[1]} තත්පර පහක් ඇතුළත හිතලා බලන්න.\n\nතවත් සිංහල පාඩම්\n{FACEBOOK_LANDING_URL}')
 
