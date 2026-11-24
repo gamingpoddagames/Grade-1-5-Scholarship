@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from facebook_card import publish as publish_photo
 from facebook_video import upload as upload_video
+from video_cta import append_outro
 
 def main():
     p=argparse.ArgumentParser()
@@ -24,7 +25,8 @@ def main():
     else:
         video=folder/"school-promo.mp4"
         if not video.is_file():raise RuntimeError("Video missing")
-        upload_video(video,os.environ["FB_PAGE_ID"],os.environ["FB_PAGE_ACCESS_TOKEN"],
+        branded=append_outro(video,"facebook","general")
+        upload_video(branded,os.environ["FB_PAGE_ID"],os.environ["FB_PAGE_ACCESS_TOKEN"],
                      os.getenv("FB_GRAPH_VERSION","v27.0"),title="පුංචි නැණ මඟ — නොමිලේ සිංහල පාඩම්",
                      description=caption)
 
