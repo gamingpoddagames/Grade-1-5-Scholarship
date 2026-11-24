@@ -11,6 +11,7 @@ from crosspost import Crossposter
 from facebook_video import upload
 from blogger_link_safety import FACEBOOK_LANDING_URL
 from social_text import clean_caption
+from video_cta import append_outro
 
 def run(day, output, publish=False):
     # Three different reviewed questions from the same curated daily bank.
@@ -35,7 +36,9 @@ def run(day, output, publish=False):
                 "<p>මෙය ස්වාධීන අධ්‍යාපනික පුහුණු ප්‍රශ්නයකි. නිල විභාග ප්‍රශ්නයක් නොවේ.</p>"
                 "<p>පුංචි නැණ මඟ වෙතින් නොමිලේ අධ්‍යාපනික අන්තර්ගතය ලබාගන්න.</p>")
         (folder / "blogger-preview.html").write_text(body, encoding="utf-8")
-        print("Rendered reel", i, movie)
+        # Keep the original Facebook video visuals/voice; append a separate branded end card.
+        social_movie = append_outro(movie, "facebook", "school")
+        print("Rendered original Reel and Facebook CTA:", i, movie, social_movie)
         if not publish:
             continue
         caption = (
@@ -46,7 +49,7 @@ def run(day, output, publish=False):
         caption = clean_caption(caption)
         blog_url, fb_id = crossposter.publish(
             question=q, title=title, media_kind="video",
-            media_path=movie, caption=caption,
+            media_path=social_movie, caption=caption,
             version=os.getenv("FB_GRAPH_VERSION", "v27.0"))
         print("Crossposted reel", i, blog_url, fb_id)
 
