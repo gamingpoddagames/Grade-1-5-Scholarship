@@ -1,0 +1,66 @@
+name: Mirror Facebook Blogger Text/Image Quiz Polls to YouTube Short
+on:
+  schedule:
+    # After the alternate FB+Blogger social poll at 14:15 UTC.
+    # 16:30 UTC = 22:00 Asia/Colombo.
+    - cron: '30 16 * * *'
+  push:
+    paths:
+      - 'school/youtube-poll-short-request.txt'
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Upload this original educational Short to YouTube as PRIVATE?'
+        type: boolean
+        default: false
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: punchi-nena-maga-youtube-shorts
+  cancel-in-progress: false
+jobs:
+  youtube-poll-short:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original Sinhala card/audio tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core ffmpeg
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' gTTS \
+            'google-api-python-client>=2.150,<3' 'google-auth>=2.32,<3'
+      - name: Validate original artwork, text and answer key
+        run: |
+          python -m unittest discover -s school -p 'test_social_poll_pack.py' -v
+          python -m unittest discover -s school -p 'test_youtube_poll_shorts.py' -v
+          python -m unittest discover -s school -p 'test_youtube_shorts.py' -v
+      - name: Render approved companion; PRIVATE upload only if owner enabled
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+          YOUTUBE_PRIVACY: ${{ vars.YOUTUBE_PRIVACY }}
+          RUN_EVENT: ${{ github.event_name }}
+          MANUAL_UPLOAD: ${{ inputs.upload }}
+        run: |
+          if [[ "$RUN_EVENT" == push || ( "$RUN_EVENT" == workflow_dispatch && "$MANUAL_UPLOAD" != true ) ]]; then
+            python school/youtube_poll_shorts.py
+          elif [[ "$YOUTUBE_UPLOAD_ENABLED" == true && "${YOUTUBE_PRIVACY:-private}" == private ]]; then
+            python school/youtube_poll_shorts.py --upload
+          else
+            echo "Owner private-upload authorization missing; preview only"
+            python school/youtube_poll_shorts.py
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-educational-poll-youtube-companion
+          path: school/output/youtube-social-poll/
+          retention-days: 14
