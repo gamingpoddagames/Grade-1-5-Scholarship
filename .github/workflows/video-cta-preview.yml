@@ -1,0 +1,52 @@
+name: Sinhala YouTube Subscribe Facebook Follow Endcard Preview
+on:
+  push:
+    paths:
+      - school/video-cta-preview-request.txt
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install unchanged Sinhala video dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-dejavu-core ffmpeg
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4'
+      - name: Check both card layouts, all actions and no duplicate CTA
+        run: |
+          python -m unittest discover -s school -p 'test_video_cta.py' -v
+          python -m unittest discover -s school -p 'test_youtube_social_mirror.py' -v
+          python -m unittest discover -s school -p 'test_quiz_reel_renderer.py' -v
+      - name: Render original quiz and platform-specific audible social calls to action
+        run: |
+          mkdir -p school/output/video-cta-check/source
+          python - <<'PY'
+          import sys,datetime
+          from pathlib import Path
+          sys.path.insert(0,"school")
+          from quiz_topics import select
+          from build_resources import video
+          from video_cta import append_outro, image_card
+          root=Path("school/output/video-cta-check")
+          source=video(root/"source",[select("2026-11-25",offset=1)],datetime.date(2026,11,25))
+          append_outro(source,"facebook","school",output=root/"facebook-follow-with-voice.mp4")
+          append_outro(source,"youtube","school",output=root/"youtube-subscribe-with-voice.mp4")
+          image_card(root/"adult-youtube-cta.png","youtube","general")
+          image_card(root/"facebook-720x1280-cta.png","facebook","general",(720,1280))
+          print("CTA preview package complete. No publishing attempted.")
+          PY
+      - name: Export preview artwork and videos (no publication)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-nena-maga-subscribe-follow-endcards
+          path: school/output/video-cta-check/
+          retention-days: 14
