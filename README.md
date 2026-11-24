@@ -138,3 +138,16 @@ Daily post types are **educational comment-choice or self-check questions**, *no
 **Adsterra:** The existing approved opt-in ad gadget remains on the owned Blogger site. Facebook and YouTube descriptions link straight to free educational Blogger content; never paste the Adsterra JavaScript loader into social posts or force children through ad redirects. No visitor, ad impression or earnings guarantee.
 
 Full implementation and verified preview links: [Social multi-platform upgrade](school/SOCIAL_MULTIPLATFORM_UPGRADE.md).
+
+
+### Sinhala video Subscribe / Follow closing screen
+
+All newly generated Reels/Shorts in the integrated video pipelines append a branded
+**පුංචි නැණ මඟ** Sinhala-spoken closing screen. On YouTube it shows
+**SUBSCRIBE / LIKE / SHARE**, with **COMMENT** on general-audience videos;
+on Facebook it shows **FOLLOW / LIKE / COMMENT / SHARE**.
+The original video frames, question, answer, voice and existing layouts are
+left intact. No script, pop-under or advertisement is embedded in videos.
+See [Social CTA setup and QA](school/SOCIAL_CTA_SETUP.md) and the
+[preview-only GitHub workflow](.github/workflows/video-cta-preview.yml).
+
