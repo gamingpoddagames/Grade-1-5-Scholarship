@@ -72,9 +72,14 @@ def make_frame(question, path, reveal):
     image = Image.new("RGB", (WIDTH, HEIGHT), NAVY)
     d = ImageDraw.Draw(image)
     d.rounded_rectangle((50, 95, 1030, 1835), radius=36, fill=PANEL)
-    grade = int(question.get("grade", 5))
-    heading = (f"{grade} ශ්‍රේණිය - ශිෂ්‍යත්ව ප්‍රශ්නය" if grade == 5
-               else f"{grade} ශ්‍රේණිය - අලුත් ප්‍රශ්නය")
+    if question.get("audience") == "general":
+        # Adults/parents/workplace series: no Grade-5 or child-facing claim.
+        # All existing Facebook and Blogger Grade 1-5 quiz videos are unchanged.
+        heading = "වැඩිහිටියන්ට ප්‍රයෝජනවත් දැනුම"
+    else:
+        grade = int(question.get("grade", 5))
+        heading = (f"{grade} ශ්‍රේණිය - ශිෂ්‍යත්ව ප්‍රශ්නය" if grade == 5
+                   else f"{grade} ශ්‍රේණිය - අලුත් ප්‍රශ්නය")
     face, heading_lines = fit_lines(d, heading, (43, 39, 36), 850, 2)
     write_lines(d, heading_lines, face, 104, 150, 60, CYAN)
 
@@ -104,7 +109,9 @@ def make_frame(question, path, reveal):
         draw_mixed(d, (110, 1475), "පිළිතුර සිතන්න...", font(53, True), YELLOW)
 
     draw_mixed(d, (110, 1730), "පුංචි නැණ මඟ", font(36, True), CYAN)
-    d.text((110, 1790), "Grade 1-5 | Sinhala Quiz",
+    footer = ("Adults & Parents | Sinhala Skills" if question.get("audience") == "general"
+              else "Grade 1-5 | Sinhala Quiz")
+    d.text((110, 1790), footer,
            font=latin_font(25), fill="#aac3dd")
     image.save(path, optimize=True)
 
