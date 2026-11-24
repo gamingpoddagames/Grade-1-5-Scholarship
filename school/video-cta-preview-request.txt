@@ -3,3 +3,5 @@
 Second QA re-run after isolated video-mirror mocks were fixed. Generate actual preview MP4s, no social uploads.
 
 Final preview QA: shorter spoken Sinhala outro, circular logo without white square, actual 720x1280 FB Reel encode, no posts on this trigger.
+
+QA final repair: valid workflow bash script after 720p FFmpeg test; source originals intact. Do not publish.
