@@ -24,13 +24,13 @@ BLOG = "https://punchinanamaga.blogspot.com/"
 CHANNEL = "https://www.youtube.com/channel/" + OWNER_CHANNEL_ID
 
 
-def select_poll(day, kind):
+def select_poll(day, kind, *, text_offset=0):
     if isinstance(day, str):
         day = dt.date.fromisoformat(day)
     if kind not in ("text", "image"):
         raise ValueError("Poll type must be text or image")
     if kind == "text":
-        question = select_text(day, offset=0)
+        question = select_text(day, offset=text_offset)
         question = dict(question)
     else:
         # The daily Facebook photo post already uses select_image(day).
@@ -88,10 +88,10 @@ def community_draft(question, kind):
     return "\n".join(lines)
 
 
-def build_pack(day, kind, outdir):
+def build_pack(day, kind, outdir, *, text_offset=0):
     if isinstance(day,str):
         day=dt.date.fromisoformat(day)
-    q=select_poll(day,kind)
+    q=select_poll(day,kind,text_offset=text_offset)
     outdir=Path(outdir)
     outdir.mkdir(parents=True,exist_ok=True)
     art=outdir/("image-poll.png" if kind=="image" else "text-quiz.png")
@@ -113,12 +113,14 @@ def build_pack(day, kind, outdir):
     return q,art,caption
 
 
-def publish(q, art, caption, day, kind):
+def publish(q, art, caption, day, kind, *, slot=None):
     from crosspost import Crossposter
     if kind not in ("text","image"):
         raise ValueError("Not an approved poll kind")
     title=f"පුංචි නැණ මඟ | {day.isoformat()} | "+(
         "පින්තූර දැනුම විමසුම" if kind=="image" else "අද පෙළ දැනුම විමසුම")
+    if slot:
+        title += f" | {slot}"
     url, fb_id=Crossposter().publish(
         question=q,title=title,
         media_kind=("photo" if kind=="image" else "text"),
@@ -133,17 +135,21 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--date",help="Asia/Colombo YYYY-MM-DD")
     p.add_argument("--kind",choices=["image","text","rotate"],default="rotate")
+    p.add_argument("--morning",action="store_true",
+                   help="Use the separate morning text quiz for this date")
     p.add_argument("--output",default="school/output/social-poll-pack")
     p.add_argument("--publish",action="store_true",
                    help="Post to authorized Blogger+Facebook page only")
     args=p.parse_args()
     day=dt.date.fromisoformat(args.date) if args.date else today_sri_lanka()
     kind=("text" if day.toordinal()%2==0 else "image") if args.kind=="rotate" else args.kind
-    out=Path(args.output)/day.isoformat()/kind
-    q,art,caption=build_pack(day,kind,out)
+    if args.morning:
+        kind="text"
+    out=Path(args.output)/day.isoformat()/("morning" if args.morning else kind)
+    q,art,caption=build_pack(day,kind,out,text_offset=2 if args.morning else 0)
     print("Prepared checked",kind,"poll artwork + Facebook/Blogger/YouTube pack",art)
     if args.publish:
-        publish(q,art,caption,day,kind)
+        publish(q,art,caption,day,kind,slot="උදෑසන" if args.morning else None)
     else:
         print("PREVIEW ONLY: nothing sent to Blogger, Facebook or YouTube.")
 
