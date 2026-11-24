@@ -34,7 +34,8 @@ def check(service=None):
         raise RuntimeError("Owner channel mismatch; audience audit blocked")
     # Only inspect videos whose owner-specific URLs were verified in previous
     # upload receipts; do not modify their audience flags.
-    ids=["3m3lRvYFS9A","fWKUmHpr74E","aLKKLApwkeA","fDnsXHmhlg4"]
+    ids=["3m3lRvYFS9A","fWKUmHpr74E","aLKKLApwkeA","fDnsXHmhlg4",
+         "zh_dzcbQlqY"]
     response=service.videos().list(part="status",id=",".join(ids)).execute()
     videos=[]
     for item in response.get("items",[]):
