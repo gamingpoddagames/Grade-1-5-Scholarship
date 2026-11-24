@@ -1,0 +1,35 @@
+name: Audit Punchi Nena Maga YouTube Audience Settings (Read-only)
+on:
+  push:
+    paths:
+      - school/youtube-audience-audit-request.txt
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate no writes or incorrect audience assumptions
+        run: |
+          python -m unittest discover -s school -p 'test_youtube_audience_audit.py' -v
+      - name: Read channel and original private video audience flags
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: UCQ2EM8DjUfg3WgzB8r6hYDQ
+        run: |
+          python -m pip install 'google-api-python-client>=2.150,<3' 'google-auth>=2.32,<3'
+          python school/youtube_audience_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-youtube-audience-read-only-audit
+          path: school/output/youtube-audience-audit.json
+          retention-days: 7
