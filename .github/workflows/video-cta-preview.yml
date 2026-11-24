@@ -41,7 +41,21 @@ jobs:
           append_outro(source,"youtube","school",output=root/"youtube-subscribe-with-voice.mp4")
           image_card(root/"adult-youtube-cta.png","youtube","general")
           image_card(root/"facebook-720x1280-cta.png","facebook","general",(720,1280))
-          print("CTA preview package complete. No publishing attempted.")
+          print("Main 1080x1920 platform previews complete. No social publishing.")
+          PY
+          # The photo-led Facebook Reel uses 720x1280 at 30 FPS and 48 kHz.
+          # Verify the exact alternate resolution/audio combination as well.
+          ffmpeg -hide_banner -loglevel error -y \
+            -f lavfi -i color=c=0x101827:s=720x1280:r=30 \
+            -f lavfi -i sine=frequency=500:sample_rate=48000 \
+            -t 2 -c:v libx264 -preset ultrafast -pix_fmt yuv420p \
+            -c:a aac -b:a 96k school/output/video-cta-check/dummy-720-original.mp4
+          python school/video_cta.py \
+            --video school/output/video-cta-check/dummy-720-original.mp4 \
+            --platform facebook --audience school
+          ffprobe -v error -show_entries format=duration \
+            -of default=noprint_wrappers=1:nokey=1 \
+            school/output/video-cta-check/dummy-720-original-facebook-cta.mp4
           PY
       - name: Export preview artwork and videos (no publication)
         uses: actions/upload-artifact@v4
