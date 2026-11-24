@@ -52,3 +52,19 @@ The owner already completed Google OAuth and confirmed GitHub Secrets; [private 
 **Google OAuth External/Testing refresh tokens typically expire after seven days for YouTube scopes.** Before relying on indefinite unattended uploads, arrange an eligible publishing status and any necessary Google verification, then reauthorize and test. Upload quotas and spam/quality controls may require reducing the volume.
 
 Only YouTube is currently connected to vidIQ for this education brand. Adding new Instagram/TikTok accounts requires their own explicit account connection and platform-supported permissions; these integrations are not claimed as configured.
+
+## Confirmed real-world crossposting on 24 November 2026
+
+These were actual server-confirmed results, not just prepared drafts:
+
+- [First Sinhala text quiz on Blogger](https://punchinanamaga.blogspot.com/2026/11/2026-11-24_0758378445.html), with matching Facebook Page publication confirmed by GitHub [run 45413803714](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45413803714).
+- Matching [YouTube Private text-poll companion](https://www.youtube.com/watch?v=fWKUmHpr74E), exact destination channel confirmed by that run.
+- The first full three-Facebook-Reel mirror [run 45414137233](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45414137233) skipped an existing private video without reposting it, and uploaded two more original videos privately:
+  [Reel 2](https://www.youtube.com/watch?v=aLKKLApwkeA) and
+  [Reel 3](https://www.youtube.com/watch?v=fDnsXHmhlg4).
+- Both new poll graphics and narrated video companions were rendered and tested in GitHub preview runs
+  [45413110771](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45413110771) and
+  [45412679214](https://github.com/gamingpoddagames/Grade-1-5-Scholarship/actions/runs/45412679214).
+
+No public YouTube video has been published by these new workflows. YouTube Made-for-Kids restrictions and YouTube API limitations continue to apply. Facebook video generation and existing source workflows were not changed.
+
