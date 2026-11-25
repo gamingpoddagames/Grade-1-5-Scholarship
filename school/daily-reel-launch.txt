@@ -1,2 +1,2 @@
-slot=1
-Publish a different world-knowledge quiz with the SL NEWS voice.
+slot=2
+Owner requested fresh publishing verification after Page ID and token update.
