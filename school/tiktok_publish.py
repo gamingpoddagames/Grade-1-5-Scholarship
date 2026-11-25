@@ -106,6 +106,9 @@ def publish_movie(movie, caption, day, slot, folder):
             return verify_post(key, channel, receipt["id"], receipt["caption"])
         if attempt_name in assets:
             raise RuntimeError("Prior create attempt has unknown outcome; inspect Buffer before retrying")
+    if slot.startswith("lesson"):
+        dims = subprocess.check_output(["ffprobe","-v","error","-select_streams","v:0","-show_entries","stream=width,height","-of","csv=p=0",str(movie)],text=True).strip()
+        if dims != "720,1280": raise RuntimeError("TikTok lessons require native portrait 720x1280, not padded landscape")
     optimized = folder / "tiktok.mp4"
     subprocess.run(["ffmpeg","-y","-i",str(movie),"-vf","scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1","-c:v","libx264","-b:v","350k","-maxrate","500k","-bufsize","1000k","-preset","fast","-c:a","aac","-b:a","64k","-movflags","+faststart",str(optimized)],check=True,timeout=600)
     data = optimized.read_bytes()

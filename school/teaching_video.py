@@ -144,22 +144,91 @@ def frame(path, scene, number, count):
     draw.rectangle((44, 704, 44 + round(1192 * number / count), 709), fill="#278eae")
     image.save(path)
 
+
+def portrait_frame(path, scene, number, count):
+    heading, narration, groups, reveal, _ = scene
+    image = Image.new("RGB", (720,1280), "#dff5ff")
+    draw = ImageDraw.Draw(image)
+    def face(size, bold=False):
+        return ImageFont.truetype(BOLD if bold else FONT, size, layout_engine=ImageFont.Layout.RAQM)
+    def lines(text, f, width):
+        out = [""]
+        for word in text.split():
+            candidate = (out[-1] + " " + word).strip()
+            if out[-1] and mixed_width(draw,candidate,f)>width:
+                out.append(word)
+            else:
+                out[-1]=candidate
+        return out
+    draw.rounded_rectangle((24,35,696,1200),30,fill="#ffffff",outline="#76c9e8",width=3)
+    draw.rounded_rectangle((44,58,676,140),22,fill="#164b81")
+    draw_mixed(draw,(64,80),"පුංචි නැණ මඟ",face(34,True),"#ffffff")
+    for size in (48,44,40,36,32,28):
+        f=face(size,True)
+        heading_lines=lines(heading,f,592)
+        if len(heading_lines)<=3: break
+    for i,line in enumerate(heading_lines):
+        draw_mixed(draw,(64,167+i*58),line,f,"#164b81")
+    top=350
+    bottom=846
+    if groups:
+        a,b=groups
+        if reveal:
+            cols=min(3,a)
+            rows=(a+cols-1)//cols
+            cw=608//cols
+            ch=(bottom-top)//rows
+            colors=("#fff0c7","#e4f7d7","#fce1ed","#e0edff")
+            for g in range(a):
+                x=56+(g%cols)*cw
+                y=top+(g//cols)*ch
+                draw.rounded_rectangle((x,y,x+cw-8,y+ch-8),14,fill=colors[g%4],outline="#6395c4",width=2)
+                inner_cols=min(4,b)
+                inner_rows=(b+inner_cols-1)//inner_cols
+                size=min((cw-20)//inner_cols,(ch-20)//inner_rows,88)
+                for i in range(b):
+                    bear(draw,x+(cw-8-inner_cols*size)//2+(i%inner_cols)*size,y+(ch-8-inner_rows*size)//2+(i//inner_cols)*size,size)
+        else:
+            cols=min(7,a*b)
+            rows=(a*b+cols-1)//cols
+            size=min(82,608//cols-3,(bottom-top)//rows-3)
+            for i in range(a*b):
+                bear(draw,56+(i%cols)*(608//cols),top+(i//cols)*((bottom-top)//rows),size)
+    else:
+        draw.rounded_rectangle((56,350,664,846),22,fill="#fff1ce")
+        bear(draw,208,430,300)
+    draw.rounded_rectangle((44,865,676,1174),22,fill="#fff9e8",outline="#f2c75c",width=2)
+    for size in (36,34,32,30,28,26,24):
+        f=face(size)
+        ls=lines(narration,f,580)
+        step=round(size*1.48)
+        if len(ls)*step<=270: break
+    if len(ls)*step>270: raise RuntimeError("Portrait subtitle exceeds safe area")
+    for i,line in enumerate(ls):
+        draw_mixed(draw,(64,884+i*step),line,f,"#233753")
+    draw.rectangle((44,1210,44+round(632*number/count),1218),fill="#278eae")
+    image.save(path)
+
 def ffmpeg(*args):
     subprocess.run(["ffmpeg", "-v", "error", "-y", *map(str, args)],
                    check=True, timeout=240)
 
 
-def render(scenes, folder):
+def render(scenes, folder, portrait=False, reuse_audio=None):
     folder.mkdir(parents=True, exist_ok=True)
     files = []
     for index, scene in enumerate(scenes, 1):
         image = folder / f"scene-{index}.png"
         audio = folder / f"voice-{index}.mp3"
         clip = folder / f"lesson-{index}.mp4"
-        frame(image, scene, index, len(scenes))
+        (portrait_frame if portrait else frame)(image, scene, index, len(scenes))
         for attempt in range(3):
             try:
-                gTTS(text=expand_currency(scene[1]), lang="si", slow=False, timeout=(8, 30)).save(str(audio))
+                if reuse_audio is not None:
+                    import shutil
+                    shutil.copyfile(reuse_audio / audio.name, audio)
+                else:
+                    gTTS(text=expand_currency(scene[1]), lang="si", slow=False, timeout=(8, 30)).save(str(audio))
                 break
             except gTTSError:
                 if attempt == 2:
@@ -178,7 +247,15 @@ def render(scenes, folder):
     result = folder / "teaching-video.mp4"
     ffmpeg("-f", "concat", "-safe", 0, "-i", manifest, "-c", "copy",
            "-movflags", "+faststart", result)
-    _, _, _, duration = probe_video(result, landscape_lesson=True)
+    if portrait:
+        import json
+        meta = json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(result)]))
+        video = next(s for s in meta['streams'] if s['codec_type']=='video')
+        if (video['width'],video['height']) != (720,1280): raise RuntimeError('Portrait dimensions incorrect')
+        if not any(s['codec_type']=='audio' for s in meta['streams']): raise RuntimeError('Missing audio')
+        duration = float(meta['format']['duration'])
+    else:
+        _, _, _, duration = probe_video(result, landscape_lesson=True)
     if not 300 <= duration <= 600:
         raise RuntimeError(f"Lesson duration is {duration:.1f}s. Required range is 300–600s.")
     ffmpeg("-xerror", "-i", result, "-f", "null", "-")

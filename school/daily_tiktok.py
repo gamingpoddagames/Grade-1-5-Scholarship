@@ -40,7 +40,11 @@ def mirror_slot(slot, day, folder, title, caption, question, media, original, bl
         text += "\n" + question["image_credit"]
         from visual_quiz import image_page
         text += "\n" + image_page(question)
-    if original:
+    if slot == 'lesson':
+        from teaching_video import lesson, render
+        _, _, scenes = lesson(day)
+        movie = render(scenes, folder / 'portrait', portrait=True, reuse_audio=Path(original).parent if original else None)
+    elif original:
         movie = original
     else:
         narration = question["q"] + " පිළිතුර සිතන්න." if question else caption
