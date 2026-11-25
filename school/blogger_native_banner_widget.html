@@ -1,0 +1,26 @@
+<!-- Optional native ad for adult visitors; place below content, not over links. -->
+<section id="pnm-native-ad" style="max-width:100%;margin:24px auto;padding:12px;border:1px solid #dbe7f1;border-radius:12px;text-align:center" aria-label="Advertisement">
+<p>දැන්වීම / Advertisement</p>
+<details><summary>වැඩිහිටියන් සඳහා විකල්ප දැන්වීම්</summary>
+<p>පාඩම් සහ PDF ලබාගැනීමට දැන්වීමක් විවෘත කිරීම අවශ්‍ය නැහැ.</p>
+<button type="button" id="pnm-native-show">දැන්වීම පෙන්වන්න</button>
+<div id="container-7b5570a2491347a7495e31806f92b600"></div>
+</details>
+<script>
+(function(){
+  var b=document.getElementById('pnm-native-show');
+  if(!b || b.getAttribute('data-bound')) return;
+  b.setAttribute('data-bound','true');
+  b.addEventListener('click',function(){
+    if(document.getElementById('pnm-native-loader'))return;
+    var s=document.createElement('script');
+    s.id='pnm-native-loader';s.async=true;s.fetchPriority='high';
+    s.setAttribute('data-cfasync','false');
+    s.src='https://bicea.org/21/7b5570a2491347a7495e31806f92b600';
+    s.onerror=function(){s.remove();b.disabled=false;};
+    b.disabled=true;
+    document.getElementById('pnm-native-ad').appendChild(s);
+  });
+})();
+</script>
+</section>

@@ -1,0 +1,26 @@
+<!-- Separate 160x300 sidebar gadget; never overlay lesson controls.
+     Load only after an adult visitor explicitly chooses this advertisement. -->
+<section id="pnm-sidebar-ad" style="max-width:100%;margin:16px auto;text-align:center" aria-label="Advertisement">
+<p>දැන්වීම / Advertisement</p>
+<details><summary>වැඩිහිටියන් සඳහා විකල්ප දැන්වීම</summary>
+<button type="button" id="pnm-banner-show">දැන්වීම පෙන්වන්න</button>
+<div id="pnm-banner-slot" style="width:160px;max-width:100%;margin:auto"></div>
+</details>
+<script>
+(function(){
+  var b=document.getElementById('pnm-banner-show');
+  if(!b || b.getAttribute('data-bound')) return;
+  b.setAttribute('data-bound','true');
+  b.addEventListener('click',function(){
+    if(document.getElementById('pnm-banner-loader'))return;
+    var s=document.createElement('script');
+    s.id='pnm-banner-loader';s.setAttribute('data-cfasync','false');
+    window.atOptions={key:'daec46cfc6a4a6240c053e1791c159f2',format:'iframe',height:300,width:160,params:{}};
+    s.src='https://bicea.org/22/daec46cfc6a4a6240c053e1791c159f2';
+    s.onerror=function(){s.remove();b.disabled=false;};
+    b.disabled=true;
+    document.getElementById('pnm-banner-slot').appendChild(s);
+  });
+})();
+</script>
+</section>

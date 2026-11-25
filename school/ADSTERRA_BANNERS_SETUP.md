@@ -1,0 +1,5 @@
+# Additional Adsterra units (owner supplied 2026-11-25)
+Native Banner and 160 x 300 iframe Banner. These are not interstitial units.
+Install only after verifying suitable ad categories and confirming with Adsterra that dynamically inserting the supplied scripts is supported, especially the iframe unit (which may require its original parser-time embed).
+Use the two separate HTML/JavaScript gadgets, below article content and in the sidebar respectively. Do not insert over navigation, download controls or lessons. Both templates require an explicit adult visitor choice; no vendor network requests during setup or QA. Do not install duplicate copies. Existing Social Bar and sponsored Direct Link stay unchanged.
+GitHub does not deploy Blogger Layout gadgets. Live installation requires the owner/editor to save the gadgets in Blogger Layout. Verify mobile layout and actual vendor compatibility without clicking paid ads. If unsupported, use an approved vendor integration instead. No revenue or impression claims from this commit.
