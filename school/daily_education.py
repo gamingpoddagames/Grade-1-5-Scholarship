@@ -77,7 +77,7 @@ def publish_youtube(slot, day, title, question, original, folder, blog):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("slot", choices=("image", "short", "paper", "quiz", "lesson"))
+    parser.add_argument("slot", choices=("image", "short", "paper", "quiz", "quiz-bonus", "lesson"))
     parser.add_argument("--date", type=date.fromisoformat, default=today_in_sri_lanka())
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args()
@@ -98,9 +98,12 @@ def main():
         else:
             question, media = generate(day, folder, variant=1)
         title, caption, kind = "අද පින්තූර ප්‍රශ්නය", question["q"], "photo"
-    elif slot == "quiz":
-        question, media = generate(day, folder)
+    elif slot in {"quiz", "quiz-bonus"}:
+        bonus = slot == "quiz-bonus"
+        question, media = generate(day, folder, variant=int(bonus))
         title = f"බුද්ධි පරීක්ෂණ ගැටලුව {question['question_number']}"
+        if bonus:
+            title = "අමතර " + title
         caption, kind = facebook_caption(question), "photo"
     elif slot == "short":
         from quiz_topics import select

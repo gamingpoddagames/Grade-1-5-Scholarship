@@ -18,7 +18,7 @@ on:
     inputs:
       slot:
         type: choice
-        options: [image, short, paper, quiz, lesson]
+        options: [image, short, paper, quiz, quiz-bonus, lesson]
         default: lesson
       publish:
         type: boolean
