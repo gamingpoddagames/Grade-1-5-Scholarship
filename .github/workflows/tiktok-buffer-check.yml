@@ -1,0 +1,23 @@
+name: Punchi TikTok Buffer Readiness
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - school/tiktok_buffer_check.py
+      - .github/workflows/tiktok-buffer-check.yml
+permissions:
+  contents: read
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests
+      - name: Verify exact TikTok destination without publishing
+        env:
+          PUNCHI_BUFFER_API_KEY: ${{ secrets.PUNCHI_BUFFER_API_KEY }}
+        run: python school/tiktok_buffer_check.py
