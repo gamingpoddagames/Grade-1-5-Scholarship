@@ -1,0 +1,35 @@
+name: Punchi Adsterra configuration check
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/adsterra-readiness.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check settings without opening any ad or exposing link
+        env:
+          ADSTERRA_SPONSORED_LINK_ENABLED: ${{ vars.ADSTERRA_SPONSORED_LINK_ENABLED }}
+          ADSTERRA_AGE_APPROPRIATE_REVIEWED: ${{ vars.ADSTERRA_AGE_APPROPRIATE_REVIEWED }}
+          ADSTERRA_DIRECT_LINK: ${{ secrets.ADSTERRA_DIRECT_LINK }}
+        run: |
+          python - <<'PY'
+          import os,sys
+          sys.path.insert(0,'school')
+          from engagement_monetization import get_approved_sponsor_url, optional_sponsored_block
+          for name in ('ADSTERRA_SPONSORED_LINK_ENABLED','ADSTERRA_AGE_APPROPRIATE_REVIEWED'):
+              print(name, os.getenv(name,'').lower()=='true')
+          print('Direct Link configured:',bool(os.getenv('ADSTERRA_DIRECT_LINK','').strip()))
+          assert get_approved_sponsor_url(), 'Sponsor configuration not enabled'
+          assert optional_sponsored_block(), 'Sponsor markup missing'
+          print('PASS: optional sponsor markup ready; no ad requests made')
+          PY
