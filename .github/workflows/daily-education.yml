@@ -13,6 +13,7 @@ on:
       - '.github/workflows/daily-education.yml'
       - 'school/daily_education.py'
       - 'school/teaching_video.py'
+      - 'school/lesson_topics.py'
       - 'school/daily_papers.py'
   workflow_dispatch:
     inputs:
@@ -83,6 +84,9 @@ jobs:
           args=("$slot")
           if [[ "$EVENT" == schedule || "$PUBLISH" == true ]]; then
             args+=(--publish)
+          fi
+          if [[ "$EVENT" == push ]]; then
+            args+=(--date 2026-11-26)
           fi
           python school/daily_education.py "${args[@]}"
       - name: Save publishing receipts and previews

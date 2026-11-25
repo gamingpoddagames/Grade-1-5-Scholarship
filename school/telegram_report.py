@@ -141,7 +141,7 @@ def read_blogger_inventory():
         items=json.loads((output/"post-index.json").read_text(encoding="utf-8"))
     day = today_in_sri_lanka()
     markers = ("අද පින්තූර ප්‍රශ්නය", "සිංහල කෙටි වීඩියෝ ප්‍රශ්නය", "බුද්ධි පරීක්ෂණ ගැටලුව",
-               "ශ්‍රේණිය", "සිංහල ගණිත පාඩම")
+               "ශ්‍රේණිය", "සිංහල ගණිත පාඩම", "සිංහල පාඩම")
     delivery = []
     for title, item in existing.items():
         if not title.startswith(f"පුංචි නැණ මඟ - {day} - ") or item["status"] != "live":

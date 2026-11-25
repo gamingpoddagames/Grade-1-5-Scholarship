@@ -1,4 +1,4 @@
-"""Generate narrated, illustrated Sinhala mathematics lessons."""
+"""Generate narrated Sinhala teaching videos."""
 import random
 import subprocess
 import time
@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 from brand_assets import BOLD, FONT
 from font_safety import mixed_width, draw_mixed
 from video_cta import audio_length, probe_video
+from lesson_topics import LESSONS
 
 
 TOPICS = (
@@ -20,7 +21,28 @@ TOPICS = (
 NUMBERS = ("බිංදුව", "එක", "දෙක", "තුන", "හතර", "පහ", "හය", "හත", "අට", "නවය")
 
 
+ROTATION_START = date(2026, 11, 26)
+
+
 def lesson(day: date):
+    slot = (day - ROTATION_START).days % (len(LESSONS) + 2)
+    if day >= ROTATION_START and slot < len(LESSONS):
+        title, subject, chapter = LESSONS[slot]
+        scenes = [(heading, text, None, False, 12) for heading, text in chapter]
+        scenes.append(OUTRO)
+        return title, subject, scenes
+    title, scenes = mathematics_lesson(day)
+    return title, "ගණිතය", scenes
+
+
+OUTRO = (
+    "පුංචි නැණ මඟ සමඟ ඉගෙන ගනිමු",
+    "තවත් පාඩම් සඳහා පුංචි නැණ මඟ සබ්ස්ක්‍රයිබ් කරන්න. වීඩියෝවට ලයික් කරන්න. හැකි නම් ඔබේ පිළිතුර කමෙන්ට් කරන්න. අපේ ෆේස්බුක් පිටුවත් ෆලෝ කරන්න.",
+    None, False, 3,
+)
+
+
+def mathematics_lesson(day: date):
     rng = random.Random(day.toordinal())
     division = day.toordinal() % 2
     title, rule = TOPICS[division]
@@ -41,7 +63,7 @@ def lesson(day: date):
         scenes.append((formula, solution, (a, b), True, 2))
     scenes.extend([
         ("අද පාඩම මතක් කරමු", f"{rule} ගෙදරදී කඩදාසි කැබලි යොදාගෙන මේ ගණන් තවත් පුහුණු වෙන්න.", None, False, 3),
-        ("පුංචි නැණ මඟ සමඟ ඉගෙන ගනිමු", "තවත් පාඩම් සඳහා පුංචි නැණ මඟ සබ්ස්ක්‍රයිබ් කරන්න. වීඩියෝවට ලයික් කරන්න. හැකි නම් ඔබේ පිළිතුර කමෙන්ට් කරන්න. අපේ ෆේස්බුක් පිටුවත් ෆලෝ කරන්න.", None, False, 3),
+        OUTRO,
     ])
     return title, scenes
 
@@ -66,6 +88,11 @@ def frame(path, scene, number, count):
     draw.rounded_rectangle((44, 36, 1236, 475), 25, fill="#1c2e45")
     draw_mixed(draw, (72, 56), "පුංචි නැණ මඟ", faces[0], "#8ee1cb")
     draw_mixed(draw, (72, 118), heading, faces[1], "#ffcf79")
+    if not groups:
+        for index in range(count):
+            x = 72 + index * min(85, 1100 // count)
+            color = "#ffcf79" if index == number - 1 else "#36546c"
+            draw.rounded_rectangle((x, 340, x + 36, 352), 5, fill=color)
     if groups:
         a, b = groups
         if reveal:
@@ -111,6 +138,8 @@ def render(scenes, folder):
                     raise
                 time.sleep(2 ** attempt)
         duration = audio_length(audio) + scene[-1]
+        if len(scenes) == 13 and index < len(scenes):
+            duration = max(25, duration)
         ffmpeg("-loop", 1, "-framerate", 24, "-i", image, "-i", audio,
                "-af", "apad", "-t", f"{duration:.3f}", "-c:v", "libx264",
                "-preset", "veryfast", "-tune", "stillimage", "-pix_fmt", "yuv420p",

@@ -6,7 +6,7 @@ import unittest
 
 from daily_education import paper
 from daily_papers import render_pdfs, rows_for_day
-from teaching_video import frame, lesson
+from teaching_video import frame, lesson, mathematics_lesson
 
 
 class DailyEducationTests(unittest.TestCase):
@@ -38,10 +38,22 @@ class DailyEducationTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             target = Path(directory) / "frame.png"
             for day in (date(2026, 11, 25), date(2026, 11, 26)):
-                _, scenes = lesson(day)
+                _, scenes = mathematics_lesson(day)
                 self.assertEqual(len(scenes), 23)
                 for index, scene in enumerate(scenes, 1):
                     frame(target, scene, index, len(scenes))
                     if scene[2] and index % 2:
                         a, b = scene[2]
                         self.assertIn(scene[0], (f"{a} × {b} = {a*b}", f"{a*b} ÷ {a} = {b}"))
+
+    def test_subject_rotation_and_subtitle_frames(self):
+        start = date(2026, 11, 26)
+        with TemporaryDirectory() as directory:
+            target = Path(directory) / "subject.png"
+            subjects = []
+            for offset in range(5):
+                _, subject, scenes = lesson(start + timedelta(days=offset))
+                subjects.append(subject)
+                for index, scene in enumerate(scenes, 1):
+                    frame(target, scene, index, len(scenes))
+            self.assertEqual(subjects, ["ඉංග්‍රීසි", "විද්‍යාව", "අධ්‍යාපනික කතා", "ගණිතය", "ගණිතය"])

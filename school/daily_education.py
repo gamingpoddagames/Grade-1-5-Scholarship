@@ -70,7 +70,7 @@ def publish_youtube(slot, day, title, question, original, folder, blog):
         marker = f"PNM-LESSON-{day:%Y%m%d}"
         meta = {
             "_marker": marker,
-            "snippet": {"title": title, "description": f"පුංචි නැණ මඟ ගණිත පාඩම\n{blog}\n{marker}",
+            "snippet": {"title": title, "description": f"පුංචි නැණ මඟ සිංහල පාඩම\n{blog}\n{marker}",
                         "categoryId": "27", "defaultLanguage": "si", "defaultAudioLanguage": "si"},
             "status": {"privacyStatus": privacy, "selfDeclaredMadeForKids": True},
         }
@@ -123,13 +123,14 @@ def main():
         caption = title + " ප්‍රශ්න පත්‍රය සහ පිළිතුරු PDF දෙකම නොමිලේ ලබාගන්න."
     else:
         from teaching_video import lesson, render
-        topic, scenes = lesson(day)
-        title, kind = f"{topic} සිංහල ගණිත පාඩම", "video"
-        caption = f"{topic} රූප සටහන් සහ පුහුණු ප්‍රශ්න සමඟ ඉගෙන ගනිමු."
+        topic, subject, scenes = lesson(day)
+        lesson_label = "සිංහල ගණිත පාඩම" if subject == "ගණිතය" else "සිංහල පාඩම"
+        title, kind = f"{topic} {lesson_label}", "video"
+        caption = f"{topic} උදාහරණ සහ පුහුණු ප්‍රශ්න සමඟ ඉගෙන ගනිමු."
         body = "<h2>" + html.escape(title) + "</h2>" + "".join(
             f"<h3>{html.escape(scene[0])}</h3><p>{html.escape(scene[1])}</p>" for scene in scenes
         )
-        labels = ["ගණිතය", "සිංහල පාඩම්", "Teaching video"]
+        labels = [subject, "සිංහල පාඩම්", "Teaching video"]
         original = media = render(scenes, folder / "render")
     if body:
         (folder / "blogger-preview.html").write_text(body, encoding="utf-8")
