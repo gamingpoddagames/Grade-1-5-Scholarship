@@ -1,0 +1,114 @@
+name: Punchi new quiz on all four platforms
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/all-platform-quiz-20261125.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: school-photo-crosspost
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-dejavu-core
+          pip install requests 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4' google-api-python-client google-auth 'weasyprint>=62,<69'
+          python -m unittest discover -s school -p 'test_sinhala_speech.py'
+          python -m unittest discover -s school -p 'test_crosspost.py'
+      - name: Publish original Sinhala bonus quiz with separate delivery receipts
+        env:
+          EVENT: ${{ github.event_name }}
+          PREVIEW_DATE: ${{ matrix.preview-date }}
+          CRON: ${{ github.event.schedule }}
+          SLOT: ${{ inputs.slot }}
+          PUBLISH: ${{ inputs.publish }}
+          GH_TOKEN: ${{ github.token }}
+          PUNCHI_BUFFER_API_KEY: ${{ secrets.PUNCHI_BUFFER_API_KEY }}
+          PAPER_ARCHIVE_TOKEN: ${{ github.token }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          ADSTERRA_SPONSORED_LINK_ENABLED: ${{ vars.ADSTERRA_SPONSORED_LINK_ENABLED }}
+          ADSTERRA_AGE_APPROPRIATE_REVIEWED: ${{ vars.ADSTERRA_AGE_APPROPRIATE_REVIEWED }}
+          ADSTERRA_DIRECT_LINK: ${{ secrets.ADSTERRA_DIRECT_LINK }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+          YOUTUBE_PRIVACY: ${{ vars.YOUTUBE_PRIVACY }}
+          YOUTUBE_PUBLICATION_REVIEWED: ${{ vars.YOUTUBE_PUBLICATION_REVIEWED }}
+        run: |
+          python - <<'PY'
+          import sys,os,json
+          from pathlib import Path
+          from datetime import date
+          sys.path.insert(0,'school')
+          from quiz_topics import select
+          from quiz_reel_renderer import render_quiz_video
+          from video_cta import append_outro
+          from crosspost import Crossposter,verified_facebook_permalink
+          from youtube_shorts import build_metadata,upload
+          from daily_tiktok import mirror_slot
+          day=date(2026,11,25)
+          q=select(day,offset=2)
+          folder=Path('school/output/all-platform-quiz')
+          folder.mkdir(parents=True,exist_ok=True)
+          movie=render_quiz_video(q,folder)
+          fb_movie=append_outro(movie,'facebook','school')
+          title=f'පුංචි නැණ මඟ | {day} | අමතර සිංහල වීඩියෝ ප්‍රශ්නය'
+          caption=q['q']
+          receipt={}
+          errors={}
+          def save():
+              (folder/'receipt.json').write_text(json.dumps({'delivered':receipt,'errors':errors},ensure_ascii=False),encoding='utf-8')
+          blog,fb_id=Crossposter().publish(question=q,title=title,media_kind='video',media_path=fb_movie,caption=caption)
+          receipt.update(blogger=blog,facebook_id=fb_id)
+          save()
+          try:
+              receipt['facebook_url']=verified_facebook_permalink(fb_id,os.environ['FB_PAGE_ACCESS_TOKEN'].strip(),'v27.0','video')
+          except Exception as e:
+              errors['facebook_url']=type(e).__name__
+          save()
+          try:
+              privacy=os.getenv('YOUTUBE_PRIVACY','private') or 'private'
+              assert os.getenv('YOUTUBE_UPLOAD_ENABLED')=='true'
+              assert privacy=='private' or os.getenv('YOUTUBE_PUBLICATION_REVIEWED')=='true'
+              meta=build_metadata(q,day,privacy=privacy,offset=2)
+              old=meta['_marker']
+              meta['_marker']=old+'-BONUS'
+              meta['snippet']['description']=meta['snippet']['description'].replace(old,meta['_marker'])
+              meta['snippet']['title']='අමතර | '+meta['snippet']['title']
+              meta['snippet']['description']+='\n'+blog+'\n'+meta['_marker']
+              receipt['youtube']=upload(append_outro(movie,'youtube','school'),meta,folder)
+          except Exception as e:
+              errors['youtube']=type(e).__name__
+          save()
+          try:
+              receipt['tiktok']=mirror_slot('short-extra',day,folder,title,caption,q,fb_movie,movie,blog)
+          except Exception as e:
+              errors['tiktok']=type(e).__name__
+          save()
+          print(json.dumps({'delivered':receipt,'errors':errors},ensure_ascii=False))
+          if errors: raise RuntimeError('Some destinations need reconciliation; see receipt')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: all-platform-quiz-receipts
+          path: school/output/all-platform-quiz/
+          if-no-files-found: warn
