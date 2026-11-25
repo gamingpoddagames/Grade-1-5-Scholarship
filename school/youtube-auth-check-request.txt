@@ -1,1 +1,3 @@
 Check GitHub YouTube OAuth settings after owner's 2026-11-24 Google OAuth browser consent. Report boolean readiness only; no secret values and no upload.
+
+2026-11-25: Owner reports public visibility and publication review variables saved. Run non-upload readiness check.
