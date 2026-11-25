@@ -1,0 +1,43 @@
+name: Punchi Daily TikTok Publisher
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/tiktok-publish.yml
+permissions:
+  contents: write
+concurrency:
+  group: punchi-tiktok-publisher
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-dejavu-core
+          python -m pip install requests 'Pillow>=11,<13' 'fonttools>=4.55,<5' gTTS google-api-python-client google-auth
+      - run: |
+          python -m py_compile school/tiktok_publish.py school/tiktok_buffer_check.py
+          python -m unittest discover -s school -p 'test_adult_general_quiz.py'
+      - name: Publish to verified Punchi TikTok account only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUNCHI_BUFFER_API_KEY: ${{ secrets.PUNCHI_BUFFER_API_KEY }}
+        run: python school/tiktok_publish.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: punchi-tiktok-video
+          path: school/output/tiktok/
+          if-no-files-found: ignore
+          retention-days: 7
