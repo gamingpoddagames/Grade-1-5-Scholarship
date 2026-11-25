@@ -1,0 +1,42 @@
+name: Facebook API Read-only Diagnosis
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/facebook-api-diagnosis.yml'
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Page token and Graph API compatibility
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, json, urllib.request, urllib.error, re
+          page=os.environ['FB_PAGE_ID']
+          token=os.environ['FB_PAGE_ACCESS_TOKEN']
+          if not token or not re.fullmatch(r'[0-9]+',page):
+              raise SystemExit('Missing token or invalid Page ID')
+          ok=False
+          for version in ('v27.0','v26.0','v25.0','v24.0',''):
+              prefix=version+'/' if version else ''
+              for target in ('me',page):
+                  req=urllib.request.Request('https://graph.facebook.com/'+prefix+target+'?fields=id',headers={'Authorization':'Bearer '+token})
+                  try:
+                      with urllib.request.urlopen(req,timeout=25) as res:
+                          data=json.load(res)
+                      match=str(data.get('id'))==page
+                      print(version or 'default', 'me' if target=='me' else 'page', 'HTTP 200', 'expected Page:',match)
+                      if target==page and match: ok=True
+                  except urllib.error.HTTPError as e:
+                      try: err=json.load(e).get('error',{})
+                      except Exception: err={}
+                      print(version or 'default','me' if target=='me' else 'page','HTTP',e.code,'Meta code:',err.get('code') if isinstance(err.get('code'),int) else 'unknown','subcode:',err.get('error_subcode') if isinstance(err.get('error_subcode'),int) else 'unknown')
+                  except urllib.error.URLError:
+                      print(version or 'default','network failure')
+          if not ok: raise SystemExit('No tested Graph API version verified the configured Page')
+          PY
