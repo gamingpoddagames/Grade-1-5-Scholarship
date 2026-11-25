@@ -95,8 +95,7 @@ def image_card(destination,platform="youtube",audience="school",size=(1080,1920)
     """One 9:16 illustration, no network calls and no copyrighted imagery."""
     info=profile(platform,audience)
     w,h=size
-    allowed_sizes = ((1280, 720),) if landscape_lesson else ((1080, 1920), (720, 1280))
-    if (w,h) not in allowed_sizes:
+    if (w,h) not in ((1080,1920),(720,1280)):
         raise ValueError("Unsupported CTA image resolution")
     scale=w/1080
     sx=lambda n:round(n*scale)
