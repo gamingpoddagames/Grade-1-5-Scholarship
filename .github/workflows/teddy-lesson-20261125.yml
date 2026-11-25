@@ -1,0 +1,55 @@
+name: Punchi colorful teddy lesson upload
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/teddy-lesson-20261125.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: school-photo-crosspost
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-dejavu-core
+          pip install requests 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4' google-api-python-client google-auth
+          python -m unittest discover -s school -p 'test_sinhala_speech.py'
+      - name: Render and publish new teddy bear math lesson to verified TikTok account
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUNCHI_BUFFER_API_KEY: ${{ secrets.PUNCHI_BUFFER_API_KEY }}
+        run: |
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          from datetime import date
+          sys.path.insert(0,"school")
+          from teaching_video import mathematics_lesson, render
+          from tiktok_publish import publish_movie
+          day = date(2026,11,25)
+          title, scenes = mathematics_lesson(date(2026,11,26))
+          folder = Path("school/output/teddy-lesson")
+          movie = render(scenes, folder)
+          caption = f"පුංචි නැණ මඟ | {title} | වලස් රූප ගණන් කරමින් ඉගෙන ගනිමු.\n#Sinhala #Education #Math"
+          print(publish_movie(movie, caption, day, "lesson-bonus", folder / "tiktok"))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: colorful-teddy-lesson
+          path: |
+            school/output/teddy-lesson/teaching-video.mp4
+            school/output/teddy-lesson/scene-*.png
+            school/output/teddy-lesson/tiktok/tiktok.mp4
+          if-no-files-found: warn

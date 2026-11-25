@@ -90,7 +90,7 @@ def verify_post(key, channel, post_id, caption):
 def publish_movie(movie, caption, day, slot, folder):
     key = os.environ["PUNCHI_BUFFER_API_KEY"].strip()
     channel = connected_channel(key)
-    if slot not in {"adult", "image", "short", "paper", "quiz", "quiz-bonus", "lesson"}:
+    if slot not in {"adult", "image", "short", "paper", "quiz", "quiz-bonus", "lesson", "lesson-bonus"}:
         raise ValueError("Unknown TikTok slot")
     marker = "PNM-TIKTOK-" + day.isoformat() + ("" if slot == "adult" else "-" + slot)
     folder = Path(folder)
