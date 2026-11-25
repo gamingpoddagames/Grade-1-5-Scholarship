@@ -1,5 +1,6 @@
 """Read-only Buffer connection check for the education project."""
 import os
+import re
 from urllib.parse import urlparse
 import requests
 GRAPH = "https://api.buffer.com"
@@ -55,6 +56,14 @@ def connected_channel(key):
           }
         }""", {"org": org["id"]})
         channels.extend(result["channels"])
+    # Report only public TikTok handles, never IDs, keys or organization data.
+    for candidate in channels:
+        if str(candidate.get("service", "")).lower() != "tiktok":
+            continue
+        link = urlparse(str(candidate.get("externalLink") or ""))
+        handle = link.path.strip("/").lstrip("@") if link.scheme == "https" and link.hostname in ("www.tiktok.com", "tiktok.com") else str(candidate.get("name", "")).lstrip("@")
+        if re.fullmatch(r"[A-Za-z0-9_.]{1,24}", handle):
+            print("Connected TikTok public handle: @" + handle)
     channel = choose_channel(channels)
     print("PASS: Buffer connection matches @punchinenamaga and supports Automatic publishing")
     return channel
