@@ -17,8 +17,11 @@ jobs:
         run: |
           python - <<'PY'
           import os, json, urllib.request, urllib.error, re
-          page=os.environ['FB_PAGE_ID']
-          token=os.environ['FB_PAGE_ACCESS_TOKEN']
+          page=os.environ['FB_PAGE_ID'].strip()
+          raw=os.environ['FB_PAGE_ACCESS_TOKEN']
+          token=raw.strip()
+          print('Token surrounding whitespace removed:', raw != token)
+          if any(c.isspace() for c in token): raise SystemExit('Token contains internal whitespace; replace secret securely')
           if not token or not re.fullmatch(r'[0-9]+',page):
               raise SystemExit('Missing token or invalid Page ID')
           ok=False
