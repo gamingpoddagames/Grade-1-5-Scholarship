@@ -26,7 +26,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: school-photo-crosspost
+  group: ${{ (github.event_name == 'schedule' || inputs.publish) && 'school-photo-crosspost' || format('school-preview-{0}', github.run_id) }}
   cancel-in-progress: false
 jobs:
   daily-content:

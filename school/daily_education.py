@@ -90,10 +90,13 @@ def main():
     body = labels = image_info = question = media = original = None
     kind = "text"
     if slot == "image":
-        from visual_quiz import select, draw_card
-        question = image_info = select(day)
-        media = folder / "educational-image.png"
-        draw_card(question, media)
+        from visual_quiz import ITEMS, START, select, draw_card
+        if (day - START).days < len(ITEMS) * 2:
+            question = image_info = select(day)
+            media = folder / "educational-image.png"
+            draw_card(question, media)
+        else:
+            question, media = generate(day, folder, variant=1)
         title, caption, kind = "අද පින්තූර ප්‍රශ්නය", question["q"], "photo"
     elif slot == "quiz":
         question, media = generate(day, folder)

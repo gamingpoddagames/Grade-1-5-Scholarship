@@ -5,7 +5,6 @@ Creates the matching public Blogger article before Facebook publishing so the
 Facebook caption links to the *actual* article. Blogger is also the durable
 delivery ledger. PENDING remote sends are never blindly retried.
 """
-import datetime as dt
 import html
 import os
 import re
@@ -16,30 +15,17 @@ import json
 from pathlib import Path
 
 from blogger_publisher import (
-    API, EXPECTED_BLOG_ID, EXPECTED_BLOG_HOST, access_token_from_env,
+    API, EXPECTED_BLOG_ID, access_token_from_env,
     authenticate_blog, list_existing, request_json,
 )
 from blogger_link_safety import FACEBOOK_LANDING_URL
+from publishing_receipts import STATE, today_in_sri_lanka, validate_blog_url
 from font_safety import check_caption
 from social_text import clean_caption, clean_title
 from engagement_monetization import improve_facebook_caption, optional_sponsored_block
 
-STATE = re.compile(r"<!-- PNM_FACEBOOK_STATE:(READY|PENDING|PUBLISHED:[A-Za-z0-9_]+) -->")
 EMBED_MARKER = "<!-- PNM_FACEBOOK_EMBED -->"
 TRUSTED_FACEBOOK_HOSTS = {"www.facebook.com", "web.facebook.com", "facebook.com"}
-
-
-def today_in_sri_lanka():
-    return (dt.datetime.now(dt.timezone.utc) +
-            dt.timedelta(hours=5, minutes=30)).date()
-
-
-def validate_blog_url(raw):
-    value = urllib.parse.urlsplit(raw or "")
-    if (value.scheme != "https" or value.hostname != EXPECTED_BLOG_HOST
-            or value.username or value.password or not value.path):
-        raise RuntimeError("Blogger returned an unexpected article URL; no Facebook post sent")
-    return raw
 
 
 def article_content(question, *, media_kind, image_info=None):

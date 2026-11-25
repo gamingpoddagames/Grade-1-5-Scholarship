@@ -128,7 +128,7 @@ def read_blogger_inventory():
     if any(not os.getenv(x) for x in needed):return None
     from blogger_publisher import (API, EXPECTED_BLOG_ID, access_token_from_env,
                                    authenticate_blog, list_existing, request_json)
-    from crosspost import STATE, today_in_sri_lanka, validate_blog_url
+    from publishing_receipts import STATE, today_in_sri_lanka, validate_blog_url
     from blogger_export import export
     import pathlib
     import tempfile
