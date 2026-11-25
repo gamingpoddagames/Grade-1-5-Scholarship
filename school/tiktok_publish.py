@@ -30,14 +30,40 @@ def github(method, path, **kwargs):
     return r.json()
 
 def asset(release, name, data, mime):
-    for existing in release.get("assets", []):
-        if existing["name"] == name:
-            return existing
-    url = "https://uploads.github.com/repos/" + REPO + "/releases/" + str(release["id"]) + "/assets?" + urlencode({"name": name})
-    r = requests.post(url, headers={"Authorization": "Bearer " + os.environ["GH_TOKEN"], "Content-Type": mime, "Accept": "application/vnd.github+json"}, data=data, timeout=120)
-    if not r.ok:
-        raise RuntimeError("GitHub media/receipt asset upload failed: HTTP " + str(r.status_code))
-    return r.json()
+    release_id = int(release["id"])
+    url = "https://uploads.github.com/repos/" + REPO + "/releases/" + str(release_id) + "/assets?" + urlencode({"name": name})
+    headers = {"Authorization": "Bearer " + os.environ["GH_TOKEN"], "Content-Type": mime, "Accept": "application/vnd.github+json"}
+    for attempt in range(5):
+        # Check server state before retrying a POST: a failed HTTP response can
+        # still leave either a completed asset or a zero-byte starter asset.
+        current = github("GET", "/releases/" + str(release_id))
+        if not current:
+            raise RuntimeError("Release disappeared")
+        for existing in current.get("assets", []):
+            if existing["name"] != name:
+                continue
+            if existing["state"] == "uploaded" and existing["size"] == len(data):
+                if hashlib.sha256(public_bytes(existing["browser_download_url"])).digest() != hashlib.sha256(data).digest():
+                    raise RuntimeError("Existing release asset differs from intended data")
+                return existing
+            if existing["state"] == "starter" and existing["size"] == 0:
+                # GitHub documents empty starter assets after HTTP 502.
+                response = requests.delete(API + "/releases/assets/" + str(existing["id"]), headers=headers, timeout=60)
+                if response.status_code not in (204, 404):
+                    raise RuntimeError("Could not clear empty starter asset")
+            else:
+                raise RuntimeError("Existing asset is incomplete or inconsistent")
+        try:
+            r = requests.post(url, headers=headers, data=data, timeout=180)
+            if r.ok:
+                return r.json()
+            if r.status_code not in (408, 429, 500, 502, 503, 504):
+                raise RuntimeError("GitHub asset upload failed: HTTP " + str(r.status_code))
+            print("Transient media upload HTTP", r.status_code, "attempt", attempt + 1)
+        except (requests.Timeout, requests.ConnectionError):
+            print("Transient media connection failure, attempt", attempt + 1)
+        time.sleep(min(60, 5 * 2**attempt))
+    raise RuntimeError("GitHub asset upload retries exhausted; no new Buffer post attempted here")
 
 def public_bytes(url):
     if urlparse(url).hostname != "github.com":
