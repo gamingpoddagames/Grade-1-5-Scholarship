@@ -38,7 +38,10 @@ def paper(day, *, folder=None, publish=False):
 <details><summary>පිළිතුර බලන්න</summary><p>{html.escape(question["choices"][question["answer"]])}</p>
 <p>{html.escape(question["explanation"])}</p></details>
 <h3>නිල 5 ශ්‍රේණි ශිෂ්‍යත්ව සම්පත්</h3>
-<ul><li><a href="https://www.doenets.lk/downloads">විභාග දෙපාර්තමේන්තුවේ නිල බාගැනීම්</a></li>
+<ul>
+<li>2018 · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12828">I ප්‍රශ්න පත්‍රය</a> · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12833">II ප්‍රශ්න පත්‍රය</a> · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12846">I පිළිතුරු</a> · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12848">II පිළිතුරු</a></li>
+<li>2019 · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12942">I සහ II ප්‍රශ්න පත්‍ර</a> · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12984">I සහ II පිළිතුරු</a></li>
+<li><a href="https://www.doenets.lk/downloads">විභාග දෙපාර්තමේන්තුවේ නිල බාගැනීම්</a></li>
 <li><a href="https://www.doenets.lk/evaluationreports">නිල ලකුණු දීමේ පටිපාටි සහ ඇගයීම් වාර්තා</a></li></ul></section>"""
     return title, body, urls, [f"Grade {grade}", SUBJECTS[subject], "Practice papers", str(day.year)]
 
