@@ -7,6 +7,7 @@ on:
   push:
     paths:
       - school/social-poll-request.txt
+      - .github/workflows/social-poll-pack.yml
   workflow_dispatch:
     inputs:
       publish:

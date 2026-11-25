@@ -216,7 +216,7 @@ class Crossposter:
             "blog": {"id": EXPECTED_BLOG_ID},
             "title": title,
             "content": (article_content(question, media_kind=media_kind, image_info=image_info)
-                        if body is None else body + "\n<!-- PNM_FACEBOOK_STATE:READY -->"),
+                        if body is None else body + optional_sponsored_block() + "\n<!-- PNM_FACEBOOK_STATE:READY -->"),
             "labels": labels or ["සිංහල ප්‍රශ්න", "Grade 1-5", "Facebook Quiz"]
         }
         article = request_json(
