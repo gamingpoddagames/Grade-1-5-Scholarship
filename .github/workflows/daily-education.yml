@@ -32,6 +32,10 @@ concurrency:
   cancel-in-progress: false
 jobs:
   daily-content:
+    strategy:
+      fail-fast: false
+      matrix:
+        preview-date: ${{ fromJSON(github.event_name == 'push' && '["2026-11-26","2026-11-27","2026-11-28"]' || '[""]') }}
     permissions:
       contents: write
     runs-on: ubuntu-24.04
@@ -56,6 +60,7 @@ jobs:
       - name: Render and verify the selected slot
         env:
           EVENT: ${{ github.event_name }}
+          PREVIEW_DATE: ${{ matrix.preview-date }}
           CRON: ${{ github.event.schedule }}
           SLOT: ${{ inputs.slot }}
           PUBLISH: ${{ inputs.publish }}
@@ -87,14 +92,14 @@ jobs:
             args+=(--publish)
           fi
           if [[ "$EVENT" == push ]]; then
-            args+=(--date 2026-11-26)
+            args+=(--date "$PREVIEW_DATE")
           fi
           python school/daily_education.py "${args[@]}"
       - name: Save publishing receipts and previews
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: daily-education-${{ github.run_attempt }}
+          name: daily-education-${{ matrix.preview-date || 'scheduled-or-manual' }}-${{ github.run_attempt }}
           path: |
             school/output/daily/**/receipt.json
             school/output/daily/**/blogger-preview.html
