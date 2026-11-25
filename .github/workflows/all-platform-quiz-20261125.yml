@@ -1,8 +1,5 @@
 name: Punchi new quiz on all four platforms
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/all-platform-quiz-20261125.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -86,8 +83,8 @@ jobs:
           save()
           try:
               privacy=os.getenv('YOUTUBE_PRIVACY','private') or 'private'
-              assert os.getenv('YOUTUBE_UPLOAD_ENABLED')=='true'
-              assert privacy=='private' or os.getenv('YOUTUBE_PUBLICATION_REVIEWED')=='true'
+              assert os.getenv('YOUTUBE_UPLOAD_ENABLED','').strip().lower()=='true'
+              assert privacy=='private' or os.getenv('YOUTUBE_PUBLICATION_REVIEWED','').strip().lower()=='true'
               meta=build_metadata(q,day,privacy=privacy,offset=2)
               old=meta['_marker']
               meta['_marker']=old+'-BONUS'
