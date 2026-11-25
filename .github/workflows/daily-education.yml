@@ -13,6 +13,7 @@ on:
       - '.github/workflows/daily-education.yml'
       - 'school/daily_education.py'
       - 'school/teaching_video.py'
+      - 'school/daily_papers.py'
   workflow_dispatch:
     inputs:
       slot:
@@ -29,10 +30,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   daily-content:
+    permissions:
+      contents: write
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -40,17 +45,19 @@ jobs:
         run: |
           sudo apt-get -o Acquire::Retries=3 update -qq
           sudo apt-get -o Acquire::Retries=3 install -y -qq ffmpeg fonts-noto-core fonts-dejavu-core
-          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4' google-api-python-client google-auth
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4' google-api-python-client google-auth 'weasyprint>=62,<69'
       - name: Test publishing safeguards and lesson scenes
         run: |
           python -m unittest discover -s school -p 'test_crosspost.py'
           python -m unittest discover -s school -p 'test_daily_education.py'
+          python -m unittest discover -s school -p 'test_video_cta.py'
       - name: Render and verify the selected slot
         env:
           EVENT: ${{ github.event_name }}
           CRON: ${{ github.event.schedule }}
           SLOT: ${{ inputs.slot }}
           PUBLISH: ${{ inputs.publish }}
+          PAPER_ARCHIVE_TOKEN: ${{ github.token }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           FB_GRAPH_VERSION: v27.0
@@ -88,6 +95,7 @@ jobs:
             school/output/daily/**/blogger-preview.html
             school/output/daily/**/youtube-upload-receipt.json
             school/output/daily/*/*.png
+            school/output/daily/paper/*.pdf
             school/output/daily/*/*.mp4
             school/output/daily/lesson/render/teaching-video.mp4
           if-no-files-found: warn

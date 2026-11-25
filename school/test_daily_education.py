@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from daily_education import paper
+from daily_papers import render_pdfs, rows_for_day
 from teaching_video import frame, lesson
 
 
@@ -21,6 +22,17 @@ class DailyEducationTests(unittest.TestCase):
             self.assertIn("2026", labels)
             urls.add(questions)
         self.assertEqual(len(urls), 15)
+
+    def test_dated_math_paper_answers_and_distinct_pdf_files(self):
+        day = date(2026, 11, 25)
+        operations = {"+": int.__add__, "−": int.__sub__, "×": int.__mul__}
+        for row in rows_for_day(day, 5, "math"):
+            left, operation, right, *_ = row["q"].split()
+            self.assertEqual(row["choices"][row["answer"]], operations[operation](int(left), int(right)))
+        with TemporaryDirectory() as directory:
+            paper_path, answers_path = render_pdfs(Path(directory), day, 5, "math", "ගණිතය")
+            self.assertNotEqual(paper_path.read_bytes(), answers_path.read_bytes())
+            self.assertIn(day.isoformat(), paper_path.name)
 
     def test_lesson_equations_and_subtitle_layout(self):
         with TemporaryDirectory() as directory:

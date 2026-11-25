@@ -15,7 +15,7 @@ from video_cta import append_outro
 from youtube_shorts import build_metadata, upload
 
 
-def paper(day):
+def paper(day, *, folder=None, publish=False):
     courses = [(grade, subject) for grade in range(1, 6) for subject in SUBJECTS]
     grade, subject = courses[day.toordinal() % len(courses)]
     bank = [q for q in get_questions() if q["grade"] == grade and q["subject"] == subject]
@@ -23,6 +23,13 @@ def paper(day):
     title = heading(grade, subject)
     base = f"{SITE}downloads/grade-{grade}-{subject}"
     urls = [f"{base}-{kind}.pdf" for kind in ("paper", "answers")]
+    if folder is not None:
+        from daily_papers import publish_pdfs, render_pdfs
+        paths = render_pdfs(folder, day, grade, subject, title)
+        if publish:
+            urls = publish_pdfs(day, paths)
+        else:
+            print("Rendered dated PDFs:", *(str(path) for path in paths))
     body = f"""<section lang="si"><h2>{title}</h2>
 <p>{day.year} දෛනික පුහුණුව. පුංචි නැණ මඟ මුල් නිර්මාණ අභ්‍යාස පත්‍රය සහ වෙනම පිළිතුරු පත්‍රය.</p>
 <p><a href="{urls[0]}" download>ප්‍රශ්න පත්‍රය බාගන්න (PDF)</a></p>
@@ -38,7 +45,7 @@ def paper(day):
 
 def verify_pdf(url):
     with urllib.request.urlopen(url, timeout=30) as response:
-        if not response.geturl().startswith(SITE) or response.read(5) != b"%PDF-":
+        if response.read(5) != b"%PDF-":
             raise RuntimeError(f"Download did not return a PDF: {url}")
     print("Verified PDF:", url)
 
@@ -100,7 +107,7 @@ def main():
         media = append_outro(original, "facebook", "school")
         title, caption, kind = "සිංහල කෙටි වීඩියෝ ප්‍රශ්නය", question["q"], "video"
     elif slot == "paper":
-        title, body, urls, labels = paper(day)
+        title, body, urls, labels = paper(day, folder=folder, publish=args.publish)
         for url in urls:
             verify_pdf(url)
         receipt["pdfs"] = urls
@@ -122,6 +129,8 @@ def main():
         receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
         print("Preview complete. No social publishing was requested.")
         return
+    for name in ("FB_PAGE_ID", "FB_PAGE_ACCESS_TOKEN"):
+        os.environ[name] = os.getenv(name, "").strip()
     version = os.getenv("FB_GRAPH_VERSION", "v27.0")
     title = f"පුංචි නැණ මඟ | {day} | {title}"
     blog, fb_id = Crossposter().publish(

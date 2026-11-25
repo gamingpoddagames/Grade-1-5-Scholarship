@@ -79,6 +79,10 @@ def format_report(now, runs, blogger=None):
         lines.append("• Public post titles: "+str(blogger["live"]))
         lines.append("• Private draft titles: "+str(blogger["draft"]))
         lines.append("• Original articles remaining in queue: "+str(blogger["remaining"]))
+        if "daily_delivery" in blogger:
+            lines.append("• Today's paired Blogger and Facebook delivery:")
+            for title, url, status in blogger["daily_delivery"][:12]:
+                lines.append(f"  {title} — {status} {url}")
         if blogger["remaining"]<=4:
             lines.append("⚠️ New original content needed before publishing queue runs out.")
     else:
@@ -122,7 +126,9 @@ def read_blogger_inventory():
     # Keep the private OAuth credentials scoped to this optional read-only step.
     needed=("BLOGGER_CLIENT_ID","BLOGGER_CLIENT_SECRET","BLOGGER_REFRESH_TOKEN")
     if any(not os.getenv(x) for x in needed):return None
-    from blogger_publisher import access_token_from_env, authenticate_blog, list_existing
+    from blogger_publisher import (API, EXPECTED_BLOG_ID, access_token_from_env,
+                                   authenticate_blog, list_existing, request_json)
+    from crosspost import STATE, today_in_sri_lanka, validate_blog_url
     from blogger_export import export
     import pathlib
     import tempfile
@@ -133,7 +139,22 @@ def read_blogger_inventory():
         output=pathlib.Path(folder)
         export(output)
         items=json.loads((output/"post-index.json").read_text(encoding="utf-8"))
-    return {"live":sum(x["status"]=="live" for x in existing.values()),
+    day = today_in_sri_lanka()
+    markers = ("අද පින්තූර ප්‍රශ්නය", "සිංහල කෙටි වීඩියෝ ප්‍රශ්නය", "බුද්ධි පරීක්ෂණ ගැටලුව",
+               "ශ්‍රේණිය", "සිංහල ගණිත පාඩම")
+    delivery = []
+    for title, item in existing.items():
+        if not title.startswith(f"පුංචි නැණ මඟ - {day} - ") or item["status"] != "live":
+            continue
+        if not any(marker in title for marker in markers):
+            continue
+        article = request_json(f"{API}/blogs/{EXPECTED_BLOG_ID}/posts/{item['id']}?view=ADMIN",
+                               access_token=token)
+        state = STATE.search(article.get("content", ""))
+        if state:
+            delivery.append((title.split(" - ", 2)[-1], validate_blog_url(article.get("url")), state.group(1)))
+    return {"daily_delivery":delivery,
+            "live":sum(x["status"]=="live" for x in existing.values()),
             "draft":sum(x["status"]=="draft" for x in existing.values()),
             "remaining":sum(row["title"] not in existing for row in items)}
 
