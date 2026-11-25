@@ -13,6 +13,8 @@ on:
       - '.github/workflows/daily-education.yml'
       - 'school/daily_education.py'
       - 'school/teaching_video.py'
+      - 'school/sinhala_speech.py'
+      - 'school/daily_tiktok.py'
       - 'school/lesson_topics.py'
       - 'school/daily_papers.py'
       - 'school/supplementary_questions.py'
@@ -39,7 +41,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,9 +53,11 @@ jobs:
         run: |
           sudo apt-get -o Acquire::Retries=3 update -qq
           sudo apt-get -o Acquire::Retries=3 install -y -qq ffmpeg fonts-noto-core fonts-dejavu-core
-          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4' google-api-python-client google-auth 'weasyprint>=62,<69'
+          python -m pip install requests 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4' google-api-python-client google-auth 'weasyprint>=62,<69'
       - name: Test publishing safeguards and lesson scenes
         run: |
+          python -m unittest discover -s school -p 'test_sinhala_speech.py'
+          python -m py_compile school/daily_tiktok.py school/tiktok_publish.py
           python -m unittest discover -s school -p 'test_crosspost.py'
           python -m unittest discover -s school -p 'test_daily_education.py'
           python -m unittest discover -s school -p 'test_video_cta.py'
@@ -64,6 +68,8 @@ jobs:
           CRON: ${{ github.event.schedule }}
           SLOT: ${{ inputs.slot }}
           PUBLISH: ${{ inputs.publish }}
+          GH_TOKEN: ${{ github.token }}
+          PUNCHI_BUFFER_API_KEY: ${{ secrets.PUNCHI_BUFFER_API_KEY }}
           PAPER_ARCHIVE_TOKEN: ${{ github.token }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}

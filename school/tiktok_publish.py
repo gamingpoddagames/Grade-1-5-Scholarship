@@ -47,7 +47,7 @@ def public_bytes(url):
     return r.content
 
 def verify_post(key, channel, post_id, caption):
-    for attempt in range(7):
+    for attempt in range(25):
         post = gql(key, "query($id:PostId!){post(input:{id:$id}){"+FIELDS+"}}", {"id":post_id})["post"]
         if post.get("channelId") != channel["id"] or post.get("text") != caption:
             raise RuntimeError("Post destination or caption mismatch")
@@ -57,16 +57,17 @@ def verify_post(key, channel, post_id, caption):
             return post["externalLink"]
         if post.get("status") in ("error", "draft", "pendingApproval"):
             break
-        if attempt < 6:
+        if attempt < 24:
             time.sleep(10)
     raise RuntimeError("Buffer post is not yet verified sent; reconcile rather than recreate")
 
-def main():
+def publish_movie(movie, caption, day, slot, folder):
     key = os.environ["PUNCHI_BUFFER_API_KEY"].strip()
     channel = connected_channel(key)
-    day = datetime.now(ZoneInfo("Asia/Colombo")).date()
-    marker = "PNM-TIKTOK-" + day.isoformat()
-    folder = Path("school/output/tiktok")
+    if slot not in {"adult", "image", "short", "paper", "quiz", "quiz-bonus", "lesson"}:
+        raise ValueError("Unknown TikTok slot")
+    marker = "PNM-TIKTOK-" + day.isoformat() + ("" if slot == "adult" else "-" + slot)
+    folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     tag = "tiktok-media-" + day.strftime("%Y-%m")
     release = github("GET", "/releases/tags/" + tag)
@@ -76,28 +77,17 @@ def main():
         assets = {a["name"]: a for a in release["assets"]}
         if receipt_name in assets:
             receipt = json.loads(public_bytes(assets[receipt_name]["browser_download_url"]))
-            verify_post(key, channel, receipt["id"], receipt["caption"])
-            return
+            return verify_post(key, channel, receipt["id"], receipt["caption"])
         if attempt_name in assets:
             raise RuntimeError("Prior create attempt has unknown outcome; inspect Buffer before retrying")
-    midnight = datetime.combine(day, datetime.min.time(), tzinfo=ZoneInfo("Asia/Colombo")).astimezone(timezone.utc).isoformat()
-    posts = gql(key, """query($org:OrganizationId!,$channel:ChannelId!,$start:DateTime!){
-      posts(first:20,input:{organizationId:$org,filter:{channelIds:[$channel],startDate:$start}}){
-        edges{node{id createdAt channelId status}} pageInfo{hasNextPage}
-      }}""", {"org":channel["organizationId"], "channel":channel["id"], "start":midnight})["posts"]
-    if posts.get("edges") or posts.get("pageInfo",{}).get("hasNextPage"):
-        raise RuntimeError("Existing post on target today; refusing duplicate")
-    question = select(day)
-    metadata_for(question, day)
-    movie = render_quiz_video(question, folder)
     optimized = folder / "tiktok.mp4"
-    subprocess.run(["ffmpeg","-y","-i",str(movie),"-vf","scale=720:1280","-c:v","libx264","-crf","25","-preset","fast","-c:a","aac","-b:a","96k","-movflags","+faststart",str(optimized)],check=True,timeout=180)
+    subprocess.run(["ffmpeg","-y","-i",str(movie),"-vf","scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1","-c:v","libx264","-b:v","350k","-maxrate","500k","-bufsize","1000k","-preset","fast","-c:a","aac","-b:a","64k","-movflags","+faststart",str(optimized)],check=True,timeout=600)
     data = optimized.read_bytes()
-    if not 10000 < len(data) <= 10*1024*1024 or data[4:8] != b"ftyp":
+    if not 10000 < len(data) <= 100*1024*1024 or data[4:8] != b"ftyp":
         raise RuntimeError("Invalid or oversized MP4")
     digest = hashlib.sha256(data).hexdigest()
     name = marker + "-" + digest[:16] + ".mp4"
-    caption = "පුංචි නැණ මඟ | " + question["topic"] + "\n" + question["q"] + "\nතවත් දැනුමට අප හා එක්වන්න. #Sinhala #Education #IQ " + marker
+    caption = caption.strip() + "\n" + marker
     if not release:
         release = github("POST", "/releases", json={"tag_name":tag,"target_commitish":"main","name":"Punchi original TikTok media "+day.strftime("%Y-%m"),"body":"Original public educational MP4s and delivery records.","make_latest":"false"})
     media = asset(release, name, data, "video/mp4")
@@ -113,7 +103,16 @@ def main():
     if not post.get("id") or post.get("channelId") != channel["id"]:
         raise RuntimeError("Buffer create not verified; do not retry blindly")
     asset(release, receipt_name, json.dumps({"id":post["id"],"caption":caption,"target":TARGET},ensure_ascii=False).encode(),"application/json")
-    verify_post(key, channel, post["id"], caption)
+    return verify_post(key, channel, post["id"], caption)
+
+def main():
+    day = datetime.now(ZoneInfo("Asia/Colombo")).date()
+    folder = Path("school/output/tiktok")
+    question = select(day)
+    metadata_for(question, day)
+    movie = render_quiz_video(question, folder)
+    caption = "පුංචි නැණ මඟ | " + question["topic"] + "\n" + question["q"] + "\nතවත් දැනුමට අප හා එක්වන්න. #Sinhala #Education"
+    publish_movie(movie, caption, day, "adult", folder)
 
 if __name__ == "__main__":
     main()

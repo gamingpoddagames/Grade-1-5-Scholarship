@@ -176,6 +176,10 @@ def main():
     if original:
         receipt["youtube"] = publish_youtube(slot, day, title, question, original, folder, blog)
         receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+    if os.getenv("PUNCHI_BUFFER_API_KEY", "").strip():
+        from daily_tiktok import mirror_slot
+        receipt["tiktok"] = mirror_slot(slot, day, folder, title, caption, question, media, original, blog)
+        receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
     print(json.dumps(receipt, ensure_ascii=False))
 
 
