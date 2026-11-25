@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw
 from brand_assets import font, latin_font
 from font_safety import draw_mixed, mixed_width
 from gtts import gTTS
+from sinhala_speech import expand_currency
 
 WIDTH, HEIGHT = 1080, 1920
 NAVY = "#0b2444"
@@ -139,8 +140,8 @@ def render_quiz_video(question, outdir):
     answer_text = "නිවැරදි පිළිතුර, " + correct + "."
     first = outdir / "question-voice.mp3"
     second = outdir / "answer-voice.mp3"
-    gTTS(text=qtext, lang="si", slow=False, timeout=(5, 30)).save(str(first))
-    gTTS(text=answer_text, lang="si", slow=False, timeout=(5, 30)).save(str(second))
+    gTTS(text=expand_currency(qtext), lang="si", slow=False, timeout=(5, 30)).save(str(first))
+    gTTS(text=expand_currency(answer_text), lang="si", slow=False, timeout=(5, 30)).save(str(second))
     question_duration = audio_seconds(first) + 3.0
     answer_duration = audio_seconds(second) + 1.5
     make_frame(question, outdir / "frame-0.png", False)

@@ -5,6 +5,7 @@ import time
 from datetime import date
 
 from gtts import gTTS
+from sinhala_speech import expand_currency
 from gtts.tts import gTTSError
 from PIL import Image, ImageDraw, ImageFont
 
@@ -131,7 +132,7 @@ def render(scenes, folder):
         frame(image, scene, index, len(scenes))
         for attempt in range(3):
             try:
-                gTTS(text=scene[1], lang="si", slow=False, timeout=(8, 30)).save(str(audio))
+                gTTS(text=expand_currency(scene[1]), lang="si", slow=False, timeout=(8, 30)).save(str(audio))
                 break
             except gTTSError:
                 if attempt == 2:
