@@ -4,7 +4,7 @@ import re
 from urllib.parse import urlparse
 import requests
 GRAPH = "https://api.buffer.com"
-TARGET = "punchinenamaga"
+TARGET = "punchinanamaga"
 
 def gql(key, query, variables=None):
     try:
@@ -41,7 +41,7 @@ def choose_channel(channels):
             raise RuntimeError("Punchi Nena Maga TikTok channel is set to reminders; select Automatic in Buffer")
         matches.append(channel)
     if len(matches) != 1:
-        raise RuntimeError("Exactly one connected @punchinenamaga TikTok channel is required; unrelated accounts are never selected")
+        raise RuntimeError("Exactly one connected @punchinanamaga TikTok channel is required; unrelated accounts are never selected")
     return matches[0]
 
 
@@ -65,7 +65,7 @@ def connected_channel(key):
         if re.fullmatch(r"[A-Za-z0-9_.]{1,24}", handle):
             print("Connected TikTok public handle: @" + handle)
     channel = choose_channel(channels)
-    print("PASS: Buffer connection matches @punchinenamaga and supports Automatic publishing")
+    print("PASS: Buffer connection matches @punchinanamaga and supports Automatic publishing")
     return channel
 
 
