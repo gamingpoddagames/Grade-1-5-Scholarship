@@ -11,7 +11,7 @@ from teaching_video import frame, lesson, mathematics_lesson
 
 class DailyEducationTests(unittest.TestCase):
     def test_papers_have_distinct_answer_and_question_downloads(self):
-        first = date(2026, 11, 25)
+        first = date(2026, 11, 11)
         urls = set()
         for offset in range(15):
             _, body, (questions, answers), labels = paper(first + timedelta(days=offset))
@@ -57,3 +57,14 @@ class DailyEducationTests(unittest.TestCase):
                 for index, scene in enumerate(scenes, 1):
                     frame(target, scene, index, len(scenes))
             self.assertEqual(subjects, ["ඉංග්‍රීසි", "විද්‍යාව", "අධ්‍යාපනික කතා", "ගණිතය", "ගණිතය"])
+
+    def test_supplementary_papers_use_dated_subject_files(self):
+        with TemporaryDirectory() as directory:
+            for day, subject in ((date(2026, 11, 28), "english"), (date(2026, 12, 5), "science")):
+                folder = Path(directory)
+                _, body, urls, _ = paper(day, folder=folder)
+                self.assertEqual(len(urls), 2)
+                for url in urls:
+                    self.assertIn(subject, url)
+                    self.assertIn(url, body)
+                    self.assertTrue((folder / url).read_bytes().startswith(b"%PDF-"))

@@ -10,6 +10,8 @@ from pathlib import Path
 from crosspost import Crossposter, today_in_sri_lanka, verified_facebook_permalink
 from curriculum_bank import SUBJECTS, get_questions
 from curriculum_pages import SITE, heading
+from daily_papers import rows_for_day
+from supplementary_questions import COURSES, SUPPLEMENTARY_SUBJECTS
 from puzzle_posts import generate, facebook_caption
 from video_cta import append_outro
 from youtube_shorts import build_metadata, upload
@@ -17,12 +19,27 @@ from youtube_shorts import build_metadata, upload
 
 def paper(day, *, folder=None, publish=False):
     courses = [(grade, subject) for grade in range(1, 6) for subject in SUBJECTS]
-    grade, subject = courses[day.toordinal() % len(courses)]
+    elapsed = (day - date(2026, 11, 26)).days
+    slot = elapsed % 17
+    supplementary = elapsed >= 0 and slot in (2, 9)
+    if supplementary:
+        grade, subject = COURSES[(2, 9).index(slot)]
+    else:
+        index = slot - sum(slot > extra for extra in (2, 9)) if elapsed >= 0 else day.toordinal() % len(courses)
+        grade, subject = courses[index]
     bank = [q for q in get_questions() if q["grade"] == grade and q["subject"] == subject]
-    question = bank[(day.toordinal() // len(courses)) % len(bank)]
-    title = heading(grade, subject)
+    if supplementary:
+        question = rows_for_day(day, grade, subject)[0]
+        subject_name = SUPPLEMENTARY_SUBJECTS[subject]
+        title = f"{grade} ශ්‍රේණිය – {subject_name}"
+    else:
+        question = bank[(day.toordinal() // len(courses)) % len(bank)]
+        subject_name = SUBJECTS[subject]
+        title = heading(grade, subject)
     base = f"{SITE}downloads/grade-{grade}-{subject}"
     urls = [f"{base}-{kind}.pdf" for kind in ("paper", "answers")]
+    if supplementary:
+        urls = []
     if folder is not None:
         from daily_papers import publish_pdfs, render_pdfs
         paths = render_pdfs(folder, day, grade, subject, title)
@@ -30,10 +47,15 @@ def paper(day, *, folder=None, publish=False):
             urls = publish_pdfs(day, paths)
         else:
             print("Rendered dated PDFs:", *(str(path) for path in paths))
+            if supplementary:
+                urls = [path.name for path in paths]
+    downloads = ""
+    if urls:
+        downloads = (f'<p><a href="{urls[0]}" download>ප්‍රශ්න පත්‍රය බාගන්න (PDF)</a></p>'
+                     f'<p><a href="{urls[1]}" download>පිළිතුරු පත්‍රය බාගන්න (PDF)</a></p>')
     body = f"""<section lang="si"><h2>{title}</h2>
 <p>{day.year} දෛනික පුහුණුව. පුංචි නැණ මඟ මුල් නිර්මාණ අභ්‍යාස පත්‍රය සහ වෙනම පිළිතුරු පත්‍රය.</p>
-<p><a href="{urls[0]}" download>ප්‍රශ්න පත්‍රය බාගන්න (PDF)</a></p>
-<p><a href="{urls[1]}" download>පිළිතුරු පත්‍රය බාගන්න (PDF)</a></p>
+{downloads}
 <h3>අද අමතර ප්‍රශ්නය</h3><p>{html.escape(question["q"])}</p>
 <details><summary>පිළිතුර බලන්න</summary><p>{html.escape(question["choices"][question["answer"]])}</p>
 <p>{html.escape(question["explanation"])}</p></details>
@@ -43,7 +65,7 @@ def paper(day, *, folder=None, publish=False):
 <li>2019 · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12942">I සහ II ප්‍රශ්න පත්‍ර</a> · <a href="https://e-thaksalawa.moe.gov.lk/lcms/mod/resource/view.php?id=12984">I සහ II පිළිතුරු</a></li>
 <li><a href="https://www.doenets.lk/downloads">විභාග දෙපාර්තමේන්තුවේ නිල බාගැනීම්</a></li>
 <li><a href="https://www.doenets.lk/evaluationreports">නිල ලකුණු දීමේ පටිපාටි සහ ඇගයීම් වාර්තා</a></li></ul></section>"""
-    return title, body, urls, [f"Grade {grade}", SUBJECTS[subject], "Practice papers", str(day.year)]
+    return title, body, urls, [f"Grade {grade}", subject_name, "Practice papers", str(day.year)]
 
 
 def verify_pdf(url):
@@ -118,7 +140,8 @@ def main():
     elif slot == "paper":
         title, body, urls, labels = paper(day, folder=folder, publish=args.publish)
         for url in urls:
-            verify_pdf(url)
+            if url.startswith("https://"):
+                verify_pdf(url)
         receipt["pdfs"] = urls
         caption = title + " ප්‍රශ්න පත්‍රය සහ පිළිතුරු PDF දෙකම නොමිලේ ලබාගන්න."
     else:

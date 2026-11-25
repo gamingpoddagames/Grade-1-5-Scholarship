@@ -15,6 +15,7 @@ on:
       - 'school/teaching_video.py'
       - 'school/lesson_topics.py'
       - 'school/daily_papers.py'
+      - 'school/supplementary_questions.py'
   workflow_dispatch:
     inputs:
       slot:

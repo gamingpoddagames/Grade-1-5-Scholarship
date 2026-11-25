@@ -9,6 +9,7 @@ import urllib.request
 
 from curriculum_bank import get_questions
 from curriculum_pages import CSS
+from supplementary_questions import SUPPLEMENTARY_SUBJECTS, questions
 
 REPO = "gamingpoddagames/Grade-1-5-Scholarship"
 API = f"https://api.github.com/repos/{REPO}"
@@ -16,6 +17,8 @@ API = f"https://api.github.com/repos/{REPO}"
 
 def rows_for_day(day, grade, subject):
     rng = random.Random(day.toordinal())
+    if subject in SUPPLEMENTARY_SUBJECTS:
+        return questions(subject, rng)
     bank = [row for row in get_questions() if row["grade"] == grade and row["subject"] == subject]
     if subject != "math":
         return rng.sample(bank, min(10, len(bank)))
