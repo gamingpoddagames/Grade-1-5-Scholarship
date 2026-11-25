@@ -1,8 +1,8 @@
 name: School Daily Telegram Operations Report
 on:
   schedule:
-    # 08:30 Asia/Colombo daily; GitHub schedules may run late
-    - cron: '0 3 * * *'
+    # 21:37 Asia/Colombo daily; GitHub schedules may run late
+    - cron: '7 16 * * *'
   workflow_dispatch:
     inputs:
       send:

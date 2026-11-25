@@ -1,8 +1,5 @@
 name: Daily Colourful Scholarship Logic Puzzle
 on:
-  schedule:
-    # 13:00 UTC = 18:30 Asia/Colombo, a separate evening educational post.
-    - cron: '0 13 * * *'
   push:
     paths:
       - 'school/puzzle-post-request.txt'

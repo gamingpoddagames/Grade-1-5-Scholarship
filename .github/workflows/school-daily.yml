@@ -1,8 +1,5 @@
 name: School Daily Content (No AI)
 on:
-  schedule:
-    # 03:17 UTC = 08:47 Asia/Colombo daily
-    - cron: '17 3 * * *'
   push:
     paths:
       - 'school/daily_publisher.py'

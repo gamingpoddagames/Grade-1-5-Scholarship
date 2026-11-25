@@ -1,0 +1,94 @@
+name: Punchi Nena Maga Daily Education
+on:
+  schedule:
+    # Asia/Colombo is UTC+05:30.
+    - cron: '0 2 * * *'
+    - cron: '0 5 * * *'
+    - cron: '0 8 * * *'
+    - cron: '0 11 * * *'
+    - cron: '0 14 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/daily-education.yml'
+      - 'school/daily_education.py'
+      - 'school/teaching_video.py'
+  workflow_dispatch:
+    inputs:
+      slot:
+        type: choice
+        options: [image, short, paper, quiz, lesson]
+        default: lesson
+      publish:
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: school-photo-crosspost
+  cancel-in-progress: false
+jobs:
+  daily-content:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Sinhala rendering and video dependencies
+        run: |
+          sudo apt-get -o Acquire::Retries=3 update -qq
+          sudo apt-get -o Acquire::Retries=3 install -y -qq ffmpeg fonts-noto-core fonts-dejavu-core
+          python -m pip install 'Pillow>=11,<13' 'fonttools>=4.55,<5' 'gTTS==2.5.4' google-api-python-client google-auth
+      - name: Test publishing safeguards and lesson scenes
+        run: |
+          python -m unittest discover -s school -p 'test_crosspost.py'
+          python -m unittest discover -s school -p 'test_daily_education.py'
+      - name: Render and verify the selected slot
+        env:
+          EVENT: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
+          SLOT: ${{ inputs.slot }}
+          PUBLISH: ${{ inputs.publish }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v27.0
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_ALLOW_PUBLICATION: ${{ vars.BLOGGER_ALLOW_PUBLICATION }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_UPLOAD_ENABLED: ${{ vars.YOUTUBE_UPLOAD_ENABLED }}
+          YOUTUBE_PRIVACY: ${{ vars.YOUTUBE_PRIVACY }}
+          YOUTUBE_PUBLICATION_REVIEWED: ${{ vars.YOUTUBE_PUBLICATION_REVIEWED }}
+        run: |
+          slot="${SLOT:-lesson}"
+          case "$CRON" in
+            '0 2 * * *') slot=image ;;
+            '0 5 * * *') slot=short ;;
+            '0 8 * * *') slot=paper ;;
+            '0 11 * * *') slot=quiz ;;
+            '0 14 * * *') slot=lesson ;;
+          esac
+          args=("$slot")
+          if [[ "$EVENT" == schedule || "$PUBLISH" == true ]]; then
+            args+=(--publish)
+          fi
+          python school/daily_education.py "${args[@]}"
+      - name: Save publishing receipts and previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-education-${{ github.run_attempt }}
+          path: |
+            school/output/daily/**/receipt.json
+            school/output/daily/**/blogger-preview.html
+            school/output/daily/**/youtube-upload-receipt.json
+            school/output/daily/*/*.png
+            school/output/daily/*/*.mp4
+            school/output/daily/lesson/render/teaching-video.mp4
+          if-no-files-found: warn
+          retention-days: 14

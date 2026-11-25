@@ -8,6 +8,7 @@ import os
 from telegram_report import telegram_send
 
 ALLOWED={
+  "Punchi Nena Maga Daily Education",
   "Blogger Auto Publisher (Google OAuth)",
   "Publish Scholarship Website",
   "School Daily Content (No AI)",

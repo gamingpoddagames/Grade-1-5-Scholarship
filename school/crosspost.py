@@ -217,7 +217,7 @@ class Crossposter:
             raise RuntimeError("Blogger did not confirm article update")
         return updated
 
-    def article(self, question, title, media_kind, image_info=None):
+    def article(self, question, title, media_kind, image_info=None, *, body=None, labels=None):
         previous = self.existing.get(title)
         if previous:
             if previous["status"] != "live" or not previous["id"]:
@@ -229,8 +229,9 @@ class Crossposter:
             "kind": "blogger#post",
             "blog": {"id": EXPECTED_BLOG_ID},
             "title": title,
-            "content": article_content(question, media_kind=media_kind, image_info=image_info),
-            "labels": ["සිංහල ප්‍රශ්න", "Grade 1-5", "Facebook Quiz"]
+            "content": (article_content(question, media_kind=media_kind, image_info=image_info)
+                        if body is None else body + "\n<!-- PNM_FACEBOOK_STATE:READY -->"),
+            "labels": labels or ["සිංහල ප්‍රශ්න", "Grade 1-5", "Facebook Quiz"]
         }
         article = request_json(
             f"{API}/blogs/{EXPECTED_BLOG_ID}/posts?isDraft=false",
@@ -243,7 +244,7 @@ class Crossposter:
         return article, True
 
     def publish(self, *, question, title, media_kind, media_path, caption,
-                image_info=None, version="v27.0"):
+                image_info=None, version="v27.0", body=None, labels=None):
         """Return Blogger URL and optional Meta ID; abort on uncertain retry."""
         if media_kind not in {"video", "photo", "text"}:
             raise ValueError("Media kind must be video, photo or text")
@@ -258,7 +259,10 @@ class Crossposter:
             title = old_title
         else:
             title = normalized_title
-        article, created = self.article(question, title, media_kind, image_info)
+        if body is None and labels is None:
+            article, created = self.article(question, title, media_kind, image_info)
+        else:
+            article, created = self.article(question, title, media_kind, image_info, body=body, labels=labels)
         article_url = validate_blog_url(article.get("url"))
         state = STATE.search(article.get("content", ""))
         if not state:
@@ -291,7 +295,8 @@ class Crossposter:
         full_caption = caption.replace(FACEBOOK_LANDING_URL, article_url)
         if article_url not in full_caption:
             full_caption += "\n\n" + article_url
-        full_caption = improve_facebook_caption(full_caption, question)
+        full_caption = (improve_facebook_caption(full_caption, question)
+                        if body is None else clean_caption(full_caption))
         check_caption(full_caption)
 
         # Reserve the single remote attempt in durable Blogger state *first*.

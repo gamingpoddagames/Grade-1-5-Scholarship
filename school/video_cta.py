@@ -57,7 +57,7 @@ def profile(platform,audience="school"):
     return PROFILES[(platform,audience)]
 
 
-def probe_video(path):
+def probe_video(path, *, landscape_lesson=False):
     """Return supported dimensions, fps, audio and duration or fail closed."""
     p=Path(path)
     if not p.is_file() or p.stat().st_size<1000:
@@ -72,13 +72,14 @@ def probe_video(path):
     if len(videos)!=1 or not audios:
         raise RuntimeError("A single source video and audible soundtrack are required")
     w,h=int(videos[0]["width"]),int(videos[0]["height"])
-    if (w,h) not in ((1080,1920),(720,1280)):
+    allowed_sizes = ((1280, 720),) if landscape_lesson else ((1080, 1920), (720, 1280))
+    if (w,h) not in allowed_sizes:
         raise RuntimeError(f"Unexpected source resolution {w}x{h}; no outro added")
     fps=Fraction(videos[0].get("avg_frame_rate") or "24/1")
     if not 20<=float(fps)<=60:
         raise RuntimeError("Unexpected source frame rate")
     secs=float(data.get("format",{}).get("duration",0))
-    if not 1<secs<240:
+    if not 1 < secs <= (600 if landscape_lesson else 239.999):
         raise RuntimeError("Unexpected source duration")
     return w,h,float(fps),secs
 
@@ -94,7 +95,8 @@ def image_card(destination,platform="youtube",audience="school",size=(1080,1920)
     """One 9:16 illustration, no network calls and no copyrighted imagery."""
     info=profile(platform,audience)
     w,h=size
-    if (w,h) not in ((1080,1920),(720,1280)):
+    allowed_sizes = ((1280, 720),) if landscape_lesson else ((1080, 1920), (720, 1280))
+    if (w,h) not in allowed_sizes:
         raise ValueError("Unsupported CTA image resolution")
     scale=w/1080
     sx=lambda n:round(n*scale)

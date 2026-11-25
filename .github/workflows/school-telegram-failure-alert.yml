@@ -2,6 +2,7 @@ name: School Telegram Workflow Failure Alerts
 on:
   workflow_run:
     workflows:
+      - "Punchi Nena Maga Daily Education"
       - "Blogger Auto Publisher (Google OAuth)"
       - "Publish Scholarship Website"
       - "School Daily Content (No AI)"

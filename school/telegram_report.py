@@ -16,6 +16,7 @@ from collections import Counter
 REPO="gamingpoddagames/Grade-1-5-Scholarship"
 BLOG="https://punchinanamaga.blogspot.com/"
 WORKFLOWS=(
+    "Punchi Nena Maga Daily Education",
     "Blogger Auto Publisher (Google OAuth)",
     "School Daily Content (No AI)",
     "Test Sinhala Voiceover (No Paid AI)",
