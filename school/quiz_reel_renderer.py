@@ -14,12 +14,12 @@ from gtts import gTTS
 from sinhala_speech import expand_currency
 
 WIDTH, HEIGHT = 1080, 1920
-NAVY = "#0b2444"
-PANEL = "#17385c"
-OPTION = "#27527c"
+NAVY = "#151b55"
+PANEL = "#233f99"
+OPTION = "#ad245e"
 WHITE = "#f5fbff"
-CYAN = "#84d5dc"
-YELLOW = "#f1c36d"
+CYAN = "#ffffff"
+YELLOW = "#ffe34d"
 GREEN = "#a8efc1"
 
 
