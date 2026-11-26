@@ -36,16 +36,16 @@ def create_card(question,target):
     if question.get("image_title"):
         from visual_quiz import draw_card
         return draw_card(question, target)
-    canvas=Image.new("RGB",(1080,1350),"#e6f4fc")
+    canvas=Image.new("RGB",(1080,1350),"#20245f")
     d=ImageDraw.Draw(canvas)
     d.rounded_rectangle((45,42,1035,1308),radius=42,fill="#ffffff")
-    d.rounded_rectangle((45,42,1035,335),radius=42,fill="#0a477a")
+    d.rounded_rectangle((45,42,1035,335),radius=42,fill="#183d91")
     brand=logo(220).resize((158,158))
     canvas.paste(brand,(88,104))
     draw_mixed(d,(280,105),"පුංචි නැණ මඟ",font(58,True),"white")
-    d.text((284,210),"Grade 1–5 & Scholarship",font=latin_font(32),fill="#ccecf4")
-    d.rounded_rectangle((93,382,987,1140),radius=32,fill="#f4f9ff")
-    draw_mixed(d,(139,421),f"{question['grade']} ශ්‍රේණිය - {question['topic']}",font(35,True),"#0f7774")
+    d.text((284,210),"Grade 1–5 & Scholarship",font=latin_font(32),fill="#ffe34d")
+    d.rounded_rectangle((93,382,987,1140),radius=32,fill="#fff0fa")
+    draw_mixed(d,(139,421),f"{question['grade']} ශ්‍රේණිය - {question['topic']}",font(35,True),"#a51d55")
     # Fit the entire question and four options inside the reserved panel.
     # Try progressively smaller type rather than allowing text to overlap.
     choices = question["choices"]
@@ -80,7 +80,7 @@ def create_card(question,target):
             draw_mixed(d,(157,ty),value,oface,"#193956")
             ty += osize+8
         y += height
-    d.rounded_rectangle((93,1170,987,1248),radius=22,fill="#0e837d")
+    d.rounded_rectangle((93,1170,987,1248),radius=22,fill="#c51e53")
     draw_mixed(d,(140,1184),"නොමිලේ ප්‍රශ්න පත්‍ර සහ පිළිතුරු",font(35,True),"white")
     target=Path(target)
     target.parent.mkdir(parents=True,exist_ok=True)
