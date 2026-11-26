@@ -68,9 +68,21 @@ def response_bytes(response):
 
 
 def frame(path, stage, picture, credit, question, answer, reason):
-    canvas = Image.new('RGB', (720, 1280), '#101827')
+    palettes = [((15,35,105),(125,22,110)), ((12,55,130),(10,115,160)), ((110,15,45),(35,22,100))]
+    top, bottom = palettes[hashlib.sha256(question.encode()).digest()[0] % len(palettes)]
+    canvas = Image.new('RGB', (720, 1280))
     draw = ImageDraw.Draw(canvas)
-    draw.rounded_rectangle((55, 100, 665, 770), 34, fill='#1c2e45')
+    for y in range(1280):
+        t = y / 1279
+        draw.line((0,y,720,y), fill=tuple(round(a*(1-t)+b*t) for a,b in zip(top,bottom)))
+    glass = Image.new('RGBA', canvas.size)
+    g = ImageDraw.Draw(glass)
+    g.rounded_rectangle((42,85,678,775), 38, fill=(255,255,255,28), outline=(255,255,255,175), width=3)
+    g.rounded_rectangle((52,95,668,155), 26, fill=(255,255,255,40))
+    g.rounded_rectangle((42,790,678,1200), 38, fill=(0,0,0,65), outline=(255,255,255,130), width=3)
+    canvas = Image.alpha_composite(canvas.convert('RGBA'), glass).convert('RGB')
+    draw = ImageDraw.Draw(canvas)
+    draw.rounded_rectangle((105,380,615,735), 24, fill='#101020', outline='#ffffff', width=3)
     def label(y, message, size, color='#fff4df', latin=False):
         font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf' if latin else str(FONT/'NotoSansSinhala-Bold.ttf'), size)
         lines = ['']
@@ -83,24 +95,26 @@ def frame(path, stage, picture, credit, question, answer, reason):
         for line in lines:
             draw.text((360,y), line, font=font, anchor='mt', fill=color, language='si')
             y += int(size * 1.4)
-    label(135, 'පුංචි නැණ මඟ   ලෝක දැනුම', 28, '#8ee1cb')
+    label(135, 'පුංචි නැණ මඟ   ලෝක දැනුම', 28, '#ffffff')
     label(220, question, 38)
     canvas.paste(picture, ((720-picture.width)//2, 390+(335-picture.height)//2))
     label(735, credit, 17, '#d5e7ed', latin=True)
     if stage == 'answer':
-        label(811, 'නිවැරදි පිළිතුර', 29, '#8ee1cb')
-        label(870, answer, 40, '#ffcf79')
+        label(811, 'නිවැරදි පිළිතුර', 29, '#ffffff')
+        label(870, answer, 40, '#ffe34d')
         label(990, reason, 30)
     else:
         label(820, 'පිළිතුර හිතන්න', 30)
-        draw.ellipse((293,880,427,1014), outline='#8ee1cb', width=7)
-        label(900, stage if stage.isdigit() else '?', 72, '#ffcf79', latin=True)
+        draw.ellipse((293,880,427,1014), outline='#ff78c8', width=7)
+        label(900, stage if stage.isdigit() else '?', 72, '#ffe34d', latin=True)
     canvas.save(path)
 
 
 def narration(question, answer, reason):
     # Match the news bulletin's complete sentences without quiz-specific comma cues.
-    return f'{question} පිළිතුර හිතන්න.', f'{answer}. {reason}'
+    def spoken(text):
+        return text.replace('500න්', 'පන්සියයෙන්').replace('500කින්', 'පන්සියයකින්').replace('500', 'පන්සියය')
+    return spoken(f'{question} පිළිතුර හිතන්න.'), spoken(f'{answer}. {reason}')
 
 
 def render(row, output):
