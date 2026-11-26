@@ -12,6 +12,7 @@ on:
     paths:
       - '.github/workflows/daily-education.yml'
       - 'school/daily_education.py'
+      - 'school/fresh-crosspost-launch.txt'
       - 'school/teaching_video.py'
       - 'school/sinhala_speech.py'
       - 'school/daily_tiktok.py'
@@ -37,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preview-date: ${{ fromJSON(github.event_name == 'push' && '["2026-11-26","2026-11-27","2026-11-28"]' || '[""]') }}
+        preview-date: ${{ fromJSON(github.event_name == 'push' && github.event.head_commit.message != 'Publish fresh cross-platform education sample' && '["2026-11-26","2026-11-27","2026-11-28"]' || '[""]') }}
     permissions:
       contents: write
     runs-on: ubuntu-24.04
@@ -64,6 +65,7 @@ jobs:
       - name: Render and verify the selected slot
         env:
           EVENT: ${{ github.event_name }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           PREVIEW_DATE: ${{ matrix.preview-date }}
           CRON: ${{ github.event.schedule }}
           SLOT: ${{ inputs.slot }}
@@ -96,11 +98,12 @@ jobs:
             '0 11 * * *') slot=quiz ;;
             '0 14 * * *') slot=lesson ;;
           esac
+          if [[ "$EVENT" == push && "$COMMIT_MESSAGE" == "Publish fresh cross-platform education sample" ]]; then slot=quiz-bonus; PUBLISH=true; fi
           args=("$slot")
           if [[ "$EVENT" == schedule || "$PUBLISH" == true ]]; then
             args+=(--publish)
           fi
-          if [[ "$EVENT" == push ]]; then
+          if [[ "$EVENT" == push && -n "$PREVIEW_DATE" ]]; then
             args+=(--date "$PREVIEW_DATE")
           fi
           python school/daily_education.py "${args[@]}"
