@@ -1,2 +1,2 @@
-slot=2
-Owner requested fresh publishing verification after Page ID and token update.
+slot=1
+Publish refreshed topic-specific glass design 2026-11-26.
