@@ -238,21 +238,21 @@ def draw_card(item, target):
     if len(item["choices"]) != 4 or not 0 <= item["answer"] < 4:
         raise ValueError("A visual quiz needs four choices and one valid answer")
     artwork = photo(item, (932, 490))
-    canvas = Image.new("RGB", (1080, 1350), "#eaf7fb")
+    canvas = Image.new("RGB", (1080, 1350), "#18245c")
     d = ImageDraw.Draw(canvas)
     d.rounded_rectangle((36, 35, 1044, 1320), 36, fill="#ffffff")
-    d.rounded_rectangle((36, 35, 1044, 242), 36, fill="#083f70")
+    d.rounded_rectangle((36, 35, 1044, 242), 36, fill="#153fa0")
     canvas.paste(logo(140).resize((138, 138)), (73, 72))
     draw_mixed(d, (231, 83), "පුංචි නැණ මඟ", font(56, True), "#ffffff")
-    d.text((236, 173), "SINHALA PICTURE QUIZ", font=latin_font(29), fill="#9be7e1")
+    d.text((236, 173), "SINHALA PICTURE QUIZ", font=latin_font(29), fill="#ffe34d")
     canvas.paste(artwork, (74, 264))
     # Keep the card clean: required attribution is retained in the accompanying
     # Facebook caption and matching Blogger article, not repeated as tiny text
     # over the educational photograph. Never erase source-embedded watermarks.
-    d.rectangle((74, 730, 1006, 754), fill="#083f70")
+    d.rectangle((74, 730, 1006, 754), fill="#153fa0")
     d.text((88, 732), "PUNCHI NENA MAGA | SINHALA QUIZ",
            font=latin_font(17, True), fill="#ffffff")
-    draw_mixed(d, (101, 782), item["topic"], font(30, True), "#087b74")
+    draw_mixed(d, (101, 782), item["topic"], font(30, True), "#b51d53")
     question_face = next((font(s, True) for s in (42, 37, 33, 30)
                           if len(_wrap(d, item["q"], font(s, True), 865)) <= 2), font(29, True))
     qlines = _wrap(d, item["q"], question_face, 865)
@@ -261,14 +261,14 @@ def draw_card(item, target):
     _write(d, item["q"], 105, 829, question_face, "#123454", 865, 51)
     for i, choice in enumerate(item["choices"]):
         top = 951 + i * 72
-        d.rounded_rectangle((94, top, 986, top+63), 15, fill="#f1f8ff", outline="#c4deee", width=2)
+        d.rounded_rectangle((94, top, 986, top+63), 15, fill="#fff0fa", outline="#c4deee", width=2)
         line = f"{chr(65+i)}) {choice}"
         face = next((font(sz) for sz in (31, 28, 25)
                      if len(_wrap(d, line, font(sz), 830)) == 1), font(24))
         if len(_wrap(d, line, face, 830)) > 1:
             raise ValueError("Visual answer too wide for card")
         draw_mixed(d, (122, top+11), line, face, "#173c5c")
-    d.rounded_rectangle((94, 1250, 986, 1300), 14, fill="#0d8079")
+    d.rounded_rectangle((94, 1250, 986, 1300), 14, fill="#c51e53")
     draw_mixed(d, (138, 1257), "පිළිතුර සිතා බලන්න!", font(29, True), "#ffffff")
     target = Path(target)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -286,13 +286,13 @@ def render_video(item, outdir):
     outdir.mkdir(parents=True, exist_ok=True)
     artwork = photo(item, (928, 603))
     for ix, reveal in enumerate((False, True)):
-        im = Image.new("RGB", (1080, 1920), "#071e3a")
+        im = Image.new("RGB", (1080, 1920), "#141a50")
         d = ImageDraw.Draw(im)
-        d.rounded_rectangle((49, 72, 1031, 1850), 36, fill="#12375d")
+        d.rounded_rectangle((49, 72, 1031, 1850), 36, fill="#233f99")
         draw_mixed(d, (108, 125), "පුංචි නැණ මඟ", font(60, True), "#ffffff")
-        draw_mixed(d, (110, 251), item["topic"], font(37, True), "#81ece0")
+        draw_mixed(d, (110, 251), item["topic"], font(37, True), "#ffe34d")
         im.paste(artwork, (76, 338))
-        d.rectangle((76, 914, 1004, 941), fill="#083f70")
+        d.rectangle((76, 914, 1004, 941), fill="#153fa0")
         d.text((91, 916), "Photo: " + item["image_credit"][:91], font=latin_font(16), fill="#ffffff")
         qface = next((font(s, True) for s in (49, 44, 40, 36)
                       if len(_wrap(d, item["q"], font(s, True), 840)) <= 2), font(34, True))
@@ -301,7 +301,7 @@ def render_video(item, outdir):
         _write(d, item["q"], 110, 981, qface, "#ffffff", 840, 67)
         for i, ch in enumerate(item["choices"]):
             top = 1185 + 116 * i
-            fill = "#12866b" if reveal and i == item["answer"] else "#244f79"
+            fill = "#12866b" if reveal and i == item["answer"] else "#ad245e"
             d.rounded_rectangle((93, top, 989, top+99), 17, fill=fill)
             line = f"{chr(65+i)}) {ch}"
             face = next((font(s) for s in (40, 36, 32)
