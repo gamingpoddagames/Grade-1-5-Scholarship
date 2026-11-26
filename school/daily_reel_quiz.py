@@ -158,6 +158,8 @@ def main():
         raise RuntimeError('Sinhala shaping requires Pillow RAQM')
     today = datetime.now(ZoneInfo('Asia/Colombo')).date()
     row = QUESTIONS[((today - date(2026,11,22)).days * 3 + args.slot) % len(QUESTIONS)]
+    if os.getenv('FRESH_EDUCATION_SAMPLE') == '1':
+        row = (EARTH, 'පෘථිවියේ වායුගෝලයේ වැඩිපුරම ඇති වායුව කුමක් ද?', 'නයිට්‍රජන්', 'වායුගෝලයෙන් සියයට හැත්තෑ අටක් පමණ නයිට්‍රජන් වායුවයි.')
     output = Path('daily_reels') / f'sinhala-quiz-{today}-{args.slot+1}.mp4'
     output.parent.mkdir(exist_ok=True)
     render(row, output)
