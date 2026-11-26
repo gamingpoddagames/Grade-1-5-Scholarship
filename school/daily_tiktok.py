@@ -10,7 +10,7 @@ from quiz_reel_renderer import fit_lines, write_lines, audio_seconds
 from tiktok_publish import publish_movie
 
 def poster_video(media, title, narration, answer, folder):
-    canvas = Image.new("RGB", (720,1280), "#0b2444")
+    canvas = Image.new("RGB", (720,1280), "#18245c")
     if media:
         with Image.open(media) as source:
             picture = ImageOps.contain(source.convert("RGB"), (680,940))
