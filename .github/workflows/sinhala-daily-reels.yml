@@ -59,6 +59,7 @@ jobs:
           if [[ "$ATTEMPT" == 1 && ( "$TRIGGER" == schedule || ( "$TRIGGER" == push && "$COMMIT_MESSAGE" != "Preview SL NEWS voice in quiz" ) || "$PUBLISH" == true ) ]]; then
             args+=(--publish)
           fi
+          if [[ "$TRIGGER" == push && "$COMMIT_MESSAGE" == "Publish fresh atmosphere science sample" ]]; then export FRESH_EDUCATION_SAMPLE=1; fi
           python school/daily_reel_quiz.py "${args[@]}"
       - uses: actions/upload-artifact@v4
         if: always()
