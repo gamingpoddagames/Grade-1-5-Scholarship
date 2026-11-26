@@ -59,6 +59,15 @@ def select(day, offset=0):
         if item["q"] not in seen and len(item["choices"]) == 4:
             seen.add(item["q"])
             bank.append(item)
+    # Interleave distinct topics rather than exhausting a single subject at once.
+    buckets = {}
+    for item in bank:
+        buckets.setdefault(item.get('topic', 'සාමාන්‍ය දැනුම'), []).append(item)
+    bank = []
+    while any(buckets.values()):
+        for items in buckets.values():
+            if items:
+                bank.append(items.pop(0))
     remaining = index - len(QUIZZES)
     if remaining < len(bank):
         return dict(bank[remaining])
